@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Superadmin — Centre QR</title>
+  <title>Superadmin — Cockpit tenant</title>
   <style>
     :root {
       --bg: #0b1220;
@@ -19,25 +19,25 @@
       --accent: #4f46e5;
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Inter, Arial, sans-serif;
-      background: linear-gradient(180deg, #0b1220 0%, #111827 100%);
-      color: var(--text);
-    }
-    .wrap { max-width: 1380px; margin: 0 auto; padding: 24px; }
+    body { margin: 0; font-family: Inter, Arial, sans-serif; background: linear-gradient(180deg, #0b1220 0%, #111827 100%); color: var(--text); }
+    .wrap { max-width: 1480px; margin: 0 auto; padding: 24px; }
     .topbar, .panel { background: rgba(18,26,43,.92); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 12px 32px rgba(0,0,0,.24); }
     .topbar { padding: 18px; display: grid; gap: 14px; }
     .panel { padding: 18px; }
     .title { font-size: 28px; font-weight: 800; }
     .subtitle { color: var(--muted); font-size: 14px; }
-    .grid { display: grid; gap: 18px; }
     .auth-grid { display: grid; grid-template-columns: 1.2fr 1fr 160px 160px; gap: 12px; }
     .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 18px; margin-top: 18px; }
+    .main-stack { display: grid; gap: 18px; }
+    .section-grid { display: grid; gap: 18px; grid-template-columns: 1.15fr .85fr; }
+    .settings-grid { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+    .field { display: grid; gap: 6px; }
+    .field label { font-size: 13px; color: var(--muted); font-weight: 700; }
     input, select, button, textarea {
       width: 100%; border-radius: 12px; border: 1px solid var(--border);
       background: #0f1729; color: var(--text); padding: 12px 14px; font-size: 14px;
     }
+    textarea { min-height: 92px; resize: vertical; }
     button { cursor: pointer; background: var(--accent); border: none; font-weight: 700; }
     button.secondary { background: #24314b; }
     button.success { background: var(--ok); }
@@ -45,11 +45,8 @@
     button.danger { background: var(--danger); }
     button.ghost { background: transparent; border: 1px solid var(--border); }
     button:disabled { opacity: .5; cursor: not-allowed; }
-    .tenant-list { display: grid; gap: 10px; max-height: 72vh; overflow: auto; }
-    .tenant-card {
-      background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 14px; cursor: pointer;
-      display: grid; gap: 6px;
-    }
+    .tenant-list { display: grid; gap: 10px; max-height: 80vh; overflow: auto; }
+    .tenant-card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 14px; cursor: pointer; display: grid; gap: 6px; }
     .tenant-card.active { border-color: #7c3aed; box-shadow: inset 0 0 0 1px #7c3aed; }
     .pill { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
     .pill.ok { background: rgba(15,157,88,.16); color: #7ef0ae; }
@@ -58,7 +55,6 @@
     .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .space-between { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
     .muted { color: var(--muted); }
-    .cards { display: grid; gap: 14px; }
     .toolbar { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 10px; }
     .table-grid { display: grid; gap: 14px; margin-top: 14px; }
     .table-card {
@@ -68,25 +64,33 @@
     .table-card.inactive { opacity: .75; }
     .table-name { font-size: 18px; font-weight: 800; }
     .table-meta { font-size: 13px; color: var(--muted); }
-    .token-box, .url-box {
-      background: #0d1526; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; min-height: 48px;
-      word-break: break-all; font-size: 12px;
+    .token-box, .url-box, .history-card {
+      background: #0d1526; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px;
+      word-break: break-word; font-size: 12px;
     }
+    .preview { width: 92px; height: 92px; border-radius: 12px; border: 1px solid var(--border); background: #fff; object-fit: contain; padding: 8px; }
     .actions { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(110px, 1fr)); }
-    .preview {
-      width: 92px; height: 92px; border-radius: 12px; border: 1px solid var(--border); background: #fff; object-fit: contain; padding: 8px;
-    }
     .danger-zone {
-      margin-top: 16px; padding: 14px; border-radius: 14px; border: 1px solid rgba(220,38,38,.4); background: rgba(59,22,32,.7);
+      padding: 14px; border-radius: 14px; border: 1px solid rgba(220,38,38,.4); background: rgba(59,22,32,.7);
       display: grid; gap: 10px;
     }
     .status { min-height: 22px; font-size: 14px; }
     .status.error { color: #ff9f9f; }
     .status.ok { color: #84f4b1; }
     .empty { padding: 26px; text-align: center; border: 1px dashed var(--border); border-radius: 16px; color: var(--muted); }
+    .check-grid { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(180px, 1fr)); }
+    .check-item { display: flex; align-items: center; gap: 10px; background: #0f1729; border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+    .check-item input { width: auto; }
+    .history-list { display: grid; gap: 10px; max-height: 520px; overflow: auto; }
+    .history-title { font-size: 13px; font-weight: 800; }
+    .history-meta { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .swatch { width: 22px; height: 22px; border-radius: 999px; border: 1px solid var(--border); display: inline-block; vertical-align: middle; }
+    @media (max-width: 1240px) {
+      .section-grid { grid-template-columns: 1fr; }
+    }
     @media (max-width: 1080px) {
-      .auth-grid, .main-grid, .toolbar, .table-card { grid-template-columns: 1fr; }
-      .actions { grid-template-columns: 1fr; }
+      .auth-grid, .main-grid, .toolbar, .table-card, .settings-grid { grid-template-columns: 1fr; }
+      .actions, .check-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -94,8 +98,8 @@
   <div class="wrap">
     <section class="topbar">
       <div>
-        <div class="title">Superadmin — Centre QR</div>
-        <div class="subtitle">Réimpression et régénération sont volontairement séparées. Réimprimer ne change rien. Régénérer invalide immédiatement l’ancien QR.</div>
+        <div class="title">Superadmin — Cockpit tenant</div>
+        <div class="subtitle">Bloc 6 : settings tenant exploitables sans redéployer, avec validations et historique. Le centre QR reste disponible plus bas.</div>
       </div>
       <div class="auth-grid">
         <input id="apiBase" placeholder="API base URL" value="http://localhost:8080" />
@@ -118,43 +122,131 @@
         <div id="tenantList" class="tenant-list" style="margin-top:14px;"></div>
       </aside>
 
-      <main class="panel">
-        <div class="space-between">
-          <div>
-            <h2 id="tenantTitle" style="margin:0; font-size:22px;">Aucun tenant sélectionné</h2>
-            <div id="tenantMeta" class="muted" style="margin-top:6px;">Choisis un tenant pour ouvrir le centre QR.</div>
+      <main class="main-stack">
+        <section class="panel">
+          <div class="space-between">
+            <div>
+              <h2 id="tenantTitle" style="margin:0; font-size:22px;">Aucun tenant sélectionné</h2>
+              <div id="tenantMeta" class="muted" style="margin-top:6px;">Choisis un tenant pour ouvrir les settings et le centre QR.</div>
+            </div>
+            <div class="row">
+              <span id="settingsBadge" class="pill warn">Settings inactifs</span>
+              <span id="centerBadge" class="pill warn">Centre QR inactif</span>
+            </div>
           </div>
-          <div class="row">
-            <span id="centerBadge" class="pill warn">Centre QR inactif</span>
+
+          <div class="section-grid" style="margin-top:18px;">
+            <div class="panel" style="padding:16px;">
+              <div class="space-between">
+                <h3 style="margin:0; font-size:18px;">Settings tenant</h3>
+                <button id="reloadSettingsBtn" class="secondary" disabled>Recharger settings</button>
+              </div>
+              <div id="settingsStatus" class="status" style="margin-top:10px;"></div>
+              <div class="settings-grid" style="margin-top:12px;">
+                <div class="field">
+                  <label for="restaurantName">Nom restaurant</label>
+                  <input id="restaurantName" placeholder="Nom du restaurant" />
+                </div>
+                <div class="field">
+                  <label for="tenantStatusSelect">Statut tenant</label>
+                  <select id="tenantStatusSelect">
+                    <option value="draft">draft</option>
+                    <option value="onboarding">onboarding</option>
+                    <option value="active">active</option>
+                    <option value="suspended">suspended</option>
+                    <option value="archived">archived</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="tenantTimezone">Timezone</label>
+                  <input id="tenantTimezone" placeholder="Europe/Brussels" />
+                </div>
+                <div class="field">
+                  <label for="businessCloseHour">Heure de fermeture métier (0-23)</label>
+                  <input id="businessCloseHour" type="number" min="0" max="23" />
+                </div>
+                <div class="field">
+                  <label for="brandingName">Branding simple — nom affiché</label>
+                  <input id="brandingName" placeholder="Nom de marque optionnel" />
+                </div>
+                <div class="field">
+                  <label for="brandingLogoUrl">Branding simple — logo URL</label>
+                  <input id="brandingLogoUrl" placeholder="https://..." />
+                </div>
+                <div class="field">
+                  <label for="brandingPrimaryColor">Couleur principale</label>
+                  <div class="row">
+                    <input id="brandingPrimaryColor" type="color" value="#4f46e5" style="max-width:80px; padding:6px;" />
+                    <span id="brandingColorText" class="muted">#4f46e5</span>
+                    <span id="brandingSwatch" class="swatch" style="background:#4f46e5;"></span>
+                  </div>
+                </div>
+                <div class="field" style="grid-column: 1 / -1;">
+                  <label for="notesInternal">Notes internes</label>
+                  <textarea id="notesInternal" placeholder="Notes internes, contexte d’exploitation, particularités terrain…"></textarea>
+                </div>
+                <div class="field" style="grid-column: 1 / -1;">
+                  <label>Flags d’exploitation</label>
+                  <div class="check-grid">
+                    <label class="check-item"><input id="flagQrOrderingEnabled" type="checkbox" /> QR ordering activé</label>
+                    <label class="check-item"><input id="flagClientMenuEnabled" type="checkbox" /> Menu client visible</label>
+                    <label class="check-item"><input id="flagTakeawayEnabled" type="checkbox" /> Takeaway autorisé</label>
+                    <label class="check-item"><input id="flagDemoMode" type="checkbox" /> Mode démo</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row" style="margin-top:14px;">
+                <button id="saveSettingsBtn" class="success" disabled>Enregistrer settings</button>
+              </div>
+            </div>
+
+            <div class="panel" style="padding:16px;">
+              <div class="space-between">
+                <h3 style="margin:0; font-size:18px;">Historique settings</h3>
+                <span id="historyCount" class="muted">0</span>
+              </div>
+              <div id="historyList" class="history-list" style="margin-top:12px;"></div>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div class="toolbar" style="margin-top:16px;">
-          <button id="printSelectedBtn" class="success" disabled>Imprimer sélection</button>
-          <button id="printAllBtn" class="secondary" disabled>Imprimer tout</button>
-          <button id="selectAllBtn" class="ghost" disabled>Tout sélectionner</button>
-          <button id="clearSelectionBtn" class="ghost" disabled>Vider sélection</button>
-          <button id="reloadCenterBtn" class="secondary" disabled>Recharger centre QR</button>
-        </div>
+        <section class="panel">
+          <div class="space-between">
+            <div>
+              <h3 style="margin:0; font-size:20px;">Centre QR</h3>
+              <div class="muted" style="margin-top:6px;">Réimpression et régénération restent volontairement séparées.</div>
+            </div>
+          </div>
 
-        <div class="danger-zone">
-          <strong>Zone de danger — régénération</strong>
-          <div class="muted">Régénérer un QR invalide immédiatement l’ancien. Tous les supports déjà imprimés avec l’ancien QR cessent de fonctionner.</div>
-        </div>
+          <div class="toolbar" style="margin-top:16px;">
+            <button id="printSelectedBtn" class="success" disabled>Imprimer sélection</button>
+            <button id="printAllBtn" class="secondary" disabled>Imprimer tout</button>
+            <button id="selectAllBtn" class="ghost" disabled>Tout sélectionner</button>
+            <button id="clearSelectionBtn" class="ghost" disabled>Vider sélection</button>
+            <button id="reloadCenterBtn" class="secondary" disabled>Recharger centre QR</button>
+          </div>
 
-        <div id="tenantStatus" class="status" style="margin-top:14px;"></div>
-        <div id="tableList" class="table-grid" style="margin-top:14px;"></div>
+          <div class="danger-zone" style="margin-top:16px;">
+            <strong>Zone de danger — régénération</strong>
+            <div class="muted">Régénérer un QR invalide immédiatement l’ancien. Tous les supports déjà imprimés avec l’ancien QR cessent de fonctionner.</div>
+          </div>
+
+          <div id="tenantStatus" class="status" style="margin-top:14px;"></div>
+          <div id="tableList" class="table-grid" style="margin-top:14px;"></div>
+        </section>
       </main>
     </section>
   </div>
 
   <script>
+    const DEFAULT_COLOR = '#4f46e5';
     const state = {
       apiBase: localStorage.getItem('superadmin_api_base') || 'http://localhost:8080',
       adminToken: localStorage.getItem('superadmin_admin_token') || '',
       tenants: [],
       selectedTenantId: null,
       qrCenter: null,
+      tenantSettings: null,
       selectedTableIds: new Set(),
       admin: null,
     };
@@ -170,7 +262,27 @@
       tenantList: document.getElementById('tenantList'),
       tenantTitle: document.getElementById('tenantTitle'),
       tenantMeta: document.getElementById('tenantMeta'),
+      settingsBadge: document.getElementById('settingsBadge'),
       centerBadge: document.getElementById('centerBadge'),
+      reloadSettingsBtn: document.getElementById('reloadSettingsBtn'),
+      settingsStatus: document.getElementById('settingsStatus'),
+      restaurantName: document.getElementById('restaurantName'),
+      tenantStatusSelect: document.getElementById('tenantStatusSelect'),
+      tenantTimezone: document.getElementById('tenantTimezone'),
+      businessCloseHour: document.getElementById('businessCloseHour'),
+      notesInternal: document.getElementById('notesInternal'),
+      brandingName: document.getElementById('brandingName'),
+      brandingLogoUrl: document.getElementById('brandingLogoUrl'),
+      brandingPrimaryColor: document.getElementById('brandingPrimaryColor'),
+      brandingColorText: document.getElementById('brandingColorText'),
+      brandingSwatch: document.getElementById('brandingSwatch'),
+      flagQrOrderingEnabled: document.getElementById('flagQrOrderingEnabled'),
+      flagClientMenuEnabled: document.getElementById('flagClientMenuEnabled'),
+      flagTakeawayEnabled: document.getElementById('flagTakeawayEnabled'),
+      flagDemoMode: document.getElementById('flagDemoMode'),
+      saveSettingsBtn: document.getElementById('saveSettingsBtn'),
+      historyCount: document.getElementById('historyCount'),
+      historyList: document.getElementById('historyList'),
       printSelectedBtn: document.getElementById('printSelectedBtn'),
       printAllBtn: document.getElementById('printAllBtn'),
       selectAllBtn: document.getElementById('selectAllBtn'),
@@ -186,37 +298,65 @@
     }
 
     function getHeaders() {
-      return {
-        'Content-Type': 'application/json',
-        'x-admin-token': state.adminToken,
-      };
+      return { 'Content-Type': 'application/json', 'x-admin-token': state.adminToken };
     }
 
     function getApiUrl(path) {
       return `${String(state.apiBase || '').replace(/\/+$/, '')}${path}`;
     }
 
-    function getAuthedApiUrl(path) {
-      const url = new URL(getApiUrl(path));
-      if (state.adminToken) {
-        url.searchParams.set('token', state.adminToken);
-      }
-      return url.toString();
-    }
-
     async function apiFetch(path, options = {}) {
       const response = await fetch(getApiUrl(path), {
         ...options,
-        headers: {
-          ...getHeaders(),
-          ...(options.headers || {}),
-        },
+        headers: { ...getHeaders(), ...(options.headers || {}) },
       });
       const text = await response.text();
       let data = null;
       try { data = text ? JSON.parse(text) : null; } catch (_) { data = { ok: false, error: text || 'invalid_json' }; }
       if (!response.ok) throw new Error(data?.error || `http_${response.status}`);
       return data;
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function formatDate(value) {
+      if (!value) return 'jamais';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return new Intl.DateTimeFormat('fr-BE', { dateStyle: 'short', timeStyle: 'short' }).format(date);
+    }
+
+    function updateColorPreview(value) {
+      const color = /^#[0-9a-fA-F]{6}$/.test(value || '') ? value : DEFAULT_COLOR;
+      els.brandingPrimaryColor.value = color;
+      els.brandingColorText.textContent = color;
+      els.brandingSwatch.style.background = color;
+    }
+
+    function buildSettingsPayload() {
+      return {
+        restaurantName: els.restaurantName.value.trim(),
+        status: els.tenantStatusSelect.value,
+        timezone: els.tenantTimezone.value.trim(),
+        businessCloseHour: Number(els.businessCloseHour.value),
+        notesInternal: els.notesInternal.value.trim(),
+        brandingName: els.brandingName.value.trim(),
+        brandingLogoUrl: els.brandingLogoUrl.value.trim(),
+        brandingPrimaryColor: els.brandingPrimaryColor.value,
+        operationsFlags: {
+          qrOrderingEnabled: els.flagQrOrderingEnabled.checked,
+          clientMenuEnabled: els.flagClientMenuEnabled.checked,
+          takeawayEnabled: els.flagTakeawayEnabled.checked,
+          demoMode: els.flagDemoMode.checked,
+        },
+      };
     }
 
     async function login() {
@@ -238,7 +378,12 @@
       els.tenantCount.textContent = String(state.tenants.length);
       if (!state.selectedTenantId && state.tenants[0]?.id) state.selectedTenantId = state.tenants[0].id;
       renderTenantList();
-      if (state.selectedTenantId) await loadQrCenter(state.selectedTenantId);
+      if (state.selectedTenantId) await loadTenantWorkspace(state.selectedTenantId);
+    }
+
+    async function loadTenantWorkspace(tenantId) {
+      state.selectedTableIds.clear();
+      await Promise.all([loadTenantSettings(tenantId), loadQrCenter(tenantId)]);
     }
 
     function renderTenantList() {
@@ -257,16 +402,81 @@
             <span class="pill ${tenant.isActive ? 'ok' : 'warn'}">${tenant.status || (tenant.isActive ? 'active' : 'inactive')}</span>
           </div>
           <div class="muted">${escapeHtml(tenant.subdomain || tenant.slug || 'sans sous-domaine')}</div>
-          <div class="muted">${tenant.tableCount || 0} table(s)</div>
+          <div class="muted">${tenant.tableCount || 0} table(s) • ${escapeHtml(tenant.timezone || 'Europe/Brussels')}</div>
         `;
         item.addEventListener('click', async () => {
           state.selectedTenantId = tenant.id;
-          state.selectedTableIds.clear();
           renderTenantList();
-          await loadQrCenter(tenant.id);
+          await loadTenantWorkspace(tenant.id);
         });
         els.tenantList.appendChild(item);
       });
+    }
+
+    async function loadTenantSettings(tenantId) {
+      setStatus(els.settingsStatus, 'Chargement settings…');
+      const payload = await apiFetch(`/superadmin/tenants/${tenantId}/settings`);
+      state.tenantSettings = payload;
+      renderTenantSettings();
+      setStatus(els.settingsStatus, 'Settings chargés.', 'ok');
+    }
+
+    function renderTenantSettings() {
+      const tenant = state.tenantSettings?.tenant || null;
+      const settings = state.tenantSettings?.settings || null;
+      const history = Array.isArray(state.tenantSettings?.history) ? state.tenantSettings.history : [];
+
+      els.tenantTitle.textContent = tenant?.name || tenant?.slug || 'Tenant';
+      els.tenantMeta.textContent = `${tenant?.subdomain || tenant?.slug || tenant?.id || ''} • timezone ${escapeHtml(settings?.timezone || 'Europe/Brussels')} • fermeture ${settings?.businessCloseHour ?? 3}h`;
+      els.settingsBadge.className = `pill ${tenant?.id ? 'ok' : 'warn'}`;
+      els.settingsBadge.textContent = tenant?.id ? 'Settings prêts' : 'Settings inactifs';
+      els.reloadSettingsBtn.disabled = !tenant?.id;
+      els.saveSettingsBtn.disabled = !tenant?.id;
+
+      if (!settings) return;
+
+      els.restaurantName.value = settings.restaurantName || '';
+      els.tenantStatusSelect.value = settings.status || 'draft';
+      els.tenantTimezone.value = settings.timezone || 'Europe/Brussels';
+      els.businessCloseHour.value = settings.businessCloseHour ?? 3;
+      els.notesInternal.value = settings.notesInternal || '';
+      els.brandingName.value = settings.brandingName || '';
+      els.brandingLogoUrl.value = settings.brandingLogoUrl || '';
+      updateColorPreview(settings.brandingPrimaryColor || DEFAULT_COLOR);
+      const flags = settings.operationsFlags || {};
+      els.flagQrOrderingEnabled.checked = flags.qrOrderingEnabled !== false;
+      els.flagClientMenuEnabled.checked = flags.clientMenuEnabled !== false;
+      els.flagTakeawayEnabled.checked = flags.takeawayEnabled !== false;
+      els.flagDemoMode.checked = flags.demoMode === true;
+
+      els.historyCount.textContent = String(history.length);
+      els.historyList.innerHTML = history.length ? '' : '<div class="empty">Aucun historique settings pour ce tenant.</div>';
+      history.forEach((row) => {
+        const item = document.createElement('div');
+        item.className = 'history-card';
+        item.innerHTML = `
+          <div class="history-title">${escapeHtml(row.action || 'action')}</div>
+          <div class="history-meta">${escapeHtml(row.adminLabel || 'admin inconnu')} • ${escapeHtml(row.dangerLevel || 'info')} • ${formatDate(row.createdAt)}</div>
+        `;
+        els.historyList.appendChild(item);
+      });
+    }
+
+    async function saveTenantSettings() {
+      if (!state.selectedTenantId) return;
+      setStatus(els.settingsStatus, 'Enregistrement settings…');
+      const payload = await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/settings`, {
+        method: 'PATCH',
+        body: JSON.stringify(buildSettingsPayload()),
+      });
+      state.tenantSettings = {
+        ok: true,
+        tenant: payload.tenant || state.tenantSettings?.tenant || null,
+        settings: payload.settings || null,
+        history: state.tenantSettings?.history || [],
+      };
+      setStatus(els.settingsStatus, 'Settings enregistrés.', 'ok');
+      await Promise.all([loadTenants(), loadTenantSettings(state.selectedTenantId)]);
     }
 
     async function loadQrCenter(tenantId) {
@@ -282,8 +492,6 @@
       const tenant = payload?.tenant || null;
       const tables = payload?.qrCenter?.tables || [];
       const readyCount = tables.filter((row) => row.qrStatus === 'ready').length;
-      els.tenantTitle.textContent = tenant?.name || tenant?.slug || 'Tenant';
-      els.tenantMeta.textContent = `${tenant?.subdomain || tenant?.slug || tenant?.id || ''} • ${tables.length} table(s) • ${readyCount} QR prêt(s)`;
       els.centerBadge.className = `pill ${tables.length ? 'ok' : 'warn'}`;
       els.centerBadge.textContent = tables.length ? 'Centre QR prêt' : 'Aucune table';
       const enabled = Boolean(tenant?.id && tables.length);
@@ -292,6 +500,10 @@
       els.clearSelectionBtn.disabled = !enabled;
       els.reloadCenterBtn.disabled = !tenant?.id;
       syncSelectedButtons();
+      if (!state.tenantSettings?.tenant) {
+        els.tenantTitle.textContent = tenant?.name || tenant?.slug || 'Tenant';
+        els.tenantMeta.textContent = `${tenant?.subdomain || tenant?.slug || tenant?.id || ''} • ${tables.length} table(s) • ${readyCount} QR prêt(s)`;
+      }
     }
 
     function syncSelectedButtons() {
@@ -305,13 +517,17 @@
         els.tableList.innerHTML = '<div class="empty">Aucune table disponible pour ce tenant.</div>';
         return;
       }
-
       tables.forEach((table) => {
         const checked = state.selectedTableIds.has(table.id) ? 'checked' : '';
         const statusClass = table.qrStatus === 'ready' ? 'ok' : (table.qrStatus === 'inactive' ? 'warn' : 'danger');
         const statusText = table.qrStatus === 'ready' ? 'QR prêt' : (table.qrStatus === 'inactive' ? 'Table inactive' : 'QR manquant');
         const card = document.createElement('div');
         card.className = `table-card ${table.isActive ? '' : 'inactive'}`;
+        const imageUrl = table.qrImageUrl ? (() => {
+          const url = new URL(getApiUrl(table.qrImageUrl));
+          url.searchParams.set('token', state.adminToken);
+          return url.toString();
+        })() : '';
         card.innerHTML = `
           <div><input type="checkbox" data-table-select="${table.id}" ${checked} ${table.isActive ? '' : 'disabled'} /></div>
           <div>
@@ -323,9 +539,7 @@
             <div class="token-box"><strong>Token actif</strong><br>${escapeHtml(table.qrToken || 'aucun token')}</div>
             <div class="url-box" style="margin-top:8px;"><strong>URL active</strong><br>${escapeHtml(table.qrUrl || 'aucune URL')}</div>
           </div>
-          <div>
-            ${table.qrImageUrl ? `<img class="preview" src="${getAuthedApiUrl(table.qrImageUrl)}" alt="QR ${escapeHtml(table.code)}" />` : '<div class="empty">Pas de QR</div>'}
-          </div>
+          <div>${imageUrl ? `<img class="preview" src="${imageUrl}" alt="QR ${escapeHtml(table.code)}" />` : '<div class="empty">Pas de QR</div>'}</div>
           <div class="actions">
             <button type="button" class="secondary" data-action="copy-url" data-id="${table.id}">Copier URL</button>
             <button type="button" class="success" data-action="reprint" data-id="${table.id}" ${table.isActive ? '' : 'disabled'}>Réimprimer</button>
@@ -370,7 +584,9 @@
     }
 
     function openWindow(path) {
-      window.open(getAuthedApiUrl(path), '_blank', 'noopener');
+      const url = new URL(getApiUrl(path));
+      url.searchParams.set('token', state.adminToken);
+      window.open(url.toString(), '_blank', 'noopener');
     }
 
     async function copyText(value) {
@@ -382,24 +598,11 @@
       }
     }
 
-    function escapeHtml(value) {
-      return String(value || '')
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;');
-    }
-
-    function formatDate(value) {
-      if (!value) return 'jamais';
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return value;
-      return new Intl.DateTimeFormat('fr-BE', { dateStyle: 'short', timeStyle: 'short' }).format(date);
-    }
-
     els.apiBase.value = state.apiBase;
     els.adminToken.value = state.adminToken;
+    updateColorPreview(DEFAULT_COLOR);
+
+    els.brandingPrimaryColor.addEventListener('input', (event) => updateColorPreview(event.target.value));
 
     els.loginBtn.addEventListener('click', async () => {
       try { await login(); } catch (error) { setStatus(els.globalStatus, error.message || 'Connexion impossible', 'error'); }
@@ -413,6 +616,19 @@
       } catch (error) {
         setStatus(els.globalStatus, error.message || 'Actualisation impossible', 'error');
       }
+    });
+
+    els.reloadSettingsBtn.addEventListener('click', async () => {
+      try {
+        if (!state.selectedTenantId) throw new Error('tenant_requis');
+        await loadTenantSettings(state.selectedTenantId);
+      } catch (error) {
+        setStatus(els.settingsStatus, error.message || 'Rechargement settings impossible', 'error');
+      }
+    });
+
+    els.saveSettingsBtn.addEventListener('click', async () => {
+      try { await saveTenantSettings(); } catch (error) { setStatus(els.settingsStatus, error.message || 'Enregistrement impossible', 'error'); }
     });
 
     els.reloadCenterBtn.addEventListener('click', async () => {
