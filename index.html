@@ -234,6 +234,42 @@
           <div id="tenantStatus" class="status" style="margin-top:14px;"></div>
           <div id="tableList" class="table-grid" style="margin-top:14px;"></div>
         </section>
+
+
+        <section class="panel">
+          <div class="space-between">
+            <div>
+              <h3 style="margin:0; font-size:20px;">Catalogue tenant</h3>
+              <div class="muted" style="margin-top:6px;">Template, catégories, produits, prix, images, suppléments, allergènes, disponibilité et rupture temporaire.</div>
+            </div>
+            <div class="row">
+              <button id="reloadCatalogBtn" class="secondary" disabled>Recharger catalogue</button>
+              <button id="createCategoryBtn" class="secondary" disabled>Ajouter catégorie</button>
+              <button id="createItemBtn" class="success" disabled>Ajouter produit</button>
+            </div>
+          </div>
+          <div class="section-grid" style="margin-top:16px; grid-template-columns: 360px 1fr;">
+            <div class="panel" style="padding:16px;">
+              <h4 style="margin:0 0 12px;">Template menu</h4>
+              <div class="field">
+                <label for="catalogTemplateSelect">Template actif</label>
+                <select id="catalogTemplateSelect"></select>
+              </div>
+              <div class="row" style="margin-top:12px;">
+                <button id="applyTemplateBtn" class="danger" disabled>Appliquer template au tenant</button>
+              </div>
+              <div class="muted" id="catalogTemplateMeta" style="margin-top:10px;"></div>
+            </div>
+            <div class="panel" style="padding:16px;">
+              <div class="space-between">
+                <h4 style="margin:0;">Contenu catalogue</h4>
+                <span id="catalogCount" class="muted">0 catégorie</span>
+              </div>
+              <div id="catalogStatus" class="status" style="margin-top:10px;"></div>
+              <div id="catalogList" class="history-list" style="margin-top:12px;"></div>
+            </div>
+          </div>
+        </section>
       </main>
     </section>
   </div>
@@ -247,6 +283,7 @@
       selectedTenantId: null,
       qrCenter: null,
       tenantSettings: null,
+      catalog: null,
       selectedTableIds: new Set(),
       admin: null,
     };
@@ -290,6 +327,15 @@
       reloadCenterBtn: document.getElementById('reloadCenterBtn'),
       tenantStatus: document.getElementById('tenantStatus'),
       tableList: document.getElementById('tableList'),
+      reloadCatalogBtn: document.getElementById('reloadCatalogBtn'),
+      createCategoryBtn: document.getElementById('createCategoryBtn'),
+      createItemBtn: document.getElementById('createItemBtn'),
+      catalogTemplateSelect: document.getElementById('catalogTemplateSelect'),
+      applyTemplateBtn: document.getElementById('applyTemplateBtn'),
+      catalogTemplateMeta: document.getElementById('catalogTemplateMeta'),
+      catalogCount: document.getElementById('catalogCount'),
+      catalogStatus: document.getElementById('catalogStatus'),
+      catalogList: document.getElementById('catalogList'),
     };
 
     function setStatus(target, message = '', type = '') {
@@ -383,7 +429,7 @@
 
     async function loadTenantWorkspace(tenantId) {
       state.selectedTableIds.clear();
-      await Promise.all([loadTenantSettings(tenantId), loadQrCenter(tenantId)]);
+      await Promise.all([loadTenantSettings(tenantId), loadQrCenter(tenantId), loadCatalog(tenantId)]);
     }
 
     function renderTenantList() {
@@ -583,6 +629,170 @@
       await loadQrCenter(state.selectedTenantId);
     }
 
+
+    async function loadCatalog(tenantId) {
+      setStatus(els.catalogStatus, 'Chargement catalogue…');
+      const payload = await apiFetch(`/superadmin/tenants/${tenantId}/catalog`);
+      state.catalog = payload;
+      renderCatalog();
+      setStatus(els.catalogStatus, 'Catalogue chargé.', 'ok');
+    }
+
+    function parseSupplementsForApi(value) {
+      const text = String(value || '').trim();
+      if (!text) return [];
+      return text.split('|').map((chunk) => {
+        const [name, price] = String(chunk || '').split(':');
+        return { name: String(name || '').trim(), price: Number(price || 0) };
+      }).filter((entry) => entry.name);
+    }
+
+    function formatSupplements(value = []) {
+      return Array.isArray(value) ? value.map((entry) => `${entry.name}:${Number(entry.price || 0)}`).join(' | ') : '';
+    }
+
+    function renderCatalog() {
+      const catalog = state.catalog?.catalog || null;
+      const categories = Array.isArray(catalog?.categories) ? catalog.categories : [];
+      els.reloadCatalogBtn.disabled = !state.selectedTenantId;
+      els.createCategoryBtn.disabled = !state.selectedTenantId;
+      els.createItemBtn.disabled = !state.selectedTenantId;
+      els.applyTemplateBtn.disabled = !state.selectedTenantId;
+      els.catalogTemplateSelect.innerHTML = '';
+      const templates = Array.isArray(catalog?.templates) ? catalog.templates : [];
+      templates.forEach((template) => {
+        const option = document.createElement('option');
+        option.value = template.code;
+        option.textContent = `${template.name} (${template.code})`;
+        if (template.code === catalog.currentTemplateCode) option.selected = true;
+        els.catalogTemplateSelect.appendChild(option);
+      });
+      els.catalogTemplateMeta.textContent = catalog ? `Template actuel : ${catalog.currentTemplateCode || 'aucun'} • appliqué ${formatDate(catalog.currentTemplateAppliedAt)}` : 'Aucun catalogue chargé.';
+      els.catalogCount.textContent = `${categories.length} catégorie(s)`;
+      els.catalogList.innerHTML = categories.length ? '' : '<div class="empty">Aucune catégorie catalogue pour ce tenant.</div>';
+      categories.forEach((category) => {
+        const item = document.createElement('div');
+        item.className = 'history-card';
+        const items = Array.isArray(category.items) ? category.items : [];
+        item.innerHTML = `
+          <div class="space-between"><strong>${escapeHtml(category.label)}</strong><div class="row"><span class="pill ${category.isActive ? 'ok' : 'warn'}">${category.isActive ? 'active' : 'inactive'}</span><button type="button" class="secondary" data-cat-edit="${category.id}">Éditer</button><button type="button" class="danger" data-cat-archive="${category.id}">Archiver</button></div></div>
+          <div class="muted">code ${escapeHtml(category.categoryCode)} • ordre ${category.sortOrder} • ${items.length} produit(s)</div>
+          <div style="margin-top:10px; display:grid; gap:8px;">${items.length ? items.map((entry) => `<div style="border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px;"><div class="space-between"><strong>${escapeHtml(entry.name)}</strong><div class="row"><span class="pill ${entry.isActive ? (entry.isSoldOut ? 'warn' : 'ok') : 'warn'}">${entry.isActive ? (entry.isSoldOut ? 'rupture' : 'visible') : 'masqué'}</span><button type="button" class="secondary" data-item-edit="${entry.id}">Éditer</button><button type="button" class="danger" data-item-archive="${entry.id}">Archiver</button></div></div><div class="muted">${escapeHtml(entry.itemCode)} • ${escapeHtml(entry.description || 'sans description')}</div><div class="muted">${entry.price.toFixed(2)} € • ordre ${entry.sortOrder} • allergènes ${escapeHtml((entry.allergens || []).join(', ') || 'aucun')}</div><div class="muted">suppléments ${escapeHtml(formatSupplements(entry.supplements) || 'aucun')}</div></div>`).join('') : '<div class="empty">Aucun produit dans cette catégorie.</div>'}</div>
+        `;
+        els.catalogList.appendChild(item);
+      });
+      els.catalogList.querySelectorAll('[data-cat-edit]').forEach((button) => button.addEventListener('click', () => editCategory(button.getAttribute('data-cat-edit'))));
+      els.catalogList.querySelectorAll('[data-cat-archive]').forEach((button) => button.addEventListener('click', () => archiveCategory(button.getAttribute('data-cat-archive'))));
+      els.catalogList.querySelectorAll('[data-item-edit]').forEach((button) => button.addEventListener('click', () => editItem(button.getAttribute('data-item-edit'))));
+      els.catalogList.querySelectorAll('[data-item-archive]').forEach((button) => button.addEventListener('click', () => archiveItem(button.getAttribute('data-item-archive'))));
+    }
+
+    async function applyTemplate() {
+      if (!state.selectedTenantId) return;
+      const templateCode = els.catalogTemplateSelect.value;
+      const confirmed = window.confirm('Appliquer un template recopie son contenu vers le tenant. Les lignes existantes seront écrasées si les mêmes codes sont présents. Continuer ?');
+      if (!confirmed) return;
+      setStatus(els.catalogStatus, 'Application template…');
+      await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/catalog/apply-template`, { method: 'POST', body: JSON.stringify({ templateCode }) });
+      await loadCatalog(state.selectedTenantId);
+      setStatus(els.catalogStatus, 'Template appliqué.', 'ok');
+    }
+
+    async function createCategory() {
+      if (!state.selectedTenantId) return;
+      const label = window.prompt('Nom de la catégorie ?');
+      if (!label) return;
+      const categoryCode = window.prompt('Code catégorie (laisser vide pour générer automatiquement) ?', '');
+      const sortOrder = window.prompt('Ordre affichage ?', '10');
+      setStatus(els.catalogStatus, 'Création catégorie…');
+      await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/categories`, { method: 'POST', body: JSON.stringify({ label, categoryCode, sortOrder: Number(sortOrder || 0) }) });
+      await loadCatalog(state.selectedTenantId);
+      setStatus(els.catalogStatus, 'Catégorie créée.', 'ok');
+    }
+
+    async function editCategory(categoryId) {
+      const category = (state.catalog?.catalog?.categories || []).find((entry) => entry.id === categoryId);
+      if (!category) return;
+      const label = window.prompt('Nom catégorie', category.label || '');
+      if (!label) return;
+      const sortOrder = window.prompt('Ordre affichage', String(category.sortOrder || 0));
+      const keepActive = window.confirm('Catégorie visible ? OK = active / Annuler = inactive');
+      setStatus(els.catalogStatus, 'Mise à jour catégorie…');
+      await apiFetch(`/superadmin/categories/${categoryId}`, { method: 'PATCH', body: JSON.stringify({ label, sortOrder: Number(sortOrder || 0), isActive: keepActive }) });
+      await loadCatalog(state.selectedTenantId);
+      setStatus(els.catalogStatus, 'Catégorie mise à jour.', 'ok');
+    }
+
+    async function archiveCategory(categoryId) {
+      const confirmed = window.confirm('Archiver cette catégorie masque aussi ses produits. Continuer ?');
+      if (!confirmed) return;
+      setStatus(els.catalogStatus, 'Archivage catégorie…');
+      await apiFetch(`/superadmin/categories/${categoryId}/archive`, { method: 'POST' });
+      await loadCatalog(state.selectedTenantId);
+      setStatus(els.catalogStatus, 'Catégorie archivée.', 'ok');
+    }
+
+    async function createItem() {
+      if (!state.selectedTenantId) return;
+      const categories = state.catalog?.catalog?.categories || [];
+      if (!categories.length) throw new Error('aucune_categorie');
+      const categoryLabel = window.prompt(`Choisis la catégorie parmi : ${categories.map((entry) => entry.label).join(', ')}`);
+      if (!categoryLabel) return;
+      const category = categories.find((entry) => entry.label.toLowerCase() === categoryLabel.toLowerCase() || entry.categoryCode.toLowerCase() === categoryLabel.toLowerCase());
+      if (!category) throw new Error('categorie_introuvable');
+      const name = window.prompt('Nom produit ?'); if (!name) return;
+      const itemCode = window.prompt('Code produit (laisser vide pour générer automatiquement) ?', '');
+      const description = window.prompt('Description ?', '');
+      const price = window.prompt('Prix ?', '0');
+      const imageUrl = window.prompt('Image URL ?', '');
+      const sortOrder = window.prompt('Ordre affichage ?', '10');
+      const allergens = window.prompt('Allergènes séparés par virgules ?', '');
+      const supplements = window.prompt('Suppléments au format nom:prix | nom:prix', '');
+      setStatus(els.catalogStatus, 'Création produit…');
+      await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/items`, { method: 'POST', body: JSON.stringify({ categoryId: category.id, name, itemCode, description, price: Number(price || 0), imageUrl, sortOrder: Number(sortOrder || 0), allergens: allergens.split(',').map((entry) => entry.trim()).filter(Boolean), supplements: parseSupplementsForApi(supplements) }) });
+      await loadCatalog(state.selectedTenantId);
+      setStatus(els.catalogStatus, 'Produit créé.', 'ok');
+    }
+
+    function findItemById(itemId) {
+      const categories = state.catalog?.catalog?.categories || [];
+      for (const category of categories) {
+        const item = (category.items || []).find((entry) => entry.id === itemId);
+        if (item) return item;
+      }
+      return null;
+    }
+
+    async function editItem(itemId) {
+      const item = findItemById(itemId);
+      if (!item) return;
+      const categories = state.catalog?.catalog?.categories || [];
+      const categoryTarget = window.prompt(`Catégorie (${categories.map((entry) => entry.label).join(', ')})`, item.categoryLabel || item.categoryCode || '');
+      const category = categories.find((entry) => entry.label.toLowerCase() === String(categoryTarget || '').toLowerCase() || entry.categoryCode.toLowerCase() === String(categoryTarget || '').toLowerCase()) || categories.find((entry) => entry.id === item.categoryId);
+      const name = window.prompt('Nom produit', item.name || ''); if (!name) return;
+      const description = window.prompt('Description', item.description || '');
+      const price = window.prompt('Prix', String(item.price || 0));
+      const imageUrl = window.prompt('Image URL', item.imageUrl || '');
+      const sortOrder = window.prompt('Ordre affichage', String(item.sortOrder || 0));
+      const allergens = window.prompt('Allergènes séparés par virgules', (item.allergens || []).join(', '));
+      const supplements = window.prompt('Suppléments au format nom:prix | nom:prix', formatSupplements(item.supplements));
+      const isSoldOut = window.confirm('Produit en rupture temporaire ? OK = rupture / Annuler = disponible');
+      const isActive = window.confirm('Produit visible ? OK = visible / Annuler = masqué');
+      setStatus(els.catalogStatus, 'Mise à jour produit…');
+      await apiFetch(`/superadmin/items/${itemId}`, { method: 'PATCH', body: JSON.stringify({ categoryId: category?.id || item.categoryId, name, description, price: Number(price || 0), imageUrl, sortOrder: Number(sortOrder || 0), allergens: allergens.split(',').map((entry) => entry.trim()).filter(Boolean), supplements: parseSupplementsForApi(supplements), isSoldOut, isActive }) });
+      await loadCatalog(state.selectedTenantId);
+      setStatus(els.catalogStatus, 'Produit mis à jour.', 'ok');
+    }
+
+    async function archiveItem(itemId) {
+      const confirmed = window.confirm('Archiver ce produit le masque du menu client. Continuer ?');
+      if (!confirmed) return;
+      setStatus(els.catalogStatus, 'Archivage produit…');
+      await apiFetch(`/superadmin/items/${itemId}/archive`, { method: 'POST' });
+      await loadCatalog(state.selectedTenantId);
+      setStatus(els.catalogStatus, 'Produit archivé.', 'ok');
+    }
+
     function openWindow(path) {
       const url = new URL(getApiUrl(path));
       url.searchParams.set('token', state.adminToken);
@@ -664,6 +874,13 @@
       params.set('tableIds', Array.from(state.selectedTableIds).join(','));
       openWindow(`/superadmin/tenants/${state.selectedTenantId}/qr-sheet.pdf?${params.toString()}`);
     });
+
+    els.reloadCatalogBtn.addEventListener('click', async () => {
+      try { if (!state.selectedTenantId) throw new Error('tenant_requis'); await loadCatalog(state.selectedTenantId); } catch (error) { setStatus(els.catalogStatus, error.message || 'Rechargement catalogue impossible', 'error'); }
+    });
+    els.applyTemplateBtn.addEventListener('click', async () => { try { await applyTemplate(); } catch (error) { setStatus(els.catalogStatus, error.message || 'Application template impossible', 'error'); } });
+    els.createCategoryBtn.addEventListener('click', async () => { try { await createCategory(); } catch (error) { setStatus(els.catalogStatus, error.message || 'Création catégorie impossible', 'error'); } });
+    els.createItemBtn.addEventListener('click', async () => { try { await createItem(); } catch (error) { setStatus(els.catalogStatus, error.message || 'Création produit impossible', 'error'); } });
 
     if (state.adminToken) {
       login().catch((error) => setStatus(els.globalStatus, error.message || 'Connexion automatique impossible', 'error'));
