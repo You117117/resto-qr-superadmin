@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Superadmin — Centre QR</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #121a2b;
+      --panel-2: #182235;
+      --border: #2a3650;
+      --text: #edf2ff;
+      --muted: #9aa8c7;
+      --ok: #0f9d58;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --soft-danger: #3b1620;
+      --accent: #4f46e5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: linear-gradient(180deg, #0b1220 0%, #111827 100%);
+      color: var(--text);
+    }
+    .wrap { max-width: 1380px; margin: 0 auto; padding: 24px; }
+    .topbar, .panel { background: rgba(18,26,43,.92); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 12px 32px rgba(0,0,0,.24); }
+    .topbar { padding: 18px; display: grid; gap: 14px; }
+    .panel { padding: 18px; }
+    .title { font-size: 28px; font-weight: 800; }
+    .subtitle { color: var(--muted); font-size: 14px; }
+    .grid { display: grid; gap: 18px; }
+    .auth-grid { display: grid; grid-template-columns: 1.2fr 1fr 160px 160px; gap: 12px; }
+    .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 18px; margin-top: 18px; }
+    input, select, button, textarea {
+      width: 100%; border-radius: 12px; border: 1px solid var(--border);
+      background: #0f1729; color: var(--text); padding: 12px 14px; font-size: 14px;
+    }
+    button { cursor: pointer; background: var(--accent); border: none; font-weight: 700; }
+    button.secondary { background: #24314b; }
+    button.success { background: var(--ok); }
+    button.warning { background: var(--warn); }
+    button.danger { background: var(--danger); }
+    button.ghost { background: transparent; border: 1px solid var(--border); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .tenant-list { display: grid; gap: 10px; max-height: 72vh; overflow: auto; }
+    .tenant-card {
+      background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 14px; cursor: pointer;
+      display: grid; gap: 6px;
+    }
+    .tenant-card.active { border-color: #7c3aed; box-shadow: inset 0 0 0 1px #7c3aed; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .pill.ok { background: rgba(15,157,88,.16); color: #7ef0ae; }
+    .pill.warn { background: rgba(217,119,6,.16); color: #ffd08a; }
+    .pill.danger { background: rgba(220,38,38,.16); color: #ff9f9f; }
+    .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .space-between { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .muted { color: var(--muted); }
+    .cards { display: grid; gap: 14px; }
+    .toolbar { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 10px; }
+    .table-grid { display: grid; gap: 14px; margin-top: 14px; }
+    .table-card {
+      display: grid; grid-template-columns: 36px 1.2fr 1.3fr 1fr auto; gap: 14px; align-items: center;
+      background: var(--panel-2); border: 1px solid var(--border); border-radius: 16px; padding: 14px;
+    }
+    .table-card.inactive { opacity: .75; }
+    .table-name { font-size: 18px; font-weight: 800; }
+    .table-meta { font-size: 13px; color: var(--muted); }
+    .token-box, .url-box {
+      background: #0d1526; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; min-height: 48px;
+      word-break: break-all; font-size: 12px;
+    }
+    .actions { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(110px, 1fr)); }
+    .preview {
+      width: 92px; height: 92px; border-radius: 12px; border: 1px solid var(--border); background: #fff; object-fit: contain; padding: 8px;
+    }
+    .danger-zone {
+      margin-top: 16px; padding: 14px; border-radius: 14px; border: 1px solid rgba(220,38,38,.4); background: rgba(59,22,32,.7);
+      display: grid; gap: 10px;
+    }
+    .status { min-height: 22px; font-size: 14px; }
+    .status.error { color: #ff9f9f; }
+    .status.ok { color: #84f4b1; }
+    .empty { padding: 26px; text-align: center; border: 1px dashed var(--border); border-radius: 16px; color: var(--muted); }
+    @media (max-width: 1080px) {
+      .auth-grid, .main-grid, .toolbar, .table-card { grid-template-columns: 1fr; }
+      .actions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="topbar">
+      <div>
+        <div class="title">Superadmin — Centre QR</div>
+        <div class="subtitle">Réimpression et régénération sont volontairement séparées. Réimprimer ne change rien. Régénérer invalide immédiatement l’ancien QR.</div>
+      </div>
+      <div class="auth-grid">
+        <input id="apiBase" placeholder="API base URL" value="http://localhost:8080" />
+        <input id="adminToken" placeholder="x-admin-token" />
+        <button id="loginBtn">Connexion</button>
+        <button id="refreshBtn" class="secondary">Actualiser</button>
+      </div>
+      <div class="space-between">
+        <div id="sessionInfo" class="muted">Pas connecté.</div>
+        <div id="globalStatus" class="status"></div>
+      </div>
+    </section>
+
+    <section class="main-grid">
+      <aside class="panel">
+        <div class="space-between">
+          <h2 style="margin:0; font-size:20px;">Tenants</h2>
+          <span id="tenantCount" class="muted">0</span>
+        </div>
+        <div id="tenantList" class="tenant-list" style="margin-top:14px;"></div>
+      </aside>
+
+      <main class="panel">
+        <div class="space-between">
+          <div>
+            <h2 id="tenantTitle" style="margin:0; font-size:22px;">Aucun tenant sélectionné</h2>
+            <div id="tenantMeta" class="muted" style="margin-top:6px;">Choisis un tenant pour ouvrir le centre QR.</div>
+          </div>
+          <div class="row">
+            <span id="centerBadge" class="pill warn">Centre QR inactif</span>
+          </div>
+        </div>
+
+        <div class="toolbar" style="margin-top:16px;">
+          <button id="printSelectedBtn" class="success" disabled>Imprimer sélection</button>
+          <button id="printAllBtn" class="secondary" disabled>Imprimer tout</button>
+          <button id="selectAllBtn" class="ghost" disabled>Tout sélectionner</button>
+          <button id="clearSelectionBtn" class="ghost" disabled>Vider sélection</button>
+          <button id="reloadCenterBtn" class="secondary" disabled>Recharger centre QR</button>
+        </div>
+
+        <div class="danger-zone">
+          <strong>Zone de danger — régénération</strong>
+          <div class="muted">Régénérer un QR invalide immédiatement l’ancien. Tous les supports déjà imprimés avec l’ancien QR cessent de fonctionner.</div>
+        </div>
+
+        <div id="tenantStatus" class="status" style="margin-top:14px;"></div>
+        <div id="tableList" class="table-grid" style="margin-top:14px;"></div>
+      </main>
+    </section>
+  </div>
+
+  <script>
+    const state = {
+      apiBase: localStorage.getItem('superadmin_api_base') || 'http://localhost:8080',
+      adminToken: localStorage.getItem('superadmin_admin_token') || '',
+      tenants: [],
+      selectedTenantId: null,
+      qrCenter: null,
+      selectedTableIds: new Set(),
+      admin: null,
+    };
+
+    const els = {
+      apiBase: document.getElementById('apiBase'),
+      adminToken: document.getElementById('adminToken'),
+      loginBtn: document.getElementById('loginBtn'),
+      refreshBtn: document.getElementById('refreshBtn'),
+      sessionInfo: document.getElementById('sessionInfo'),
+      globalStatus: document.getElementById('globalStatus'),
+      tenantCount: document.getElementById('tenantCount'),
+      tenantList: document.getElementById('tenantList'),
+      tenantTitle: document.getElementById('tenantTitle'),
+      tenantMeta: document.getElementById('tenantMeta'),
+      centerBadge: document.getElementById('centerBadge'),
+      printSelectedBtn: document.getElementById('printSelectedBtn'),
+      printAllBtn: document.getElementById('printAllBtn'),
+      selectAllBtn: document.getElementById('selectAllBtn'),
+      clearSelectionBtn: document.getElementById('clearSelectionBtn'),
+      reloadCenterBtn: document.getElementById('reloadCenterBtn'),
+      tenantStatus: document.getElementById('tenantStatus'),
+      tableList: document.getElementById('tableList'),
+    };
+
+    function setStatus(target, message = '', type = '') {
+      target.textContent = message;
+      target.className = `status ${type}`.trim();
+    }
+
+    function getHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'x-admin-token': state.adminToken,
+      };
+    }
+
+    function getApiUrl(path) {
+      return `${String(state.apiBase || '').replace(/\/+$/, '')}${path}`;
+    }
+
+    async function apiFetch(path, options = {}) {
+      const response = await fetch(getApiUrl(path), {
+        ...options,
+        headers: {
+          ...getHeaders(),
+          ...(options.headers || {}),
+        },
+      });
+      const text = await response.text();
+      let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch (_) { data = { ok: false, error: text || 'invalid_json' }; }
+      if (!response.ok) throw new Error(data?.error || `http_${response.status}`);
+      return data;
+    }
+
+    async function login() {
+      state.apiBase = els.apiBase.value.trim();
+      state.adminToken = els.adminToken.value.trim();
+      localStorage.setItem('superadmin_api_base', state.apiBase);
+      localStorage.setItem('superadmin_admin_token', state.adminToken);
+      setStatus(els.globalStatus, 'Connexion en cours…');
+      const payload = await apiFetch('/superadmin/login', { method: 'POST' });
+      state.admin = payload.admin || null;
+      els.sessionInfo.textContent = `Connecté ${payload.admin?.fullName || payload.admin?.email || payload.admin?.authMode || 'superadmin'}`;
+      setStatus(els.globalStatus, 'Connexion valide.', 'ok');
+      await loadTenants();
+    }
+
+    async function loadTenants() {
+      const payload = await apiFetch('/superadmin/tenants');
+      state.tenants = Array.isArray(payload.tenants) ? payload.tenants : [];
+      els.tenantCount.textContent = String(state.tenants.length);
+      if (!state.selectedTenantId && state.tenants[0]?.id) state.selectedTenantId = state.tenants[0].id;
+      renderTenantList();
+      if (state.selectedTenantId) await loadQrCenter(state.selectedTenantId);
+    }
+
+    function renderTenantList() {
+      els.tenantList.innerHTML = '';
+      if (!state.tenants.length) {
+        els.tenantList.innerHTML = '<div class="empty">Aucun tenant trouvé.</div>';
+        return;
+      }
+      state.tenants.forEach((tenant) => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = `tenant-card ${tenant.id === state.selectedTenantId ? 'active' : ''}`;
+        item.innerHTML = `
+          <div class="space-between">
+            <strong>${escapeHtml(tenant.name || tenant.slug || tenant.id)}</strong>
+            <span class="pill ${tenant.isActive ? 'ok' : 'warn'}">${tenant.status || (tenant.isActive ? 'active' : 'inactive')}</span>
+          </div>
+          <div class="muted">${escapeHtml(tenant.subdomain || tenant.slug || 'sans sous-domaine')}</div>
+          <div class="muted">${tenant.tableCount || 0} table(s)</div>
+        `;
+        item.addEventListener('click', async () => {
+          state.selectedTenantId = tenant.id;
+          state.selectedTableIds.clear();
+          renderTenantList();
+          await loadQrCenter(tenant.id);
+        });
+        els.tenantList.appendChild(item);
+      });
+    }
+
+    async function loadQrCenter(tenantId) {
+      setStatus(els.tenantStatus, 'Chargement du centre QR…');
+      const payload = await apiFetch(`/superadmin/tenants/${tenantId}/qr-center`);
+      state.qrCenter = payload;
+      updateTenantHeader(payload);
+      renderQrCenter();
+      setStatus(els.tenantStatus, 'Centre QR chargé.', 'ok');
+    }
+
+    function updateTenantHeader(payload) {
+      const tenant = payload?.tenant || null;
+      const tables = payload?.qrCenter?.tables || [];
+      const readyCount = tables.filter((row) => row.qrStatus === 'ready').length;
+      els.tenantTitle.textContent = tenant?.name || tenant?.slug || 'Tenant';
+      els.tenantMeta.textContent = `${tenant?.subdomain || tenant?.slug || tenant?.id || ''} • ${tables.length} table(s) • ${readyCount} QR prêt(s)`;
+      els.centerBadge.className = `pill ${tables.length ? 'ok' : 'warn'}`;
+      els.centerBadge.textContent = tables.length ? 'Centre QR prêt' : 'Aucune table';
+      const enabled = Boolean(tenant?.id && tables.length);
+      els.printAllBtn.disabled = !enabled;
+      els.selectAllBtn.disabled = !enabled;
+      els.clearSelectionBtn.disabled = !enabled;
+      els.reloadCenterBtn.disabled = !tenant?.id;
+      syncSelectedButtons();
+    }
+
+    function syncSelectedButtons() {
+      els.printSelectedBtn.disabled = state.selectedTableIds.size === 0 || !state.selectedTenantId;
+    }
+
+    function renderQrCenter() {
+      const tables = state.qrCenter?.qrCenter?.tables || [];
+      els.tableList.innerHTML = '';
+      if (!tables.length) {
+        els.tableList.innerHTML = '<div class="empty">Aucune table disponible pour ce tenant.</div>';
+        return;
+      }
+
+      tables.forEach((table) => {
+        const checked = state.selectedTableIds.has(table.id) ? 'checked' : '';
+        const statusClass = table.qrStatus === 'ready' ? 'ok' : (table.qrStatus === 'inactive' ? 'warn' : 'danger');
+        const statusText = table.qrStatus === 'ready' ? 'QR prêt' : (table.qrStatus === 'inactive' ? 'Table inactive' : 'QR manquant');
+        const card = document.createElement('div');
+        card.className = `table-card ${table.isActive ? '' : 'inactive'}`;
+        card.innerHTML = `
+          <div><input type="checkbox" data-table-select="${table.id}" ${checked} ${table.isActive ? '' : 'disabled'} /></div>
+          <div>
+            <div class="table-name">${escapeHtml(table.displayName || table.label || table.code)}</div>
+            <div class="table-meta">${escapeHtml(table.code)} • ${table.seats || 0} place(s) • ordre ${table.sortOrder || 0}</div>
+            <div class="row" style="margin-top:8px;"><span class="pill ${statusClass}">${statusText}</span><span class="muted">Dernière génération : ${formatDate(table.qrLastGeneratedAt)}</span></div>
+          </div>
+          <div>
+            <div class="token-box"><strong>Token actif</strong><br>${escapeHtml(table.qrToken || 'aucun token')}</div>
+            <div class="url-box" style="margin-top:8px;"><strong>URL active</strong><br>${escapeHtml(table.qrUrl || 'aucune URL')}</div>
+          </div>
+          <div>
+            ${table.qrImageUrl ? `<img class="preview" src="${getApiUrl(table.qrImageUrl)}" alt="QR ${escapeHtml(table.code)}" />` : '<div class="empty">Pas de QR</div>'}
+          </div>
+          <div class="actions">
+            <button type="button" class="secondary" data-action="copy-url" data-id="${table.id}">Copier URL</button>
+            <button type="button" class="success" data-action="reprint" data-id="${table.id}" ${table.isActive ? '' : 'disabled'}>Réimprimer</button>
+            <button type="button" class="secondary" data-action="open-png" data-id="${table.id}" ${table.isActive ? '' : 'disabled'}>Voir QR</button>
+            <button type="button" class="danger" data-action="regenerate" data-id="${table.id}" ${table.isActive ? '' : 'disabled'}>Régénérer</button>
+          </div>
+        `;
+        els.tableList.appendChild(card);
+      });
+
+      els.tableList.querySelectorAll('[data-table-select]').forEach((checkbox) => {
+        checkbox.addEventListener('change', (event) => {
+          const tableId = event.target.getAttribute('data-table-select');
+          if (!tableId) return;
+          if (event.target.checked) state.selectedTableIds.add(tableId);
+          else state.selectedTableIds.delete(tableId);
+          syncSelectedButtons();
+        });
+      });
+
+      els.tableList.querySelectorAll('[data-action]').forEach((button) => {
+        button.addEventListener('click', async (event) => {
+          const action = event.target.getAttribute('data-action');
+          const id = event.target.getAttribute('data-id');
+          const table = tables.find((row) => row.id === id);
+          if (!table) return;
+          if (action === 'copy-url') return copyText(table.qrUrl || '');
+          if (action === 'reprint') return openWindow(`/superadmin/tables/${id}/qr-sheet.pdf`);
+          if (action === 'open-png') return openWindow(`/superadmin/tables/${id}/qr.png`);
+          if (action === 'regenerate') return regenerateTableQr(table);
+        });
+      });
+    }
+
+    async function regenerateTableQr(table) {
+      const confirmed = window.confirm('Attention : régénérer ce QR code invalidera immédiatement l’ancien. Tous les supports déjà imprimés utilisant l’ancien QR ne fonctionneront plus. Confirmer la régénération ?');
+      if (!confirmed) return;
+      setStatus(els.tenantStatus, `Régénération de ${table.code}…`);
+      await apiFetch(`/superadmin/tables/${table.id}/qr/regenerate`, { method: 'POST' });
+      setStatus(els.tenantStatus, `QR régénéré pour ${table.code}. L’ancien QR est invalide.`, 'ok');
+      await loadQrCenter(state.selectedTenantId);
+    }
+
+    function openWindow(path) {
+      const url = new URL(getApiUrl(path));
+      url.searchParams.set('token', state.adminToken);
+      window.open(url.toString(), '_blank', 'noopener');
+    }
+
+    async function copyText(value) {
+      try {
+        await navigator.clipboard.writeText(value || '');
+        setStatus(els.tenantStatus, 'URL copiée.', 'ok');
+      } catch (_) {
+        setStatus(els.tenantStatus, 'Copie impossible.', 'error');
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function formatDate(value) {
+      if (!value) return 'jamais';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return new Intl.DateTimeFormat('fr-BE', { dateStyle: 'short', timeStyle: 'short' }).format(date);
+    }
+
+    els.apiBase.value = state.apiBase;
+    els.adminToken.value = state.adminToken;
+
+    els.loginBtn.addEventListener('click', async () => {
+      try { await login(); } catch (error) { setStatus(els.globalStatus, error.message || 'Connexion impossible', 'error'); }
+    });
+
+    els.refreshBtn.addEventListener('click', async () => {
+      try {
+        if (!state.adminToken) throw new Error('token_admin_requis');
+        await loadTenants();
+        setStatus(els.globalStatus, 'Actualisation OK.', 'ok');
+      } catch (error) {
+        setStatus(els.globalStatus, error.message || 'Actualisation impossible', 'error');
+      }
+    });
+
+    els.reloadCenterBtn.addEventListener('click', async () => {
+      try {
+        if (!state.selectedTenantId) throw new Error('tenant_requis');
+        await loadQrCenter(state.selectedTenantId);
+      } catch (error) {
+        setStatus(els.tenantStatus, error.message || 'Rechargement impossible', 'error');
+      }
+    });
+
+    els.selectAllBtn.addEventListener('click', () => {
+      const tables = state.qrCenter?.qrCenter?.tables || [];
+      state.selectedTableIds = new Set(tables.filter((row) => row.isActive).map((row) => row.id));
+      renderQrCenter();
+      syncSelectedButtons();
+    });
+
+    els.clearSelectionBtn.addEventListener('click', () => {
+      state.selectedTableIds.clear();
+      renderQrCenter();
+      syncSelectedButtons();
+    });
+
+    els.printAllBtn.addEventListener('click', () => {
+      if (!state.selectedTenantId) return;
+      openWindow(`/superadmin/tenants/${state.selectedTenantId}/qr-sheet.pdf`);
+    });
+
+    els.printSelectedBtn.addEventListener('click', () => {
+      if (!state.selectedTenantId || state.selectedTableIds.size === 0) return;
+      const params = new URLSearchParams();
+      params.set('tableIds', Array.from(state.selectedTableIds).join(','));
+      openWindow(`/superadmin/tenants/${state.selectedTenantId}/qr-sheet.pdf?${params.toString()}`);
+    });
+
+    if (state.adminToken) {
+      login().catch((error) => setStatus(els.globalStatus, error.message || 'Connexion automatique impossible', 'error'));
+    }
+  </script>
+</body>
+</html>
