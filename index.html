@@ -196,6 +196,14 @@
       return `${String(state.apiBase || '').replace(/\/+$/, '')}${path}`;
     }
 
+    function getAuthedApiUrl(path) {
+      const url = new URL(getApiUrl(path));
+      if (state.adminToken) {
+        url.searchParams.set('token', state.adminToken);
+      }
+      return url.toString();
+    }
+
     async function apiFetch(path, options = {}) {
       const response = await fetch(getApiUrl(path), {
         ...options,
@@ -316,7 +324,7 @@
             <div class="url-box" style="margin-top:8px;"><strong>URL active</strong><br>${escapeHtml(table.qrUrl || 'aucune URL')}</div>
           </div>
           <div>
-            ${table.qrImageUrl ? `<img class="preview" src="${getApiUrl(table.qrImageUrl)}" alt="QR ${escapeHtml(table.code)}" />` : '<div class="empty">Pas de QR</div>'}
+            ${table.qrImageUrl ? `<img class="preview" src="${getAuthedApiUrl(table.qrImageUrl)}" alt="QR ${escapeHtml(table.code)}" />` : '<div class="empty">Pas de QR</div>'}
           </div>
           <div class="actions">
             <button type="button" class="secondary" data-action="copy-url" data-id="${table.id}">Copier URL</button>
@@ -362,9 +370,7 @@
     }
 
     function openWindow(path) {
-      const url = new URL(getApiUrl(path));
-      url.searchParams.set('token', state.adminToken);
-      window.open(url.toString(), '_blank', 'noopener');
+      window.open(getAuthedApiUrl(path), '_blank', 'noopener');
     }
 
     async function copyText(value) {
