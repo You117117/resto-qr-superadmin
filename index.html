@@ -164,9 +164,27 @@
       </div>
       <div class="auth-grid">
         <input id="apiBase" placeholder="API base URL" value="http://localhost:8080" />
-        <input id="adminToken" placeholder="x-admin-token" />
+        <input id="adminEmail" placeholder="Email admin" />
+        <input id="adminPassword" type="password" placeholder="Mot de passe" />
         <button id="loginBtn">Connexion</button>
         <button id="refreshBtn" class="secondary">Actualiser</button>
+      </div>
+      <div class="row" style="margin-top:10px; gap:10px; align-items:center;">
+        <button id="toggleBootstrapBtn" class="secondary">Initialiser compte admin</button>
+        <span class="muted">À utiliser une seule fois avec le bootstrap token pour créer le premier compte DB.</span>
+      </div>
+      <div id="bootstrapPanel" class="panel hidden" style="margin-top:12px; padding:14px;">
+        <div class="inline-form-grid">
+          <input id="bootstrapToken" type="password" placeholder="Bootstrap token (.env)" />
+          <input id="bootstrapFullName" placeholder="Nom complet admin" />
+          <input id="bootstrapEmail" placeholder="Email admin" />
+          <input id="bootstrapPassword" type="password" placeholder="Mot de passe admin" />
+        </div>
+        <div class="row" style="margin-top:12px; gap:10px;">
+          <button id="bootstrapCreateBtn">Créer / mettre à jour le compte admin</button>
+          <button id="bootstrapCloseBtn" class="secondary">Fermer</button>
+        </div>
+        <div id="bootstrapStatus" class="status" style="margin-top:12px;"></div>
       </div>
       <div class="space-between">
         <div id="sessionInfo" class="muted">Pas connecté.</div>
@@ -684,6 +702,7 @@
     const state = {
       apiBase: localStorage.getItem('superadmin_api_base') || 'http://localhost:8080',
       adminToken: localStorage.getItem('superadmin_admin_token') || '',
+      adminEmail: localStorage.getItem('superadmin_admin_email') || '',
       tenants: [],
       selectedTenantId: null,
       qrCenter: null,
@@ -707,7 +726,17 @@
 
     const els = {
       apiBase: document.getElementById('apiBase'),
-      adminToken: document.getElementById('adminToken'),
+      adminEmail: document.getElementById('adminEmail'),
+      adminPassword: document.getElementById('adminPassword'),
+      toggleBootstrapBtn: document.getElementById('toggleBootstrapBtn'),
+      bootstrapPanel: document.getElementById('bootstrapPanel'),
+      bootstrapToken: document.getElementById('bootstrapToken'),
+      bootstrapFullName: document.getElementById('bootstrapFullName'),
+      bootstrapEmail: document.getElementById('bootstrapEmail'),
+      bootstrapPassword: document.getElementById('bootstrapPassword'),
+      bootstrapCreateBtn: document.getElementById('bootstrapCreateBtn'),
+      bootstrapCloseBtn: document.getElementById('bootstrapCloseBtn'),
+      bootstrapStatus: document.getElementById('bootstrapStatus'),
       loginBtn: document.getElementById('loginBtn'),
       refreshBtn: document.getElementById('refreshBtn'),
       sessionInfo: document.getElementById('sessionInfo'),
@@ -917,7 +946,12 @@
     }
 
     function getHeaders() {
-      return { 'Content-Type': 'application/json', 'x-admin-token': state.adminToken };
+      const headers = { 'Content-Type': 'application/json' };
+      if (state.adminToken) {
+        headers['x-admin-token'] = state.adminToken;
+        headers['Authorization'] = `Bearer ${state.adminToken}`;
+      }
+      return headers;
     }
 
     function getApiUrl(path) {
@@ -963,7 +997,12 @@
     function describeApiError(error) {
       const code = String(error?.message || error || 'erreur_inconnue');
       const map = {
-        token_admin_requis: 'Token admin requis.',
+        token_admin_requis: 'Session admin requise.',
+        admin_email_required: 'Email admin requis.',
+        admin_password_required: 'Mot de passe requis.',
+        admin_password_too_short: 'Mot de passe trop court (minimum 10 caractères).',
+        superadmin_session_secret_missing: 'Secret de session superadmin manquant côté API.',
+        superadmin_bootstrap_unauthorized: 'Bootstrap token invalide.',
         tenant_requis: "Sélectionne d'abord un tenant.",
         tenant_name_required: 'Le nom du tenant est obligatoire.',
         tenant_subdomain_invalid: 'Le sous-domaine est invalide.',
@@ -1738,15 +1777,47 @@
 
     async function login() {
       state.apiBase = els.apiBase.value.trim();
-      state.adminToken = els.adminToken.value.trim();
+      state.adminEmail = els.adminEmail.value.trim().toLowerCase();
+      const adminPassword = els.adminPassword.value;
       localStorage.setItem('superadmin_api_base', state.apiBase);
-      localStorage.setItem('superadmin_admin_token', state.adminToken);
+      localStorage.setItem('superadmin_admin_email', state.adminEmail);
       setStatus(els.globalStatus, 'Connexion en cours…');
-      const payload = await apiFetch('/superadmin/login', { method: 'POST' });
+      const payload = await apiFetch('/superadmin/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: state.adminEmail, password: adminPassword }),
+        headers: { 'Content-Type': 'application/json' },
+      });
       state.admin = payload.admin || null;
+      state.adminToken = String(payload.token || '').trim();
+      if (state.adminToken) localStorage.setItem('superadmin_admin_token', state.adminToken);
+      els.adminPassword.value = '';
       els.sessionInfo.textContent = `Connecté ${payload.admin?.fullName || payload.admin?.email || payload.admin?.authMode || 'superadmin'}`;
       setStatus(els.globalStatus, 'Connexion valide.', 'ok');
       await Promise.all([loadOverview(), loadProvisioningDefaults(), loadTenants(), loadDiagnostics(), loadAudits()]);
+    }
+
+    async function bootstrapAdminAccount() {
+      const bootstrapToken = els.bootstrapToken.value.trim();
+      const fullName = els.bootstrapFullName.value.trim();
+      const email = els.bootstrapEmail.value.trim().toLowerCase();
+      const password = els.bootstrapPassword.value;
+      if (!bootstrapToken) throw new Error('superadmin_bootstrap_unauthorized');
+      if (!email) throw new Error('admin_email_required');
+      if (!password) throw new Error('admin_password_required');
+      state.apiBase = els.apiBase.value.trim();
+      localStorage.setItem('superadmin_api_base', state.apiBase);
+      setStatus(els.bootstrapStatus, 'Création du compte admin…');
+      const payload = await apiFetch('/superadmin/bootstrap/setup-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': bootstrapToken },
+        body: JSON.stringify({ bootstrapToken, fullName, email, password }),
+      });
+      els.bootstrapPassword.value = '';
+      els.bootstrapEmail.value = email;
+      els.adminEmail.value = email;
+      state.adminEmail = email;
+      localStorage.setItem('superadmin_admin_email', email);
+      setStatus(els.bootstrapStatus, `Compte admin prêt : ${payload.admin?.fullName || payload.admin?.email || email}`, 'ok');
     }
 
     async function loadTenants() {
@@ -2047,7 +2118,7 @@
         card.className = `table-card ${table.isActive ? '' : 'inactive'}`;
         const imageUrl = table.qrImageUrl ? (() => {
           const url = new URL(getApiUrl(table.qrImageUrl));
-          url.searchParams.set('token', state.adminToken);
+          if (state.adminToken) url.searchParams.set('token', state.adminToken);
           return url.toString();
         })() : '';
         card.innerHTML = `
@@ -2359,7 +2430,7 @@
 
     function openWindow(path) {
       const url = new URL(getApiUrl(path));
-      url.searchParams.set('token', state.adminToken);
+      if (state.adminToken) url.searchParams.set('token', state.adminToken);
       window.open(url.toString(), '_blank', 'noopener');
     }
 
@@ -2373,7 +2444,7 @@
     }
 
     els.apiBase.value = state.apiBase;
-    els.adminToken.value = state.adminToken;
+    els.adminEmail.value = state.adminEmail;
     updateColorPreview(DEFAULT_COLOR);
 
 
@@ -2405,6 +2476,11 @@
 
     els.loginBtn.addEventListener('click', async () => {
       try { await login(); } catch (error) { setStatus(els.globalStatus, describeApiError(error) || 'Connexion impossible', 'error'); }
+    });
+    els.toggleBootstrapBtn.addEventListener('click', () => els.bootstrapPanel.classList.toggle('hidden'));
+    els.bootstrapCloseBtn.addEventListener('click', () => els.bootstrapPanel.classList.add('hidden'));
+    els.bootstrapCreateBtn.addEventListener('click', async () => {
+      try { await bootstrapAdminAccount(); } catch (error) { setStatus(els.bootstrapStatus, describeApiError(error) || 'Initialisation admin impossible', 'error'); }
     });
 
     els.refreshBtn.addEventListener('click', async () => {
@@ -2573,7 +2649,16 @@
     });
 
     if (state.adminToken) {
-      login().catch((error) => setStatus(els.globalStatus, describeApiError(error) || 'Connexion automatique impossible', 'error'));
+      apiFetch('/superadmin/me').then((payload) => {
+        state.admin = payload.admin || null;
+        els.sessionInfo.textContent = `Connecté ${payload.admin?.fullName || payload.admin?.email || payload.admin?.authMode || 'superadmin'}`;
+        setStatus(els.globalStatus, 'Session restaurée.', 'ok');
+        return Promise.all([loadOverview(), loadProvisioningDefaults(), loadTenants(), loadDiagnostics(), loadAudits()]);
+      }).catch((error) => {
+        localStorage.removeItem('superadmin_admin_token');
+        state.adminToken = '';
+        setStatus(els.globalStatus, describeApiError(error) || 'Connexion automatique impossible', 'error');
+      });
     }
   </script>
 </body>
