@@ -92,6 +92,16 @@
     .metric-note { color: var(--muted); font-size: 12px; }
     .overview-list { display: grid; gap: 10px; max-height: 260px; overflow: auto; }
     .overview-item { background: #0d1526; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+    .filters-grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+    .filters-grid .field { gap: 4px; }
+    .tenant-summary-grid { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(150px, 1fr)); }
+    .summary-metric { background: #0d1526; border: 1px solid var(--border); border-radius: 14px; padding: 12px; display: grid; gap: 6px; }
+    .summary-metric strong { font-size: 22px; }
+    .mini-list { display: grid; gap: 10px; max-height: 240px; overflow: auto; }
+    .tiny { font-size: 12px; }
+    .tenant-card .meta-grid { display: grid; gap: 4px; }
+    .tenant-card .meta-line { color: var(--muted); font-size: 12px; }
+    .tenant-card .badge-row { display: flex; flex-wrap: wrap; gap: 6px; }
     @media (max-width: 1240px) {
       .section-grid { grid-template-columns: 1fr; }
     }
@@ -106,7 +116,7 @@
     <section class="topbar">
       <div>
         <div class="title">Superadmin — Cockpit tenant</div>
-        <div class="subtitle">Bloc 10 : vue d’ensemble plateforme avec état API/DB/SSE, incidents récents, audits récents et raccourcis utiles.</div>
+        <div class="subtitle">Bloc 11 : liste tenants enrichie + fiche tenant riche avec recherche, filtres, tri, activité, statut, accès staff, incidents et audits.</div>
       </div>
       <div class="auth-grid">
         <input id="apiBase" placeholder="API base URL" value="http://localhost:8080" />
@@ -163,6 +173,53 @@
           <h2 style="margin:0; font-size:20px;">Tenants</h2>
           <span id="tenantCount" class="muted">0</span>
         </div>
+        <div class="filters-grid" style="margin-top:14px;">
+          <div class="field" style="grid-column:1 / -1;">
+            <label for="tenantSearch">Recherche tenant</label>
+            <input id="tenantSearch" placeholder="Nom, slug, sous-domaine, template..." />
+          </div>
+          <div class="field">
+            <label for="tenantStatusFilter">Statut</label>
+            <select id="tenantStatusFilter">
+              <option value="all">Tous</option>
+              <option value="active">active</option>
+              <option value="onboarding">onboarding</option>
+              <option value="draft">draft</option>
+              <option value="suspended">suspended</option>
+              <option value="archived">archived</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tenantStaffFilter">Accès staff</label>
+            <select id="tenantStaffFilter">
+              <option value="all">Tous</option>
+              <option value="enabled">Activé</option>
+              <option value="disabled">Désactivé</option>
+              <option value="dedicated">Dédié</option>
+              <option value="legacy_fallback">Legacy fallback</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tenantActivityFilter">Activité</label>
+            <select id="tenantActivityFilter">
+              <option value="all">Toutes</option>
+              <option value="active_sessions">Sessions ouvertes</option>
+              <option value="recent_incidents">Incidents récents</option>
+              <option value="recent_admin">Audit admin récent</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tenantSort">Tri</label>
+            <select id="tenantSort">
+              <option value="recent_activity">Activité récente</option>
+              <option value="name_asc">Nom A → Z</option>
+              <option value="name_desc">Nom Z → A</option>
+              <option value="status">Statut</option>
+              <option value="tables_desc">Plus de tables</option>
+              <option value="sessions_desc">Plus de sessions ouvertes</option>
+            </select>
+          </div>
+        </div>
         <div id="tenantList" class="tenant-list" style="margin-top:14px;"></div>
       </aside>
 
@@ -177,6 +234,41 @@
               <span id="settingsBadge" class="pill warn">Settings inactifs</span>
               <span id="staffBadge" class="pill warn">Accès staff inactif</span>
               <span id="centerBadge" class="pill warn">Centre QR inactif</span>
+            </div>
+          </div>
+
+          <div class="section-grid" style="margin-top:18px; grid-template-columns: 1fr 1fr;">
+            <div class="panel" style="padding:16px;">
+              <div class="space-between">
+                <h3 style="margin:0; font-size:18px;">Fiche tenant</h3>
+                <span id="tenantIdentityBadge" class="pill warn">Aucun tenant</span>
+              </div>
+              <div id="tenantIdentityStatus" class="status" style="margin-top:10px;"></div>
+              <div class="tenant-summary-grid" style="margin-top:12px;">
+                <div class="summary-metric"><div class="metric-label">Tables</div><strong id="tenantMetricTables">0</strong><div id="tenantMetricTablesNote" class="metric-note">0 active</div></div>
+                <div class="summary-metric"><div class="metric-label">Sessions</div><strong id="tenantMetricSessions">0</strong><div id="tenantMetricSessionsNote" class="metric-note">0 ouverte</div></div>
+                <div class="summary-metric"><div class="metric-label">Incidents</div><strong id="tenantMetricIncidents">0</strong><div id="tenantMetricIncidentsNote" class="metric-note">0 warn / 0 error</div></div>
+                <div class="summary-metric"><div class="metric-label">Audits</div><strong id="tenantMetricAudits">0</strong><div id="tenantMetricAuditsNote" class="metric-note">0 récent</div></div>
+              </div>
+              <div class="settings-grid" style="margin-top:14px;">
+                <div class="token-box"><strong>Identité</strong><div class="tiny muted" id="tenantIdentityMeta" style="margin-top:8px;">Sélectionne un tenant.</div></div>
+                <div class="token-box"><strong>Activité</strong><div class="tiny muted" id="tenantActivityMeta" style="margin-top:8px;">Aucune activité.</div></div>
+              </div>
+              <div class="row" style="margin-top:12px;">
+                <span id="tenantStatusBadge" class="pill warn">statut inconnu</span>
+                <span id="tenantStaffModeBadge" class="pill warn">staff inconnu</span>
+                <span id="tenantTemplateBadge" class="pill warn">template inconnu</span>
+              </div>
+            </div>
+            <div class="panel" style="padding:16px; display:grid; gap:16px;">
+              <div>
+                <div class="space-between"><h3 style="margin:0; font-size:18px;">Incidents tenant</h3><span id="tenantIncidentsCount" class="muted">0</span></div>
+                <div id="tenantIncidentsList" class="mini-list" style="margin-top:12px;"></div>
+              </div>
+              <div>
+                <div class="space-between"><h3 style="margin:0; font-size:18px;">Audits tenant</h3><span id="tenantAuditCount" class="muted">0</span></div>
+                <div id="tenantAuditList" class="mini-list" style="margin-top:12px;"></div>
+              </div>
             </div>
           </div>
 
@@ -381,6 +473,7 @@
       qrCenter: null,
       tenantSettings: null,
       tenantStaffAccess: null,
+      tenantDetail: null,
       catalog: null,
       overview: null,
       selectedTableIds: new Set(),
@@ -413,12 +506,36 @@
       shortcutCounts: document.getElementById('shortcutCounts'),
       shortcutList: document.getElementById('shortcutList'),
       tenantCount: document.getElementById('tenantCount'),
+      tenantSearch: document.getElementById('tenantSearch'),
+      tenantStatusFilter: document.getElementById('tenantStatusFilter'),
+      tenantStaffFilter: document.getElementById('tenantStaffFilter'),
+      tenantActivityFilter: document.getElementById('tenantActivityFilter'),
+      tenantSort: document.getElementById('tenantSort'),
       tenantList: document.getElementById('tenantList'),
       tenantTitle: document.getElementById('tenantTitle'),
       tenantMeta: document.getElementById('tenantMeta'),
       settingsBadge: document.getElementById('settingsBadge'),
       staffBadge: document.getElementById('staffBadge'),
       centerBadge: document.getElementById('centerBadge'),
+      tenantIdentityBadge: document.getElementById('tenantIdentityBadge'),
+      tenantIdentityStatus: document.getElementById('tenantIdentityStatus'),
+      tenantMetricTables: document.getElementById('tenantMetricTables'),
+      tenantMetricTablesNote: document.getElementById('tenantMetricTablesNote'),
+      tenantMetricSessions: document.getElementById('tenantMetricSessions'),
+      tenantMetricSessionsNote: document.getElementById('tenantMetricSessionsNote'),
+      tenantMetricIncidents: document.getElementById('tenantMetricIncidents'),
+      tenantMetricIncidentsNote: document.getElementById('tenantMetricIncidentsNote'),
+      tenantMetricAudits: document.getElementById('tenantMetricAudits'),
+      tenantMetricAuditsNote: document.getElementById('tenantMetricAuditsNote'),
+      tenantIdentityMeta: document.getElementById('tenantIdentityMeta'),
+      tenantActivityMeta: document.getElementById('tenantActivityMeta'),
+      tenantStatusBadge: document.getElementById('tenantStatusBadge'),
+      tenantStaffModeBadge: document.getElementById('tenantStaffModeBadge'),
+      tenantTemplateBadge: document.getElementById('tenantTemplateBadge'),
+      tenantIncidentsCount: document.getElementById('tenantIncidentsCount'),
+      tenantIncidentsList: document.getElementById('tenantIncidentsList'),
+      tenantAuditCount: document.getElementById('tenantAuditCount'),
+      tenantAuditList: document.getElementById('tenantAuditList'),
       reloadSettingsBtn: document.getElementById('reloadSettingsBtn'),
       settingsStatus: document.getElementById('settingsStatus'),
       restaurantName: document.getElementById('restaurantName'),
@@ -507,6 +624,147 @@
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return value;
       return new Intl.DateTimeFormat('fr-BE', { dateStyle: 'short', timeStyle: 'short' }).format(date);
+    }
+
+    function formatRelativeDate(value) {
+      if (!value) return 'jamais';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return formatDate(value);
+      const diffMs = Date.now() - date.getTime();
+      const diffMinutes = Math.round(diffMs / 60000);
+      if (diffMinutes < 1) return 'à l’instant';
+      if (diffMinutes < 60) return `il y a ${diffMinutes} min`;
+      const diffHours = Math.round(diffMinutes / 60);
+      if (diffHours < 24) return `il y a ${diffHours} h`;
+      const diffDays = Math.round(diffHours / 24);
+      if (diffDays < 7) return `il y a ${diffDays} j`;
+      return formatDate(value);
+    }
+
+    function toSortableTs(value) {
+      const date = new Date(value || 0);
+      return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+    }
+
+    function buildTenantSearchBlob(tenant) {
+      return [
+        tenant?.name,
+        tenant?.slug,
+        tenant?.subdomain,
+        tenant?.menuTemplateCode,
+        tenant?.timezone,
+        tenant?.brandingName,
+        tenant?.status,
+      ].filter(Boolean).join(' ').toLowerCase();
+    }
+
+    function getFilteredTenants() {
+      const search = String(els.tenantSearch.value || '').trim().toLowerCase();
+      const statusFilter = els.tenantStatusFilter.value;
+      const staffFilter = els.tenantStaffFilter.value;
+      const activityFilter = els.tenantActivityFilter.value;
+      const sort = els.tenantSort.value;
+
+      const filtered = state.tenants.filter((tenant) => {
+        if (search && !buildTenantSearchBlob(tenant).includes(search)) return false;
+        if (statusFilter !== 'all' && tenant.status !== statusFilter) return false;
+        if (staffFilter === 'enabled' && tenant.staffAccessEnabled !== true) return false;
+        if (staffFilter === 'disabled' && tenant.staffAccessEnabled !== false) return false;
+        if (staffFilter === 'dedicated' && tenant.staffAccessMode !== 'dedicated') return false;
+        if (staffFilter === 'legacy_fallback' && tenant.staffAccessMode !== 'legacy_fallback') return false;
+        if (activityFilter === 'active_sessions' && Number(tenant.stats?.sessionsOpen || 0) <= 0) return false;
+        if (activityFilter === 'recent_incidents' && Number(tenant.stats?.incidentsRecent || 0) <= 0) return false;
+        if (activityFilter === 'recent_admin' && !tenant.activity?.lastAdminAuditAt) return false;
+        return true;
+      });
+
+      filtered.sort((a, b) => {
+        if (sort === 'name_asc') return String(a.name || a.slug || '').localeCompare(String(b.name || b.slug || ''));
+        if (sort === 'name_desc') return String(b.name || b.slug || '').localeCompare(String(a.name || a.slug || ''));
+        if (sort === 'status') return String(a.status || '').localeCompare(String(b.status || '')) || String(a.name || '').localeCompare(String(b.name || ''));
+        if (sort === 'tables_desc') return Number(b.stats?.tableCount || b.tableCount || 0) - Number(a.stats?.tableCount || a.tableCount || 0);
+        if (sort === 'sessions_desc') return Number(b.stats?.sessionsOpen || 0) - Number(a.stats?.sessionsOpen || 0);
+        return toSortableTs(b.activity?.lastActivityAt || b.updatedAt || b.createdAt) - toSortableTs(a.activity?.lastActivityAt || a.updatedAt || a.createdAt);
+      });
+
+      return filtered;
+    }
+
+    function renderTenantDetail() {
+      const detail = state.tenantDetail;
+      const tenant = detail?.tenant || null;
+      const overview = detail?.overview || {};
+      const identity = overview.identity || {};
+      const stats = overview.stats || {};
+      const activity = overview.activity || {};
+      const incidents = Array.isArray(overview.incidents) ? overview.incidents : [];
+      const audits = Array.isArray(overview.audits) ? overview.audits : [];
+
+      if (tenant?.id) {
+        els.tenantTitle.textContent = identity.name || tenant.name || tenant.slug || 'Tenant';
+        els.tenantMeta.textContent = `${identity.subdomain || tenant.subdomain || tenant.slug || tenant.id} • statut ${identity.status || 'draft'} • dernière activité ${formatRelativeDate(activity.lastActivityAt)}`;
+      }
+      els.tenantIdentityBadge.className = `pill ${tenant?.id ? 'ok' : 'warn'}`;
+      els.tenantIdentityBadge.textContent = tenant?.id ? 'Fiche chargée' : 'Aucun tenant';
+      setStatus(els.tenantIdentityStatus, tenant?.id ? 'Fiche tenant chargée.' : 'Choisis un tenant pour ouvrir la fiche.', tenant?.id ? 'ok' : '');
+
+      els.tenantMetricTables.textContent = String(stats.tablesTotal || 0);
+      els.tenantMetricTablesNote.textContent = `${stats.tablesActive || 0} actives • ${stats.tablesArchived || 0} archivées`;
+      els.tenantMetricSessions.textContent = String(stats.sessionsTotal || 0);
+      els.tenantMetricSessionsNote.textContent = `${stats.sessionsOpen || 0} ouvertes • ${stats.sessionsInProgress || 0} en cours`;
+      els.tenantMetricIncidents.textContent = String(stats.incidentsRecent || 0);
+      els.tenantMetricIncidentsNote.textContent = `${stats.incidentsWarn || 0} warn • ${stats.incidentsError || 0} error`;
+      els.tenantMetricAudits.textContent = String(stats.auditsRecent || 0);
+      els.tenantMetricAuditsNote.textContent = `${audits.length || 0} visibles dans la fiche`;
+
+      els.tenantIdentityMeta.innerHTML = tenant?.id ? `
+        <div><strong>${escapeHtml(identity.name || tenant.name || tenant.slug || tenant.id)}</strong></div>
+        <div class="muted tiny" style="margin-top:6px;">${escapeHtml(identity.subdomain || tenant.subdomain || tenant.slug || tenant.id)} • ${escapeHtml(identity.timezone || 'Europe/Brussels')} • fermeture ${identity.businessCloseHour ?? 3}h</div>
+        <div class="muted tiny" style="margin-top:6px;">créé le ${escapeHtml(formatDate(identity.createdAt))} • maj ${escapeHtml(formatDate(identity.updatedAt))}</div>
+      ` : 'Sélectionne un tenant.';
+      els.tenantActivityMeta.innerHTML = tenant?.id ? `
+        <div class="tiny">Dernière activité globale : <strong>${escapeHtml(formatRelativeDate(activity.lastActivityAt))}</strong></div>
+        <div class="muted tiny" style="margin-top:6px;">Session : ${escapeHtml(formatDate(activity.lastSessionActivityAt))}</div>
+        <div class="muted tiny" style="margin-top:4px;">Incident : ${escapeHtml(formatDate(activity.lastIncidentAt))}</div>
+        <div class="muted tiny" style="margin-top:4px;">Audit admin : ${escapeHtml(formatDate(activity.lastAdminAuditAt))}</div>
+      ` : 'Aucune activité.';
+
+      const statusClass = identity.status === 'active' ? 'ok' : (identity.status === 'suspended' || identity.status === 'archived' ? 'danger' : 'warn');
+      els.tenantStatusBadge.className = `pill ${statusClass}`;
+      els.tenantStatusBadge.textContent = identity.status || 'statut inconnu';
+
+      const staffModeClass = stats.staffEnabled ? (stats.staffAccessMode === 'dedicated' ? 'ok' : 'warn') : 'danger';
+      els.tenantStaffModeBadge.className = `pill ${staffModeClass}`;
+      els.tenantStaffModeBadge.textContent = stats.staffEnabled ? (stats.staffAccessMode === 'dedicated' ? 'staff dédié' : 'staff legacy') : 'staff désactivé';
+
+      els.tenantTemplateBadge.className = `pill ${identity.menuTemplateCode ? 'ok' : 'warn'}`;
+      els.tenantTemplateBadge.textContent = identity.menuTemplateCode || 'template non défini';
+
+      els.tenantIncidentsCount.textContent = String(incidents.length);
+      els.tenantIncidentsList.innerHTML = incidents.length ? '' : '<div class="empty">Aucun incident récent pour ce tenant.</div>';
+      incidents.slice(0, 8).forEach((row) => {
+        const item = document.createElement('div');
+        item.className = 'overview-item';
+        item.innerHTML = `
+          <div class="space-between"><strong>${escapeHtml(row.eventCode || 'incident')}</strong><span class="pill ${row.severity === 'error' ? 'danger' : row.severity === 'warn' ? 'warn' : 'ok'}">${escapeHtml(row.severity || 'info')}</span></div>
+          <div class="muted tiny" style="margin-top:6px;">${escapeHtml(row.tableCode || 'sans table')} • ${escapeHtml(formatDate(row.createdAt))}</div>
+          <div class="muted tiny" style="margin-top:4px;">${escapeHtml(row.message || 'sans message')}</div>
+        `;
+        els.tenantIncidentsList.appendChild(item);
+      });
+
+      els.tenantAuditCount.textContent = String(audits.length);
+      els.tenantAuditList.innerHTML = audits.length ? '' : '<div class="empty">Aucun audit récent pour ce tenant.</div>';
+      audits.slice(0, 8).forEach((row) => {
+        const item = document.createElement('div');
+        item.className = 'overview-item';
+        item.innerHTML = `
+          <div class="space-between"><strong>${escapeHtml(row.action || 'action')}</strong><span class="pill ${row.dangerLevel === 'high' ? 'danger' : row.dangerLevel === 'medium' ? 'warn' : 'ok'}">${escapeHtml(row.dangerLevel || 'info')}</span></div>
+          <div class="muted tiny" style="margin-top:6px;">${escapeHtml(row.resourceType || 'ressource')} • ${escapeHtml(formatDate(row.createdAt))}</div>
+          <div class="muted tiny" style="margin-top:4px;">${escapeHtml(row.adminLabel || 'admin inconnu')}</div>
+        `;
+        els.tenantAuditList.appendChild(item);
+      });
     }
 
     function updateColorPreview(value) {
@@ -639,34 +897,53 @@
     async function loadTenants() {
       const payload = await apiFetch('/superadmin/tenants');
       state.tenants = Array.isArray(payload.tenants) ? payload.tenants : [];
-      els.tenantCount.textContent = String(state.tenants.length);
+      const visibleTenants = getFilteredTenants();
+      els.tenantCount.textContent = `${visibleTenants.length} / ${state.tenants.length}`;
       if (!state.selectedTenantId && state.tenants[0]?.id) state.selectedTenantId = state.tenants[0].id;
       renderTenantList();
       if (state.selectedTenantId) await loadTenantWorkspace(state.selectedTenantId);
     }
 
+    async function loadTenantDetail(tenantId) {
+      const payload = await apiFetch(`/superadmin/tenants/${tenantId}`);
+      state.tenantDetail = payload;
+      renderTenantDetail();
+    }
+
     async function loadTenantWorkspace(tenantId) {
       state.selectedTableIds.clear();
-      await Promise.all([loadTenantSettings(tenantId), loadTenantStaffAccess(tenantId), loadQrCenter(tenantId), loadCatalog(tenantId)]);
+      await Promise.all([loadTenantDetail(tenantId), loadTenantSettings(tenantId), loadTenantStaffAccess(tenantId), loadQrCenter(tenantId), loadCatalog(tenantId)]);
     }
 
     function renderTenantList() {
+      const tenants = getFilteredTenants();
+      els.tenantCount.textContent = `${tenants.length} / ${state.tenants.length}`;
       els.tenantList.innerHTML = '';
-      if (!state.tenants.length) {
-        els.tenantList.innerHTML = '<div class="empty">Aucun tenant trouvé.</div>';
+      if (!tenants.length) {
+        els.tenantList.innerHTML = '<div class="empty">Aucun tenant trouvé avec ces filtres.</div>';
         return;
       }
-      state.tenants.forEach((tenant) => {
+      tenants.forEach((tenant) => {
+        const statusClass = tenant.status === 'active' ? 'ok' : (tenant.status === 'suspended' || tenant.status === 'archived' ? 'danger' : 'warn');
+        const staffClass = tenant.staffAccessEnabled ? (tenant.staffAccessMode === 'dedicated' ? 'ok' : 'warn') : 'danger';
+        const incidentClass = Number(tenant.stats?.incidentsError || 0) > 0 ? 'danger' : (Number(tenant.stats?.incidentsWarn || 0) > 0 ? 'warn' : 'ok');
         const item = document.createElement('button');
         item.type = 'button';
         item.className = `tenant-card ${tenant.id === state.selectedTenantId ? 'active' : ''}`;
         item.innerHTML = `
           <div class="space-between">
             <strong>${escapeHtml(tenant.name || tenant.slug || tenant.id)}</strong>
-            <span class="pill ${tenant.isActive ? 'ok' : 'warn'}">${tenant.status || (tenant.isActive ? 'active' : 'inactive')}</span>
+            <span class="pill ${statusClass}">${escapeHtml(tenant.status || (tenant.isActive ? 'active' : 'inactive'))}</span>
           </div>
-          <div class="muted">${escapeHtml(tenant.subdomain || tenant.slug || 'sans sous-domaine')}</div>
-          <div class="muted">${tenant.tableCount || 0} table(s) • ${escapeHtml(tenant.timezone || 'Europe/Brussels')}</div>
+          <div class="meta-grid">
+            <div class="meta-line">${escapeHtml(tenant.subdomain || tenant.slug || 'sans sous-domaine')}</div>
+            <div class="meta-line">${tenant.stats?.tableCount || tenant.tableCount || 0} table(s) • ${tenant.stats?.sessionsOpen || 0} session(s) ouverte(s)</div>
+            <div class="meta-line">${escapeHtml(tenant.timezone || 'Europe/Brussels')} • activité ${escapeHtml(formatRelativeDate(tenant.activity?.lastActivityAt || tenant.updatedAt || tenant.createdAt))}</div>
+          </div>
+          <div class="badge-row">
+            <span class="pill ${staffClass}">${tenant.staffAccessEnabled ? (tenant.staffAccessMode === 'dedicated' ? 'staff dédié' : 'staff legacy') : 'staff off'}</span>
+            <span class="pill ${incidentClass}">${tenant.stats?.incidentsRecent || 0} incident(s)</span>
+          </div>
         `;
         item.addEventListener('click', async () => {
           state.selectedTenantId = tenant.id;
@@ -744,7 +1021,7 @@
         history: state.tenantSettings?.history || [],
       };
       setStatus(els.settingsStatus, 'Settings enregistrés.', 'ok');
-      await Promise.all([loadTenants(), loadTenantSettings(state.selectedTenantId)]);
+      await Promise.all([loadTenants(), loadTenantDetail(state.selectedTenantId), loadTenantSettings(state.selectedTenantId)]);
     }
 
 
@@ -802,7 +1079,7 @@
       };
       renderTenantStaffAccess();
       setStatus(els.staffAccessStatus, 'Accès staff enregistré.', 'ok');
-      await Promise.all([loadTenants(), loadTenantStaffAccess(state.selectedTenantId)]);
+      await Promise.all([loadTenants(), loadTenantDetail(state.selectedTenantId), loadTenantStaffAccess(state.selectedTenantId)]);
     }
 
     async function rotateTenantStaffToken() {
@@ -826,7 +1103,7 @@
       };
       renderTenantStaffAccess();
       setStatus(els.staffAccessStatus, 'Token staff roté. L’ancien est mort.', 'ok');
-      await Promise.all([loadTenants(), loadTenantStaffAccess(state.selectedTenantId)]);
+      await Promise.all([loadTenants(), loadTenantDetail(state.selectedTenantId), loadTenantStaffAccess(state.selectedTenantId)]);
     }
 
     async function loadQrCenter(tenantId) {
@@ -1117,6 +1394,13 @@
     updateColorPreview(DEFAULT_COLOR);
 
     els.brandingPrimaryColor.addEventListener('input', (event) => updateColorPreview(event.target.value));
+
+    ['input', 'change'].forEach((eventName) => {
+      els.tenantSearch.addEventListener(eventName, () => renderTenantList());
+    });
+    [els.tenantStatusFilter, els.tenantStaffFilter, els.tenantActivityFilter, els.tenantSort].forEach((element) => {
+      element.addEventListener('change', () => renderTenantList());
+    });
 
     els.loginBtn.addEventListener('click', async () => {
       try { await login(); } catch (error) { setStatus(els.globalStatus, error.message || 'Connexion impossible', 'error'); }
