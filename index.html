@@ -104,6 +104,23 @@
     .audit-item { background: #0d1526; border: 1px solid var(--border); border-radius: 12px; padding: 12px; cursor: pointer; display: grid; gap: 6px; }
     .audit-item.active { border-color: #7c3aed; box-shadow: inset 0 0 0 1px #7c3aed; }
     .audit-meta { color: var(--muted); font-size: 12px; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(3,8,20,.72); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 9999; }
+    .modal-overlay.open { display: flex; }
+    .modal-card { width: min(760px, 100%); background: rgba(18,26,43,.98); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 24px 80px rgba(0,0,0,.45); overflow: hidden; }
+    .modal-head, .modal-body, .modal-actions { padding: 18px 20px; }
+    .modal-head { border-bottom: 1px solid rgba(255,255,255,.06); display:flex; justify-content:space-between; align-items:center; gap:14px; }
+    .modal-title { font-size: 22px; font-weight: 800; }
+    .modal-close { width:auto; min-width:44px; background: transparent; border: 1px solid var(--border); }
+    .modal-body { display:grid; gap:14px; }
+    .modal-message { font-size: 15px; line-height: 1.55; color: var(--text); }
+    .modal-impact { display:grid; gap:10px; background:#0d1526; border:1px solid var(--border); border-radius:14px; padding:14px; }
+    .modal-impact strong { font-size: 13px; text-transform: uppercase; letter-spacing:.04em; }
+    .modal-impact ul { margin:0; padding-left:18px; display:grid; gap:8px; }
+    .modal-note { border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; }
+    .modal-note.info { background: rgba(79,70,229,.16); color: #c7c3ff; }
+    .modal-note.warn { background: rgba(217,119,6,.16); color: #ffd08a; }
+    .modal-note.danger { background: rgba(220,38,38,.16); color: #ffb0b0; }
+    .modal-actions { border-top: 1px solid rgba(255,255,255,.06); display:flex; justify-content:flex-end; gap:12px; }
     @media (max-width: 1240px) {
       .section-grid { grid-template-columns: 1fr; }
     }
@@ -118,7 +135,7 @@
     <section class="topbar">
       <div>
         <div class="title">Superadmin — Cockpit tenant</div>
-        <div class="subtitle">Bloc 13 : vue audit admin exploitable, avec lecture détaillée avant/après sans casser overview, tenants ni diagnostics.</div>
+        <div class="subtitle">Bloc 14 : garde-fous UX ciblés sur les actions sensibles, sans friction inutile sur le reste du cockpit.</div>
       </div>
       <div class="auth-grid">
         <input id="apiBase" placeholder="API base URL" value="http://localhost:8080" />
@@ -475,6 +492,30 @@
     </section>
   </div>
 
+  <div id="decisionModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="decisionModalTitle">
+      <div class="modal-head">
+        <div>
+          <div id="decisionModalTitle" class="modal-title">Confirmation</div>
+          <div id="decisionModalSubtitle" class="muted" style="margin-top:6px;">Action sensible</div>
+        </div>
+        <button id="decisionModalClose" type="button" class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="decisionModalNote" class="modal-note warn">Vérifie l’impact avant de continuer.</div>
+        <div id="decisionModalMessage" class="modal-message"></div>
+        <div id="decisionModalImpact" class="modal-impact" style="display:none;">
+          <strong>Impact immédiat</strong>
+          <ul id="decisionModalImpactList"></ul>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="decisionModalCancel" type="button" class="secondary">Annuler</button>
+        <button id="decisionModalConfirm" type="button" class="danger">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const DEFAULT_COLOR = '#4f46e5';
     const state = {
@@ -620,6 +661,16 @@
       catalogCount: document.getElementById('catalogCount'),
       catalogStatus: document.getElementById('catalogStatus'),
       catalogList: document.getElementById('catalogList'),
+      decisionModal: document.getElementById('decisionModal'),
+      decisionModalTitle: document.getElementById('decisionModalTitle'),
+      decisionModalSubtitle: document.getElementById('decisionModalSubtitle'),
+      decisionModalNote: document.getElementById('decisionModalNote'),
+      decisionModalMessage: document.getElementById('decisionModalMessage'),
+      decisionModalImpact: document.getElementById('decisionModalImpact'),
+      decisionModalImpactList: document.getElementById('decisionModalImpactList'),
+      decisionModalCancel: document.getElementById('decisionModalCancel'),
+      decisionModalConfirm: document.getElementById('decisionModalConfirm'),
+      decisionModalClose: document.getElementById('decisionModalClose'),
     };
 
     function setStatus(target, message = '', type = '') {
@@ -670,6 +721,158 @@
       els.brandingSwatch.style.background = color;
     }
 
+
+    function describeApiError(error) {
+      const code = String(error?.message || error || 'erreur_inconnue');
+      const map = {
+        token_admin_requis: 'Token admin requis.',
+        tenant_requis: "Sélectionne d'abord un tenant.",
+        http_401: 'Accès refusé. Le token admin est invalide ou expiré.',
+        http_403: 'Accès interdit pour cette action.',
+        http_404: 'La ressource demandée est introuvable.',
+        http_409: 'Conflit détecté. Recharge les données avant de recommencer.',
+        http_422: 'Données invalides. Vérifie les champs saisis.',
+        http_500: "Erreur serveur. Rien n'a été confirmé côté backend.",
+      };
+      return map[code] || code;
+    }
+
+    function getTenantLabel() {
+      const tenant = state.tenants.find((row) => row.id === state.selectedTenantId) || state.tenantSettings?.tenant || state.qrCenter?.tenant || null;
+      return tenant?.name || tenant?.slug || tenant?.subdomain || tenant?.id || 'ce tenant';
+    }
+
+    function closeDecisionModal(result = false) {
+      if (!state.pendingDecisionResolver) return;
+      const resolver = state.pendingDecisionResolver;
+      state.pendingDecisionResolver = null;
+      els.decisionModal.classList.remove('open');
+      els.decisionModal.setAttribute('aria-hidden', 'true');
+      resolver(Boolean(result));
+    }
+
+    function openDecisionModal({ title, subtitle = '', level = 'warn', message = '', impacts = [], confirmLabel = 'Confirmer', cancelLabel = 'Annuler' }) {
+      if (state.pendingDecisionResolver) closeDecisionModal(false);
+      els.decisionModalTitle.textContent = title || 'Confirmation';
+      els.decisionModalSubtitle.textContent = subtitle || 'Action sensible';
+      els.decisionModalMessage.textContent = message || '';
+      els.decisionModalNote.className = `modal-note ${level}`;
+      els.decisionModalNote.textContent = level === 'danger'
+        ? 'Action critique : lis l’impact avant de confirmer.'
+        : level === 'warn'
+          ? 'Action sensible : vérifie ce que tu es en train de changer.'
+          : 'Action encadrée.';
+      els.decisionModalCancel.textContent = cancelLabel;
+      els.decisionModalConfirm.textContent = confirmLabel;
+      els.decisionModalConfirm.className = level === 'danger' ? 'danger' : (level === 'warn' ? 'warning' : 'success');
+      if (Array.isArray(impacts) && impacts.length) {
+        els.decisionModalImpact.style.display = 'grid';
+        els.decisionModalImpactList.innerHTML = impacts.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
+      } else {
+        els.decisionModalImpact.style.display = 'none';
+        els.decisionModalImpactList.innerHTML = '';
+      }
+      els.decisionModal.classList.add('open');
+      els.decisionModal.setAttribute('aria-hidden', 'false');
+      return new Promise((resolve) => {
+        state.pendingDecisionResolver = resolve;
+      });
+    }
+
+    function diffSettingsPayload(nextPayload) {
+      const current = state.tenantSettings?.settings || {};
+      const currentFlags = current.operationsFlags || {};
+      const nextFlags = nextPayload.operationsFlags || {};
+      const changes = [];
+      const push = (key, label, from, to) => {
+        if (JSON.stringify(from) !== JSON.stringify(to)) changes.push({ key, label, from, to });
+      };
+      push('restaurantName', 'Nom restaurant', current.restaurantName || '', nextPayload.restaurantName || '');
+      push('status', 'Statut tenant', current.status || 'draft', nextPayload.status || 'draft');
+      push('timezone', 'Timezone', current.timezone || 'Europe/Brussels', nextPayload.timezone || 'Europe/Brussels');
+      push('businessCloseHour', 'Fermeture métier', current.businessCloseHour ?? 3, nextPayload.businessCloseHour ?? 3);
+      push('brandingName', 'Branding affiché', current.brandingName || '', nextPayload.brandingName || '');
+      push('brandingLogoUrl', 'Logo URL', current.brandingLogoUrl || '', nextPayload.brandingLogoUrl || '');
+      push('brandingPrimaryColor', 'Couleur principale', current.brandingPrimaryColor || DEFAULT_COLOR, nextPayload.brandingPrimaryColor || DEFAULT_COLOR);
+      push('qrOrderingEnabled', 'QR ordering', currentFlags.qrOrderingEnabled !== false, nextFlags.qrOrderingEnabled !== false);
+      push('clientMenuEnabled', 'Menu client visible', currentFlags.clientMenuEnabled !== false, nextFlags.clientMenuEnabled !== false);
+      push('takeawayEnabled', 'Takeaway', currentFlags.takeawayEnabled !== false, nextFlags.takeawayEnabled !== false);
+      push('demoMode', 'Mode démo', currentFlags.demoMode === true, nextFlags.demoMode === true);
+      return changes;
+    }
+
+    async function confirmSettingsChange(nextPayload) {
+      const changes = diffSettingsPayload(nextPayload);
+      if (!changes.length) {
+        setStatus(els.settingsStatus, 'Aucun changement détecté.', 'error');
+        return false;
+      }
+      const tenantLabel = getTenantLabel();
+      const statusChange = changes.find((item) => item.key === 'status');
+      const disablingClient = changes.find((item) => ['qrOrderingEnabled', 'clientMenuEnabled'].includes(item.key) && item.to === false);
+      const scheduleChange = changes.find((item) => ['timezone', 'businessCloseHour'].includes(item.key));
+      const impactful = changes.map((item) => `${item.label} : ${String(item.from)} → ${String(item.to)}`);
+      if (statusChange && ['suspended', 'archived'].includes(String(statusChange.to))) {
+        return openDecisionModal({
+          title: 'Suspendre ou archiver un tenant',
+          subtitle: tenantLabel,
+          level: 'danger',
+          message: "Tu modifies un statut structurant. Ce n'est pas un simple réglage cosmétique.",
+          impacts: [
+            `Le tenant ${tenantLabel} passe en statut ${statusChange.to}.`,
+            'Les équipes peuvent comprendre cela comme un arrêt d’exploitation ou un tenant sorti du circuit.',
+            'L’action sera visible dans l’audit admin avec un niveau de danger élevé.',
+            ...impactful,
+          ],
+          confirmLabel: `Oui, passer en ${statusChange.to}`,
+        });
+      }
+      if (disablingClient) {
+        return openDecisionModal({
+          title: 'Modifier la disponibilité côté client',
+          subtitle: tenantLabel,
+          level: 'danger',
+          message: 'Tu es en train de couper une capacité visible pour le restaurant ou pour ses clients.',
+          impacts: [
+            disablingClient.key === 'qrOrderingEnabled' ? 'Le flux QR ordering peut devenir indisponible.' : 'Le menu client peut ne plus être visible.',
+            'Ce changement peut générer immédiatement des tickets de support si fait au mauvais moment.',
+            ...impactful,
+          ],
+          confirmLabel: 'Oui, appliquer ce changement',
+        });
+      }
+      if (scheduleChange) {
+        return openDecisionModal({
+          title: 'Modifier un réglage métier structurant',
+          subtitle: tenantLabel,
+          level: 'warn',
+          message: 'Timezone et heure de fermeture impactent la lecture métier des services et du jour d’exploitation.',
+          impacts: impactful,
+          confirmLabel: 'Confirmer les réglages',
+        });
+      }
+      return true;
+    }
+
+    async function confirmStaffAccessChange(nextEnabled) {
+      const currentEnabled = state.tenantStaffAccess?.staffAccess?.isEnabled !== false;
+      if (currentEnabled === nextEnabled) return true;
+      const tenantLabel = getTenantLabel();
+      if (!nextEnabled) {
+        return openDecisionModal({
+          title: "Désactiver l'accès staff",
+          subtitle: tenantLabel,
+          level: 'warn',
+          message: "Tu coupes l'accès staff de ce tenant.",
+          impacts: [
+            'Le staff ne pourra plus utiliser son accès tenant dédié tant que tu ne le réactives pas.',
+            "Si tu fais ça en service, tu crées toi-même l'incident.",
+          ],
+          confirmLabel: 'Oui, désactiver',
+        });
+      }
+      return true;
+    }
     function buildSettingsPayload() {
       return {
         restaurantName: els.restaurantName.value.trim(),
@@ -1073,10 +1276,16 @@
 
     async function saveTenantSettings() {
       if (!state.selectedTenantId) return;
+      const nextPayload = buildSettingsPayload();
+      const confirmed = await confirmSettingsChange(nextPayload);
+      if (!confirmed) {
+        setStatus(els.settingsStatus, 'Changement annulé.', 'error');
+        return;
+      }
       setStatus(els.settingsStatus, 'Enregistrement settings…');
       const payload = await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/settings`, {
         method: 'PATCH',
-        body: JSON.stringify(buildSettingsPayload()),
+        body: JSON.stringify(nextPayload),
       });
       state.tenantSettings = {
         ok: true,
@@ -1130,6 +1339,11 @@
 
     async function saveTenantStaffAccess() {
       if (!state.selectedTenantId) return;
+      const confirmed = await confirmStaffAccessChange(els.staffAccessEnabled.checked);
+      if (!confirmed) {
+        setStatus(els.staffAccessStatus, 'Changement annulé.', 'error');
+        return;
+      }
       setStatus(els.staffAccessStatus, 'Enregistrement accès staff…');
       const payload = await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/staff-access`, {
         method: 'PATCH',
@@ -1149,7 +1363,18 @@
     async function rotateTenantStaffToken() {
       if (!state.selectedTenantId) return;
       const customToken = els.customStaffToken.value.trim();
-      const confirmed = window.confirm('La rotation invalide immédiatement l’ancien token staff pour ce tenant. Continuer ?');
+      const confirmed = await openDecisionModal({
+        title: 'Rotation token staff',
+        subtitle: getTenantLabel(),
+        level: 'danger',
+        message: 'La rotation tue immédiatement l’ancien token staff.',
+        impacts: [
+          'L’ancien token devient inutilisable dès validation.',
+          'Le nouveau token doit être redonné proprement au staff concerné.',
+          customToken ? 'Tu imposes un token personnalisé. Vérifie qu’il a été communiqué sans erreur.' : 'Un nouveau token fort sera généré automatiquement.',
+        ],
+        confirmLabel: 'Oui, faire la rotation',
+      });
       if (!confirmed) return;
       setStatus(els.staffAccessStatus, 'Rotation token staff…');
       const payload = await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/staff-access/rotate`, {
@@ -1266,7 +1491,18 @@
     }
 
     async function regenerateTableQr(table) {
-      const confirmed = window.confirm('Attention : régénérer ce QR code invalidera immédiatement l’ancien. Tous les supports déjà imprimés utilisant l’ancien QR ne fonctionneront plus. Confirmer la régénération ?');
+      const confirmed = await openDecisionModal({
+        title: 'Régénérer un QR',
+        subtitle: `${getTenantLabel()} • ${table.displayName || table.label || table.code}`,
+        level: 'danger',
+        message: 'Tu es en train d’invalider un QR déjà potentiellement imprimé.',
+        impacts: [
+          'Tous les supports imprimés avec l’ancien QR cessent de fonctionner immédiatement.',
+          'Les clients ne pourront plus commander avec l’ancien QR.',
+          'Il faut réimprimer puis remplacer les supports physiques sans traîner.',
+        ],
+        confirmLabel: 'Oui, régénérer le QR',
+      });
       if (!confirmed) return;
       setStatus(els.tenantStatus, `Régénération de ${table.code}…`);
       await apiFetch(`/superadmin/tables/${table.id}/qr/regenerate`, { method: 'POST' });
@@ -1335,7 +1571,18 @@
     async function applyTemplate() {
       if (!state.selectedTenantId) return;
       const templateCode = els.catalogTemplateSelect.value;
-      const confirmed = window.confirm('Appliquer un template recopie son contenu vers le tenant. Les lignes existantes seront écrasées si les mêmes codes sont présents. Continuer ?');
+      const confirmed = await openDecisionModal({
+        title: 'Appliquer un template catalogue',
+        subtitle: getTenantLabel(),
+        level: 'danger',
+        message: 'Cette action recopie un template dans le tenant et peut écraser des lignes existantes portant les mêmes codes.',
+        impacts: [
+          'Les catégories et produits du tenant peuvent être remplacés code par code.',
+          'Si tu le fais sur un tenant actif sans contrôle, tu fabriques toi-même une incohérence de carte.',
+          `Template ciblé : ${els.catalogTemplateSelect.options[els.catalogTemplateSelect.selectedIndex]?.textContent || 'inconnu'}`,
+        ],
+        confirmLabel: 'Oui, appliquer le template',
+      });
       if (!confirmed) return;
       setStatus(els.catalogStatus, 'Application template…');
       await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/catalog/apply-template`, { method: 'POST', body: JSON.stringify({ templateCode }) });
@@ -1369,7 +1616,17 @@
     }
 
     async function archiveCategory(categoryId) {
-      const confirmed = window.confirm('Archiver cette catégorie masque aussi ses produits. Continuer ?');
+      const confirmed = await openDecisionModal({
+        title: 'Archiver une catégorie',
+        subtitle: getTenantLabel(),
+        level: 'warn',
+        message: 'Archiver une catégorie la sort du catalogue visible et masque aussi ses produits.',
+        impacts: [
+          'Les produits rattachés ne seront plus visibles côté client.',
+          'C’est réversible seulement si tu remets ensuite une structure cohérente.',
+        ],
+        confirmLabel: 'Oui, archiver',
+      });
       if (!confirmed) return;
       setStatus(els.catalogStatus, 'Archivage catégorie…');
       await apiFetch(`/superadmin/categories/${categoryId}/archive`, { method: 'POST' });
@@ -1430,7 +1687,17 @@
     }
 
     async function archiveItem(itemId) {
-      const confirmed = window.confirm('Archiver ce produit le masque du menu client. Continuer ?');
+      const confirmed = await openDecisionModal({
+        title: 'Archiver un produit',
+        subtitle: getTenantLabel(),
+        level: 'warn',
+        message: 'Archiver ce produit le retire du menu client.',
+        impacts: [
+          'Le produit ne sera plus commandable depuis le menu client.',
+          'À faire seulement si tu assumes la conséquence opérationnelle immédiatement.',
+        ],
+        confirmLabel: 'Oui, archiver le produit',
+      });
       if (!confirmed) return;
       setStatus(els.catalogStatus, 'Archivage produit…');
       await apiFetch(`/superadmin/items/${itemId}/archive`, { method: 'POST' });
@@ -1460,7 +1727,7 @@
     els.brandingPrimaryColor.addEventListener('input', (event) => updateColorPreview(event.target.value));
 
     els.loginBtn.addEventListener('click', async () => {
-      try { await login(); } catch (error) { setStatus(els.globalStatus, error.message || 'Connexion impossible', 'error'); }
+      try { await login(); } catch (error) { setStatus(els.globalStatus, describeApiError(error) || 'Connexion impossible', 'error'); }
     });
 
     els.refreshBtn.addEventListener('click', async () => {
@@ -1469,13 +1736,13 @@
         await Promise.all([loadOverview(), loadTenants(), loadDiagnostics(), loadAudits()]);
         setStatus(els.globalStatus, 'Actualisation OK.', 'ok');
       } catch (error) {
-        setStatus(els.globalStatus, error.message || 'Actualisation impossible', 'error');
+        setStatus(els.globalStatus, describeApiError(error) || 'Actualisation impossible', 'error');
       }
     });
 
 
     els.diagApplyBtn.addEventListener('click', async () => {
-      try { await loadDiagnostics(); } catch (error) { setStatus(els.diagStatus, error.message || 'Chargement diagnostics impossible', 'error'); }
+      try { await loadDiagnostics(); } catch (error) { setStatus(els.diagStatus, describeApiError(error) || 'Chargement diagnostics impossible', 'error'); }
     });
 
     els.diagSelectedTenantBtn.addEventListener('click', async () => {
@@ -1484,7 +1751,7 @@
         els.diagTenantFilter.value = state.selectedTenantId;
         await loadDiagnostics();
       } catch (error) {
-        setStatus(els.diagStatus, error.message || 'Filtre tenant impossible', 'error');
+        setStatus(els.diagStatus, describeApiError(error) || 'Filtre tenant impossible', 'error');
       }
     });
 
@@ -1500,11 +1767,11 @@
       els.diagToFilter.value = '';
       els.diagOrderFilter.value = 'desc';
       els.diagUnresolvedOnly.checked = false;
-      try { await loadDiagnostics(); } catch (error) { setStatus(els.diagStatus, error.message || 'Réinitialisation diagnostics impossible', 'error'); }
+      try { await loadDiagnostics(); } catch (error) { setStatus(els.diagStatus, describeApiError(error) || 'Réinitialisation diagnostics impossible', 'error'); }
     });
 
     els.auditApplyBtn.addEventListener('click', async () => {
-      try { await loadAudits(); } catch (error) { setStatus(els.auditViewStatus, error.message || 'Chargement audits impossible', 'error'); }
+      try { await loadAudits(); } catch (error) { setStatus(els.auditViewStatus, describeApiError(error) || 'Chargement audits impossible', 'error'); }
     });
 
     els.auditSelectedTenantBtn.addEventListener('click', async () => {
@@ -1514,7 +1781,7 @@
         els.auditPlatformOnly.checked = false;
         await loadAudits();
       } catch (error) {
-        setStatus(els.auditViewStatus, error.message || 'Filtre audit impossible', 'error');
+        setStatus(els.auditViewStatus, describeApiError(error) || 'Filtre audit impossible', 'error');
       }
     });
 
@@ -1531,7 +1798,7 @@
       els.auditLimitFilter.value = '100';
       els.auditChangedOnly.checked = false;
       els.auditPlatformOnly.checked = false;
-      try { await loadAudits(); } catch (error) { setStatus(els.auditViewStatus, error.message || 'Réinitialisation audits impossible', 'error'); }
+      try { await loadAudits(); } catch (error) { setStatus(els.auditViewStatus, describeApiError(error) || 'Réinitialisation audits impossible', 'error'); }
     });
 
     els.reloadSettingsBtn.addEventListener('click', async () => {
@@ -1539,12 +1806,12 @@
         if (!state.selectedTenantId) throw new Error('tenant_requis');
         await loadTenantSettings(state.selectedTenantId);
       } catch (error) {
-        setStatus(els.settingsStatus, error.message || 'Rechargement settings impossible', 'error');
+        setStatus(els.settingsStatus, describeApiError(error) || 'Rechargement settings impossible', 'error');
       }
     });
 
     els.saveSettingsBtn.addEventListener('click', async () => {
-      try { await saveTenantSettings(); } catch (error) { setStatus(els.settingsStatus, error.message || 'Enregistrement impossible', 'error'); }
+      try { await saveTenantSettings(); } catch (error) { setStatus(els.settingsStatus, describeApiError(error) || 'Enregistrement impossible', 'error'); }
     });
 
     els.reloadStaffAccessBtn.addEventListener('click', async () => {
@@ -1552,16 +1819,16 @@
         if (!state.selectedTenantId) throw new Error('tenant_requis');
         await loadTenantStaffAccess(state.selectedTenantId);
       } catch (error) {
-        setStatus(els.staffAccessStatus, error.message || 'Rechargement accès staff impossible', 'error');
+        setStatus(els.staffAccessStatus, describeApiError(error) || 'Rechargement accès staff impossible', 'error');
       }
     });
 
     els.saveStaffAccessBtn.addEventListener('click', async () => {
-      try { await saveTenantStaffAccess(); } catch (error) { setStatus(els.staffAccessStatus, error.message || 'Enregistrement accès staff impossible', 'error'); }
+      try { await saveTenantStaffAccess(); } catch (error) { setStatus(els.staffAccessStatus, describeApiError(error) || 'Enregistrement accès staff impossible', 'error'); }
     });
 
     els.rotateStaffTokenBtn.addEventListener('click', async () => {
-      try { await rotateTenantStaffToken(); } catch (error) { setStatus(els.staffAccessStatus, error.message || 'Rotation token impossible', 'error'); }
+      try { await rotateTenantStaffToken(); } catch (error) { setStatus(els.staffAccessStatus, describeApiError(error) || 'Rotation token impossible', 'error'); }
     });
 
     els.reloadCenterBtn.addEventListener('click', async () => {
@@ -1569,7 +1836,7 @@
         if (!state.selectedTenantId) throw new Error('tenant_requis');
         await loadQrCenter(state.selectedTenantId);
       } catch (error) {
-        setStatus(els.tenantStatus, error.message || 'Rechargement impossible', 'error');
+        setStatus(els.tenantStatus, describeApiError(error) || 'Rechargement impossible', 'error');
       }
     });
 
@@ -1599,14 +1866,24 @@
     });
 
     els.reloadCatalogBtn.addEventListener('click', async () => {
-      try { if (!state.selectedTenantId) throw new Error('tenant_requis'); await loadCatalog(state.selectedTenantId); } catch (error) { setStatus(els.catalogStatus, error.message || 'Rechargement catalogue impossible', 'error'); }
+      try { if (!state.selectedTenantId) throw new Error('tenant_requis'); await loadCatalog(state.selectedTenantId); } catch (error) { setStatus(els.catalogStatus, describeApiError(error) || 'Rechargement catalogue impossible', 'error'); }
     });
-    els.applyTemplateBtn.addEventListener('click', async () => { try { await applyTemplate(); } catch (error) { setStatus(els.catalogStatus, error.message || 'Application template impossible', 'error'); } });
-    els.createCategoryBtn.addEventListener('click', async () => { try { await createCategory(); } catch (error) { setStatus(els.catalogStatus, error.message || 'Création catégorie impossible', 'error'); } });
-    els.createItemBtn.addEventListener('click', async () => { try { await createItem(); } catch (error) { setStatus(els.catalogStatus, error.message || 'Création produit impossible', 'error'); } });
+    els.applyTemplateBtn.addEventListener('click', async () => { try { await applyTemplate(); } catch (error) { setStatus(els.catalogStatus, describeApiError(error) || 'Application template impossible', 'error'); } });
+    els.createCategoryBtn.addEventListener('click', async () => { try { await createCategory(); } catch (error) { setStatus(els.catalogStatus, describeApiError(error) || 'Création catégorie impossible', 'error'); } });
+    els.createItemBtn.addEventListener('click', async () => { try { await createItem(); } catch (error) { setStatus(els.catalogStatus, describeApiError(error) || 'Création produit impossible', 'error'); } });
+
+    els.decisionModalCancel.addEventListener('click', () => closeDecisionModal(false));
+    els.decisionModalClose.addEventListener('click', () => closeDecisionModal(false));
+    els.decisionModalConfirm.addEventListener('click', () => closeDecisionModal(true));
+    els.decisionModal.addEventListener('click', (event) => {
+      if (event.target === els.decisionModal) closeDecisionModal(false);
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && state.pendingDecisionResolver) closeDecisionModal(false);
+    });
 
     if (state.adminToken) {
-      login().catch((error) => setStatus(els.globalStatus, error.message || 'Connexion automatique impossible', 'error'));
+      login().catch((error) => setStatus(els.globalStatus, describeApiError(error) || 'Connexion automatique impossible', 'error'));
     }
   </script>
 </body>
