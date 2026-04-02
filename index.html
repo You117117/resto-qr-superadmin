@@ -131,6 +131,7 @@
             </div>
             <div class="row">
               <span id="settingsBadge" class="pill warn">Settings inactifs</span>
+              <span id="staffBadge" class="pill warn">Accès staff inactif</span>
               <span id="centerBadge" class="pill warn">Centre QR inactif</span>
             </div>
           </div>
@@ -213,6 +214,58 @@
         <section class="panel">
           <div class="space-between">
             <div>
+              <h3 style="margin:0; font-size:20px;">Accès staff par tenant</h3>
+              <div class="muted" style="margin-top:6px;">Activation, désactivation, rotation contrôlée du token et audit visible.</div>
+            </div>
+            <div class="row">
+              <button id="reloadStaffAccessBtn" class="secondary" disabled>Recharger accès staff</button>
+              <button id="saveStaffAccessBtn" class="secondary" disabled>Enregistrer accès</button>
+              <button id="rotateStaffTokenBtn" class="warning" disabled>Rotation auto</button>
+            </div>
+          </div>
+          <div class="section-grid" style="margin-top:16px; grid-template-columns: 1fr 380px;">
+            <div class="panel" style="padding:16px;">
+              <div id="staffAccessStatus" class="status"></div>
+              <div class="settings-grid" style="margin-top:12px;">
+                <div class="field">
+                  <label class="check-item"><input id="staffAccessEnabled" type="checkbox" /> Accès staff activé pour ce tenant</label>
+                </div>
+                <div class="field">
+                  <label>Mode actuel</label>
+                  <div id="staffAccessMode" class="token-box">—</div>
+                </div>
+                <div class="field">
+                  <label>Dernière rotation</label>
+                  <div id="staffRotatedAt" class="token-box">jamais</div>
+                </div>
+                <div class="field">
+                  <label>Dernière mise à jour</label>
+                  <div id="staffUpdatedAt" class="token-box">jamais</div>
+                </div>
+                <div class="field" style="grid-column: 1 / -1;">
+                  <label for="customStaffToken">Rotation contrôlée — token personnalisé (optionnel)</label>
+                  <input id="customStaffToken" placeholder="Laisser vide pour générer un token fort automatiquement" />
+                </div>
+                <div class="field" style="grid-column: 1 / -1;">
+                  <label>Nouveau token émis</label>
+                  <div id="issuedStaffToken" class="token-box">Aucune rotation effectuée dans cette session.</div>
+                </div>
+              </div>
+            </div>
+            <div class="panel" style="padding:16px;">
+              <div class="space-between">
+                <h4 style="margin:0; font-size:18px;">Historique staff</h4>
+                <span id="staffHistoryCount" class="muted">0</span>
+              </div>
+              <div id="staffHistoryList" class="history-list" style="margin-top:12px;"></div>
+            </div>
+          </div>
+        </section>
+
+
+        <section class="panel">
+          <div class="space-between">
+            <div>
               <h3 style="margin:0; font-size:20px;">Centre QR</h3>
               <div class="muted" style="margin-top:6px;">Réimpression et régénération restent volontairement séparées.</div>
             </div>
@@ -283,6 +336,7 @@
       selectedTenantId: null,
       qrCenter: null,
       tenantSettings: null,
+      tenantStaffAccess: null,
       catalog: null,
       selectedTableIds: new Set(),
       admin: null,
@@ -300,6 +354,7 @@
       tenantTitle: document.getElementById('tenantTitle'),
       tenantMeta: document.getElementById('tenantMeta'),
       settingsBadge: document.getElementById('settingsBadge'),
+      staffBadge: document.getElementById('staffBadge'),
       centerBadge: document.getElementById('centerBadge'),
       reloadSettingsBtn: document.getElementById('reloadSettingsBtn'),
       settingsStatus: document.getElementById('settingsStatus'),
@@ -319,6 +374,18 @@
       flagDemoMode: document.getElementById('flagDemoMode'),
       saveSettingsBtn: document.getElementById('saveSettingsBtn'),
       historyCount: document.getElementById('historyCount'),
+      reloadStaffAccessBtn: document.getElementById('reloadStaffAccessBtn'),
+      saveStaffAccessBtn: document.getElementById('saveStaffAccessBtn'),
+      rotateStaffTokenBtn: document.getElementById('rotateStaffTokenBtn'),
+      staffAccessStatus: document.getElementById('staffAccessStatus'),
+      staffAccessEnabled: document.getElementById('staffAccessEnabled'),
+      staffAccessMode: document.getElementById('staffAccessMode'),
+      staffRotatedAt: document.getElementById('staffRotatedAt'),
+      staffUpdatedAt: document.getElementById('staffUpdatedAt'),
+      customStaffToken: document.getElementById('customStaffToken'),
+      issuedStaffToken: document.getElementById('issuedStaffToken'),
+      staffHistoryCount: document.getElementById('staffHistoryCount'),
+      staffHistoryList: document.getElementById('staffHistoryList'),
       historyList: document.getElementById('historyList'),
       printSelectedBtn: document.getElementById('printSelectedBtn'),
       printAllBtn: document.getElementById('printAllBtn'),
@@ -429,7 +496,7 @@
 
     async function loadTenantWorkspace(tenantId) {
       state.selectedTableIds.clear();
-      await Promise.all([loadTenantSettings(tenantId), loadQrCenter(tenantId), loadCatalog(tenantId)]);
+      await Promise.all([loadTenantSettings(tenantId), loadTenantStaffAccess(tenantId), loadQrCenter(tenantId), loadCatalog(tenantId)]);
     }
 
     function renderTenantList() {
@@ -476,6 +543,10 @@
       els.tenantMeta.textContent = `${tenant?.subdomain || tenant?.slug || tenant?.id || ''} • timezone ${escapeHtml(settings?.timezone || 'Europe/Brussels')} • fermeture ${settings?.businessCloseHour ?? 3}h`;
       els.settingsBadge.className = `pill ${tenant?.id ? 'ok' : 'warn'}`;
       els.settingsBadge.textContent = tenant?.id ? 'Settings prêts' : 'Settings inactifs';
+      if (!tenant?.id) {
+        els.staffBadge.className = 'pill warn';
+        els.staffBadge.textContent = 'Accès staff inactif';
+      }
       els.reloadSettingsBtn.disabled = !tenant?.id;
       els.saveSettingsBtn.disabled = !tenant?.id;
 
@@ -523,6 +594,88 @@
       };
       setStatus(els.settingsStatus, 'Settings enregistrés.', 'ok');
       await Promise.all([loadTenants(), loadTenantSettings(state.selectedTenantId)]);
+    }
+
+
+    async function loadTenantStaffAccess(tenantId) {
+      setStatus(els.staffAccessStatus, 'Chargement accès staff…');
+      const payload = await apiFetch(`/superadmin/tenants/${tenantId}/staff-access`);
+      state.tenantStaffAccess = payload;
+      renderTenantStaffAccess();
+      setStatus(els.staffAccessStatus, 'Accès staff chargé.', 'ok');
+    }
+
+    function renderTenantStaffAccess() {
+      const tenant = state.tenantStaffAccess?.tenant || null;
+      const access = state.tenantStaffAccess?.staffAccess || null;
+      const history = Array.isArray(state.tenantStaffAccess?.history) ? state.tenantStaffAccess.history : [];
+
+      els.staffBadge.className = `pill ${access?.isEnabled ? 'ok' : 'warn'}`;
+      els.staffBadge.textContent = tenant?.id ? (access?.isEnabled ? 'Accès staff actif' : 'Accès staff désactivé') : 'Accès staff inactif';
+      els.reloadStaffAccessBtn.disabled = !tenant?.id;
+      els.saveStaffAccessBtn.disabled = !tenant?.id;
+      els.rotateStaffTokenBtn.disabled = !tenant?.id;
+      els.staffAccessEnabled.checked = access?.isEnabled !== false;
+      els.staffAccessEnabled.disabled = !tenant?.id;
+      els.staffAccessMode.textContent = access?.mode === 'tenant_token' ? 'Token tenant dédié actif' : 'Fallback token global legacy';
+      els.staffRotatedAt.textContent = formatDate(access?.rotatedAt);
+      els.staffUpdatedAt.textContent = formatDate(access?.updatedAt);
+      if (!state.lastIssuedStaffToken) {
+        els.issuedStaffToken.textContent = 'Aucune rotation effectuée dans cette session.';
+      }
+      els.staffHistoryCount.textContent = String(history.length);
+      els.staffHistoryList.innerHTML = history.length ? '' : '<div class="empty">Aucun historique staff pour ce tenant.</div>';
+      history.forEach((row) => {
+        const item = document.createElement('div');
+        item.className = 'history-card';
+        item.innerHTML = `
+          <div class="history-title">${escapeHtml(row.action || 'action')}</div>
+          <div class="history-meta">${escapeHtml(row.adminLabel || 'admin inconnu')} • ${escapeHtml(row.dangerLevel || 'info')} • ${formatDate(row.createdAt)}</div>
+        `;
+        els.staffHistoryList.appendChild(item);
+      });
+    }
+
+    async function saveTenantStaffAccess() {
+      if (!state.selectedTenantId) return;
+      setStatus(els.staffAccessStatus, 'Enregistrement accès staff…');
+      const payload = await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/staff-access`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isEnabled: els.staffAccessEnabled.checked }),
+      });
+      state.tenantStaffAccess = {
+        ok: true,
+        tenant: payload.tenant || state.tenantStaffAccess?.tenant || null,
+        staffAccess: payload.staffAccess || null,
+        history: state.tenantStaffAccess?.history || [],
+      };
+      renderTenantStaffAccess();
+      setStatus(els.staffAccessStatus, 'Accès staff enregistré.', 'ok');
+      await Promise.all([loadTenants(), loadTenantStaffAccess(state.selectedTenantId)]);
+    }
+
+    async function rotateTenantStaffToken() {
+      if (!state.selectedTenantId) return;
+      const customToken = els.customStaffToken.value.trim();
+      const confirmed = window.confirm('La rotation invalide immédiatement l’ancien token staff pour ce tenant. Continuer ?');
+      if (!confirmed) return;
+      setStatus(els.staffAccessStatus, 'Rotation token staff…');
+      const payload = await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/staff-access/rotate`, {
+        method: 'POST',
+        body: JSON.stringify({ nextToken: customToken || undefined }),
+      });
+      state.lastIssuedStaffToken = payload.issuedToken || '';
+      els.issuedStaffToken.textContent = payload.issuedToken || 'Token non renvoyé';
+      els.customStaffToken.value = '';
+      state.tenantStaffAccess = {
+        ok: true,
+        tenant: payload.tenant || state.tenantStaffAccess?.tenant || null,
+        staffAccess: payload.staffAccess || null,
+        history: state.tenantStaffAccess?.history || [],
+      };
+      renderTenantStaffAccess();
+      setStatus(els.staffAccessStatus, 'Token staff roté. L’ancien est mort.', 'ok');
+      await Promise.all([loadTenants(), loadTenantStaffAccess(state.selectedTenantId)]);
     }
 
     async function loadQrCenter(tenantId) {
@@ -839,6 +992,23 @@
 
     els.saveSettingsBtn.addEventListener('click', async () => {
       try { await saveTenantSettings(); } catch (error) { setStatus(els.settingsStatus, error.message || 'Enregistrement impossible', 'error'); }
+    });
+
+    els.reloadStaffAccessBtn.addEventListener('click', async () => {
+      try {
+        if (!state.selectedTenantId) throw new Error('tenant_requis');
+        await loadTenantStaffAccess(state.selectedTenantId);
+      } catch (error) {
+        setStatus(els.staffAccessStatus, error.message || 'Rechargement accès staff impossible', 'error');
+      }
+    });
+
+    els.saveStaffAccessBtn.addEventListener('click', async () => {
+      try { await saveTenantStaffAccess(); } catch (error) { setStatus(els.staffAccessStatus, error.message || 'Enregistrement accès staff impossible', 'error'); }
+    });
+
+    els.rotateStaffTokenBtn.addEventListener('click', async () => {
+      try { await rotateTenantStaffToken(); } catch (error) { setStatus(els.staffAccessStatus, error.message || 'Rotation token impossible', 'error'); }
     });
 
     els.reloadCenterBtn.addEventListener('click', async () => {
