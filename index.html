@@ -85,11 +85,18 @@
     .history-title { font-size: 13px; font-weight: 800; }
     .history-meta { color: var(--muted); font-size: 12px; margin-top: 4px; }
     .swatch { width: 22px; height: 22px; border-radius: 999px; border: 1px solid var(--border); display: inline-block; vertical-align: middle; }
+    .overview-grid { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(180px, 1fr)); }
+    .metric-card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 14px; display: grid; gap: 6px; }
+    .metric-label { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    .metric-value { font-size: 26px; font-weight: 800; }
+    .metric-note { color: var(--muted); font-size: 12px; }
+    .overview-list { display: grid; gap: 10px; max-height: 260px; overflow: auto; }
+    .overview-item { background: #0d1526; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
     @media (max-width: 1240px) {
       .section-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 1080px) {
-      .auth-grid, .main-grid, .toolbar, .table-card, .settings-grid { grid-template-columns: 1fr; }
+      .auth-grid, .main-grid, .toolbar, .table-card, .settings-grid, .overview-grid { grid-template-columns: 1fr; }
       .actions, .check-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -99,7 +106,7 @@
     <section class="topbar">
       <div>
         <div class="title">Superadmin — Cockpit tenant</div>
-        <div class="subtitle">Bloc 6 : settings tenant exploitables sans redéployer, avec validations et historique. Le centre QR reste disponible plus bas.</div>
+        <div class="subtitle">Bloc 10 : vue d’ensemble plateforme avec état API/DB/SSE, incidents récents, audits récents et raccourcis utiles.</div>
       </div>
       <div class="auth-grid">
         <input id="apiBase" placeholder="API base URL" value="http://localhost:8080" />
@@ -110,6 +117,43 @@
       <div class="space-between">
         <div id="sessionInfo" class="muted">Pas connecté.</div>
         <div id="globalStatus" class="status"></div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:18px;">
+      <div class="space-between">
+        <div>
+          <h2 style="margin:0; font-size:22px;">Vue d’ensemble plateforme</h2>
+          <div class="muted" style="margin-top:6px;">État backend utile, volumes plateforme, incidents récents et derniers audits admin.</div>
+        </div>
+        <div class="row">
+          <span id="platformApiBadge" class="pill warn">API inconnue</span>
+          <span id="platformDbBadge" class="pill warn">DB inconnue</span>
+          <span id="platformSseBadge" class="pill warn">SSE inconnu</span>
+        </div>
+      </div>
+      <div id="overviewStatus" class="status" style="margin-top:12px;"></div>
+      <div class="overview-grid" style="margin-top:14px;">
+        <div class="metric-card"><div class="metric-label">Tenants</div><div id="metricTenantsTotal" class="metric-value">0</div><div id="metricTenantsNote" class="metric-note">0 actifs / 0 inactifs</div></div>
+        <div class="metric-card"><div class="metric-label">Tables</div><div id="metricTablesTotal" class="metric-value">0</div><div id="metricTablesNote" class="metric-note">Structure salle provisionnée</div></div>
+        <div class="metric-card"><div class="metric-label">Sessions</div><div id="metricSessionsOpen" class="metric-value">0</div><div id="metricSessionsNote" class="metric-note">0 en cours</div></div>
+        <div class="metric-card"><div class="metric-label">Accès staff</div><div id="metricStaffEnabled" class="metric-value">0</div><div id="metricStaffNote" class="metric-note">0 dédiés / 0 total</div></div>
+      </div>
+      <div class="section-grid" style="margin-top:16px; grid-template-columns: 1.1fr .9fr;">
+        <div class="panel" style="padding:16px;">
+          <div class="space-between"><h3 style="margin:0; font-size:18px;">Incidents récents</h3><span id="incidentCounts" class="muted">0</span></div>
+          <div id="incidentList" class="overview-list" style="margin-top:12px;"></div>
+        </div>
+        <div class="panel" style="padding:16px; display:grid; gap:16px;">
+          <div>
+            <div class="space-between"><h3 style="margin:0; font-size:18px;">Derniers audits admin</h3><span id="auditCounts" class="muted">0</span></div>
+            <div id="auditList" class="overview-list" style="margin-top:12px;"></div>
+          </div>
+          <div>
+            <div class="space-between"><h3 style="margin:0; font-size:18px;">Raccourcis utiles</h3><span id="shortcutCounts" class="muted">0</span></div>
+            <div id="shortcutList" class="overview-list" style="margin-top:12px;"></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -338,6 +382,7 @@
       tenantSettings: null,
       tenantStaffAccess: null,
       catalog: null,
+      overview: null,
       selectedTableIds: new Set(),
       admin: null,
     };
@@ -349,6 +394,24 @@
       refreshBtn: document.getElementById('refreshBtn'),
       sessionInfo: document.getElementById('sessionInfo'),
       globalStatus: document.getElementById('globalStatus'),
+      platformApiBadge: document.getElementById('platformApiBadge'),
+      platformDbBadge: document.getElementById('platformDbBadge'),
+      platformSseBadge: document.getElementById('platformSseBadge'),
+      overviewStatus: document.getElementById('overviewStatus'),
+      metricTenantsTotal: document.getElementById('metricTenantsTotal'),
+      metricTenantsNote: document.getElementById('metricTenantsNote'),
+      metricTablesTotal: document.getElementById('metricTablesTotal'),
+      metricTablesNote: document.getElementById('metricTablesNote'),
+      metricSessionsOpen: document.getElementById('metricSessionsOpen'),
+      metricSessionsNote: document.getElementById('metricSessionsNote'),
+      metricStaffEnabled: document.getElementById('metricStaffEnabled'),
+      metricStaffNote: document.getElementById('metricStaffNote'),
+      incidentCounts: document.getElementById('incidentCounts'),
+      incidentList: document.getElementById('incidentList'),
+      auditCounts: document.getElementById('auditCounts'),
+      auditList: document.getElementById('auditList'),
+      shortcutCounts: document.getElementById('shortcutCounts'),
+      shortcutList: document.getElementById('shortcutList'),
       tenantCount: document.getElementById('tenantCount'),
       tenantList: document.getElementById('tenantList'),
       tenantTitle: document.getElementById('tenantTitle'),
@@ -472,6 +535,94 @@
       };
     }
 
+    function setPlatformBadge(target, label, status) {
+      const normalized = String(status || 'warn').toLowerCase();
+      const cls = normalized === 'ok' || normalized === 'ready' ? 'ok' : (normalized === 'error' ? 'danger' : 'warn');
+      target.className = `pill ${cls}`;
+      target.textContent = label;
+    }
+
+    async function loadOverview() {
+      setStatus(els.overviewStatus, 'Chargement vue plateforme…');
+      const payload = await apiFetch('/superadmin/overview');
+      state.overview = payload.overview || null;
+      renderOverview();
+      setStatus(els.overviewStatus, 'Vue plateforme chargée.', 'ok');
+    }
+
+    function renderOverview() {
+      const overview = state.overview || {};
+      const counts = overview.counts || {};
+      const platform = overview.platform || {};
+      const incidents = overview.incidents || {};
+      const audits = overview.audits || {};
+      const shortcuts = overview.shortcuts || {};
+
+      setPlatformBadge(els.platformApiBadge, `API ${platform.apiStatus || 'inconnue'}`, platform.apiStatus || 'warn');
+      setPlatformBadge(els.platformDbBadge, `DB ${platform.dbStatus || 'inconnue'}`, platform.dbStatus || 'warn');
+      setPlatformBadge(els.platformSseBadge, `SSE ${platform.sseStatus || 'inconnu'}`, platform.sseStatus || 'warn');
+
+      els.metricTenantsTotal.textContent = String(counts.tenantsTotal || 0);
+      els.metricTenantsNote.textContent = `${counts.tenantsActive || 0} actifs / ${counts.tenantsInactive || 0} inactifs`;
+      els.metricTablesTotal.textContent = String(counts.tablesTotal || 0);
+      els.metricTablesNote.textContent = `${counts.auditsRecent || 0} audits récents • ${counts.incidentsRecent || 0} incidents récents`;
+      els.metricSessionsOpen.textContent = String(counts.sessionsOpen || 0);
+      els.metricSessionsNote.textContent = `${counts.sessionsInProgress || 0} en cours sur ${counts.sessionsTotal || 0} session(s)`;
+      els.metricStaffEnabled.textContent = String(counts.staffAccessEnabled || 0);
+      els.metricStaffNote.textContent = `${counts.staffDedicated || 0} dédiés / ${counts.staffAccessTotal || 0} total`;
+
+      const sev = incidents.severityCounts || {};
+      els.incidentCounts.textContent = `${incidents.items?.length || 0} • info ${sev.info || 0} • warn ${sev.warn || 0} • error ${sev.error || 0}`;
+      els.incidentList.innerHTML = (incidents.items || []).length ? '' : '<div class="empty">Aucun incident récent exploitable.</div>';
+      (incidents.items || []).forEach((row) => {
+        const item = document.createElement('div');
+        item.className = 'overview-item';
+        item.innerHTML = `
+          <div class="space-between"><strong>${escapeHtml(row.eventCode || 'incident')}</strong><span class="pill ${row.severity === 'error' ? 'danger' : row.severity === 'warn' ? 'warn' : 'ok'}">${escapeHtml(row.severity || 'info')}</span></div>
+          <div class="muted" style="margin-top:6px;">${escapeHtml(row.tenantLabel || 'tenant inconnu')}${row.tableCode ? ` • table ${escapeHtml(row.tableCode)}` : ''}</div>
+          <div class="muted" style="margin-top:4px;">${escapeHtml(row.message || 'sans message')} • ${formatDate(row.createdAt)}</div>
+        `;
+        els.incidentList.appendChild(item);
+      });
+
+      els.auditCounts.textContent = `${audits.items?.length || 0}`;
+      els.auditList.innerHTML = (audits.items || []).length ? '' : '<div class="empty">Aucun audit admin récent.</div>';
+      (audits.items || []).forEach((row) => {
+        const item = document.createElement('div');
+        item.className = 'overview-item';
+        item.innerHTML = `
+          <div class="space-between"><strong>${escapeHtml(row.action || 'action')}</strong><span class="pill ${row.dangerLevel === 'high' ? 'danger' : row.dangerLevel === 'medium' ? 'warn' : 'ok'}">${escapeHtml(row.dangerLevel || 'info')}</span></div>
+          <div class="muted" style="margin-top:6px;">${escapeHtml(row.tenantLabel || 'plateforme')} • ${escapeHtml(row.resourceType || 'ressource')}</div>
+          <div class="muted" style="margin-top:4px;">${escapeHtml(row.adminLabel || 'admin inconnu')} • ${formatDate(row.createdAt)}</div>
+        `;
+        els.auditList.appendChild(item);
+      });
+
+      const shortcutItems = [...(shortcuts.recentTenants || []).map((row) => ({ type: 'tenant', row })), ...(shortcuts.suggestedActions || []).map((label) => ({ type: 'action', label }))];
+      els.shortcutCounts.textContent = String(shortcutItems.length);
+      els.shortcutList.innerHTML = shortcutItems.length ? '' : '<div class="empty">Aucun raccourci utile.</div>';
+      shortcutItems.forEach((entry) => {
+        const item = document.createElement('div');
+        item.className = 'overview-item';
+        if (entry.type === 'tenant') {
+          item.innerHTML = `
+            <div class="space-between"><strong>${escapeHtml(entry.row.name || entry.row.slug || entry.row.id)}</strong><span class="pill ${entry.row.status === 'active' ? 'ok' : 'warn'}">${escapeHtml(entry.row.status || 'draft')}</span></div>
+            <div class="muted" style="margin-top:6px;">Dernière activité admin : ${formatDate(entry.row.updatedAt)}</div>
+          `;
+          item.style.cursor = 'pointer';
+          item.addEventListener('click', async () => {
+            state.selectedTenantId = entry.row.id;
+            renderTenantList();
+            await loadTenantWorkspace(entry.row.id);
+            window.scrollTo({ top: document.querySelector('.main-grid').offsetTop - 12, behavior: 'smooth' });
+          });
+        } else {
+          item.innerHTML = `<strong>${escapeHtml(entry.label)}</strong>`;
+        }
+        els.shortcutList.appendChild(item);
+      });
+    }
+
     async function login() {
       state.apiBase = els.apiBase.value.trim();
       state.adminToken = els.adminToken.value.trim();
@@ -482,7 +633,7 @@
       state.admin = payload.admin || null;
       els.sessionInfo.textContent = `Connecté ${payload.admin?.fullName || payload.admin?.email || payload.admin?.authMode || 'superadmin'}`;
       setStatus(els.globalStatus, 'Connexion valide.', 'ok');
-      await loadTenants();
+      await Promise.all([loadOverview(), loadTenants()]);
     }
 
     async function loadTenants() {
@@ -974,7 +1125,7 @@
     els.refreshBtn.addEventListener('click', async () => {
       try {
         if (!state.adminToken) throw new Error('token_admin_requis');
-        await loadTenants();
+        await Promise.all([loadOverview(), loadTenants()]);
         setStatus(els.globalStatus, 'Actualisation OK.', 'ok');
       } catch (error) {
         setStatus(els.globalStatus, error.message || 'Actualisation impossible', 'error');
