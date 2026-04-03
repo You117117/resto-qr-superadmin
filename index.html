@@ -26,7 +26,7 @@
     .panel { padding: 18px; }
     .title { font-size: 28px; font-weight: 800; }
     .subtitle { color: var(--muted); font-size: 14px; }
-    .auth-grid { display: grid; grid-template-columns: 1.2fr 1fr 160px 160px; gap: 12px; }
+    .auth-grid { display: grid; grid-template-columns: 1.2fr 1fr 180px 150px 150px; gap: 12px; }
     .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 18px; margin-top: 18px; }
     .main-stack { display: grid; gap: 18px; }
     .section-grid { display: grid; gap: 18px; grid-template-columns: 1.15fr .85fr; }
@@ -99,58 +99,11 @@
     .diag-item.active { border-color: #7c3aed; box-shadow: inset 0 0 0 1px #7c3aed; }
     .diag-meta { color: var(--muted); font-size: 12px; }
     .diag-payload { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; background: #0d1526; border: 1px solid var(--border); border-radius: 12px; padding: 12px; overflow: auto; max-height: 360px; }
-    .audit-filter-grid { display: grid; gap: 10px; grid-template-columns: repeat(6, minmax(130px, 1fr)); }
-    .audit-layout { display: grid; gap: 16px; grid-template-columns: 1.1fr .9fr; }
-    .audit-item { background: #0d1526; border: 1px solid var(--border); border-radius: 12px; padding: 12px; cursor: pointer; display: grid; gap: 6px; }
-    .audit-item.active { border-color: #7c3aed; box-shadow: inset 0 0 0 1px #7c3aed; }
-    .audit-meta { color: var(--muted); font-size: 12px; }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(3,8,20,.72); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 9999; }
-    .modal-overlay.open { display: flex; }
-    .modal-card { width: min(760px, 100%); background: rgba(18,26,43,.98); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 24px 80px rgba(0,0,0,.45); overflow: hidden; }
-    .modal-head, .modal-body, .modal-actions { padding: 18px 20px; }
-    .modal-head { border-bottom: 1px solid rgba(255,255,255,.06); display:flex; justify-content:space-between; align-items:center; gap:14px; }
-    .modal-title { font-size: 22px; font-weight: 800; }
-    .modal-close { width:auto; min-width:44px; background: transparent; border: 1px solid var(--border); }
-    .modal-body { display:grid; gap:14px; }
-    .modal-message { font-size: 15px; line-height: 1.55; color: var(--text); }
-    .modal-impact { display:grid; gap:10px; background:#0d1526; border:1px solid var(--border); border-radius:14px; padding:14px; }
-    .modal-impact strong { font-size: 13px; text-transform: uppercase; letter-spacing:.04em; }
-    .modal-impact ul { margin:0; padding-left:18px; display:grid; gap:8px; }
-    .modal-note { border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; }
-    .modal-note.info { background: rgba(79,70,229,.16); color: #c7c3ff; }
-    .modal-note.warn { background: rgba(217,119,6,.16); color: #ffd08a; }
-    .modal-note.danger { background: rgba(220,38,38,.16); color: #ffb0b0; }
-    .modal-actions { border-top: 1px solid rgba(255,255,255,.06); display:flex; justify-content:flex-end; gap:12px; }
-
-    .inline-form-grid { display:grid; gap:12px; grid-template-columns: repeat(3, minmax(180px, 1fr)); }
-    .provision-grid { display:grid; gap:12px; grid-template-columns: repeat(4, minmax(170px, 1fr)); }
-    .provision-card { background: #0d1526; border: 1px solid var(--border); border-radius: 14px; padding: 14px; display:grid; gap:8px; }
-    .provision-card strong { font-size: 15px; }
-    .provision-card .muted { font-size: 12px; }
-    .compact-list { display:grid; gap:10px; }
-    .table-manage-grid { display:grid; gap:14px; grid-template-columns: 1.1fr .9fr; }
-    .table-manage-card { background: #0d1526; border: 1px solid var(--border); border-radius: 14px; padding: 14px; display:grid; gap:10px; }
-    .table-manage-card.active { border-color: #7c3aed; box-shadow: inset 0 0 0 1px #7c3aed; }
-    .table-manage-toolbar { display:grid; gap:10px; grid-template-columns: repeat(5, minmax(120px, 1fr)); }
-    .table-order-chip { font-size: 12px; color: var(--muted); }
-    .helper-box { background:#0d1526; border:1px solid var(--border); border-radius:14px; padding:14px; }
-    .tenant-filter-grid { display:grid; gap:10px; grid-template-columns: 1.3fr 1fr 1fr 1fr; margin-top:12px; }
-    .tenant-card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
-    .tenant-card-meta { display:grid; gap:6px; }
-    .tenant-badges { display:flex; gap:8px; flex-wrap:wrap; }
-    .coherence-grid { display:grid; gap:12px; grid-template-columns: repeat(5, minmax(160px, 1fr)); margin-top:14px; }
-    .coherence-card { background:#0d1526; border:1px solid var(--border); border-radius:14px; padding:14px; display:grid; gap:8px; }
-    .coherence-card strong { font-size:15px; }
-    .coherence-summary { margin-top:12px; display:grid; gap:8px; }
-    .catalog-modal-grid { display:grid; gap:12px; grid-template-columns: repeat(2, minmax(220px, 1fr)); }
-    .catalog-modal-grid .full { grid-column:1 / -1; }
-    .hidden { display:none !important; }
-
     @media (max-width: 1240px) {
-      .section-grid, .table-manage-grid { grid-template-columns: 1fr; }
+      .section-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 1080px) {
-      .auth-grid, .main-grid, .toolbar, .table-card, .settings-grid, .overview-grid, .inline-form-grid, .provision-grid, .table-manage-toolbar { grid-template-columns: 1fr; }
+      .auth-grid, .main-grid, .toolbar, .table-card, .settings-grid, .overview-grid { grid-template-columns: 1fr; }
       .actions, .check-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -160,7 +113,7 @@
     <section class="topbar">
       <div>
         <div class="title">Superadmin — Cockpit tenant</div>
-        <div class="subtitle">Lot B : catalogue structuré, lecture multi-tenant enrichie et cohérence cockpit ↔ terrain.</div>
+        <div class="subtitle">Bloc 10 : vue d’ensemble plateforme avec état API/DB/SSE, incidents récents, audits récents et raccourcis utiles.</div>
       </div>
       <div class="auth-grid">
         <input id="apiBase" placeholder="API base URL" value="http://localhost:8080" />
@@ -169,26 +122,12 @@
         <button id="loginBtn">Connexion</button>
         <button id="refreshBtn" class="secondary">Actualiser</button>
       </div>
-      <div class="row" style="margin-top:10px; gap:10px; align-items:center;">
-        <button id="toggleBootstrapBtn" class="secondary">Initialiser compte admin</button>
-        <span class="muted">À utiliser une seule fois avec le bootstrap token pour créer le premier compte DB.</span>
-      </div>
-      <div id="bootstrapPanel" class="panel hidden" style="margin-top:12px; padding:14px;">
-        <div class="inline-form-grid">
-          <input id="bootstrapToken" type="password" placeholder="Bootstrap token (.env)" />
-          <input id="bootstrapFullName" placeholder="Nom complet admin" />
-          <input id="bootstrapEmail" placeholder="Email admin" />
-          <input id="bootstrapPassword" type="password" placeholder="Mot de passe admin" />
-        </div>
-        <div class="row" style="margin-top:12px; gap:10px;">
-          <button id="bootstrapCreateBtn">Créer / mettre à jour le compte admin</button>
-          <button id="bootstrapCloseBtn" class="secondary">Fermer</button>
-        </div>
-        <div id="bootstrapStatus" class="status" style="margin-top:12px;"></div>
-      </div>
       <div class="space-between">
         <div id="sessionInfo" class="muted">Pas connecté.</div>
-        <div id="globalStatus" class="status"></div>
+        <div class="row" style="gap:10px; align-items:center; justify-content:flex-end;">
+          <button id="logoutBtn" class="secondary hidden" style="width:auto; min-width:160px;">Déconnexion</button>
+          <div id="globalStatus" class="status"></div>
+        </div>
       </div>
     </section>
 
@@ -272,92 +211,11 @@
       </div>
     </section>
 
-    <section class="panel" style="margin-top:18px;">
-      <div class="space-between">
-        <div>
-          <h2 style="margin:0; font-size:22px;">Audit admin</h2>
-          <div class="muted" style="margin-top:6px;">Lecture exploitable de admin_audit_logs avec action, tenant, ressource, avant/après et niveau de danger.</div>
-        </div>
-        <div class="row">
-          <span id="auditViewCounts" class="muted">0</span>
-        </div>
-      </div>
-      <div id="auditViewStatus" class="status" style="margin-top:12px;"></div>
-      <div class="audit-filter-grid" style="margin-top:14px;">
-        <div class="field"><label for="auditTenantFilter">Tenant</label><select id="auditTenantFilter"><option value="">Tous</option></select></div>
-        <div class="field"><label for="auditDangerFilter">Danger</label><select id="auditDangerFilter"><option value="">Tous</option><option value="info">info</option><option value="medium">medium</option><option value="warn">warn</option><option value="high">high</option><option value="critical">critical</option></select></div>
-        <div class="field"><label for="auditActionFilter">Action</label><input id="auditActionFilter" placeholder="tenant_settings_updated" /></div>
-        <div class="field"><label for="auditResourceTypeFilter">Ressource</label><input id="auditResourceTypeFilter" placeholder="tenant_settings" /></div>
-        <div class="field"><label for="auditResourceIdFilter">Resource ID</label><input id="auditResourceIdFilter" placeholder="uuid / code" /></div>
-        <div class="field"><label for="auditAdminFilter">Admin</label><input id="auditAdminFilter" placeholder="email ou nom" /></div>
-        <div class="field"><label for="auditFromFilter">Du</label><input id="auditFromFilter" type="datetime-local" /></div>
-        <div class="field"><label for="auditToFilter">Au</label><input id="auditToFilter" type="datetime-local" /></div>
-        <div class="field"><label for="auditOrderFilter">Ordre</label><select id="auditOrderFilter"><option value="desc">Plus récents d'abord</option><option value="asc">Plus anciens d'abord</option></select></div>
-        <div class="field"><label for="auditLimitFilter">Limite</label><select id="auditLimitFilter"><option value="50">50</option><option value="100" selected>100</option><option value="200">200</option></select></div>
-      </div>
-      <div class="row" style="margin-top:12px;">
-        <label class="check-item" style="width:auto;"><input id="auditChangedOnly" type="checkbox" /> Avec avant/après utile</label>
-        <label class="check-item" style="width:auto;"><input id="auditPlatformOnly" type="checkbox" /> Plateforme uniquement</label>
-        <button id="auditApplyBtn" class="secondary">Appliquer filtres</button>
-        <button id="auditSelectedTenantBtn" class="ghost">Tenant sélectionné</button>
-        <button id="auditResetBtn" class="ghost">Réinitialiser</button>
-      </div>
-      <div class="audit-layout" style="margin-top:16px;">
-        <div>
-          <div id="auditViewList" class="history-list"></div>
-        </div>
-        <div class="panel" style="padding:16px;">
-          <div class="space-between"><h3 style="margin:0; font-size:18px;">Détail audit</h3><span id="auditDetailBadge" class="pill warn">Aucun</span></div>
-          <div id="auditDetailMeta" class="muted" style="margin-top:12px;">Sélectionne un audit pour voir le détail.</div>
-          <div id="auditDetailTitle" style="margin-top:12px; font-weight:700;"></div>
-          <div id="auditDetailSummary" class="muted" style="margin-top:8px;"></div>
-          <div style="margin-top:12px;"><strong>Avant</strong></div>
-          <div id="auditDetailBefore" class="diag-payload" style="margin-top:8px;">{}</div>
-          <div style="margin-top:12px;"><strong>Après</strong></div>
-          <div id="auditDetailAfter" class="diag-payload" style="margin-top:8px;">{}</div>
-          <div style="margin-top:12px;"><strong>Méta</strong></div>
-          <div id="auditDetailMetaJson" class="diag-payload" style="margin-top:8px;">{}</div>
-        </div>
-      </div>
-    </section>
-
     <section class="main-grid">
       <aside class="panel">
         <div class="space-between">
           <h2 style="margin:0; font-size:20px;">Tenants</h2>
           <span id="tenantCount" class="muted">0</span>
-        </div>
-        <div class="row" style="margin-top:12px;">
-          <button id="openCreateTenantBtn" class="success">+ Créer un tenant</button>
-        </div>
-        <div class="tenant-filter-grid">
-          <div class="field"><label for="tenantSearchInput">Recherche</label><input id="tenantSearchInput" placeholder="nom, slug, subdomain" /></div>
-          <div class="field"><label for="tenantStatusFilter">Statut</label><select id="tenantStatusFilter"><option value="">Tous</option><option value="draft">draft</option><option value="onboarding">onboarding</option><option value="active">active</option><option value="suspended">suspended</option><option value="archived">archived</option></select></div>
-          <div class="field"><label for="tenantReadinessFilter">Lecture</label><select id="tenantReadinessFilter"><option value="">Tous</option><option value="ready">prêts</option><option value="incomplete">incomplets</option><option value="unknown">non encore évalués</option></select></div>
-          <div class="field"><label for="tenantSortSelect">Tri</label><select id="tenantSortSelect"><option value="name_asc">Nom A → Z</option><option value="name_desc">Nom Z → A</option><option value="status">Statut</option><option value="tables_desc">Plus de tables</option><option value="tables_asc">Moins de tables</option></select></div>
-        </div>
-        <div id="tenantFilterMeta" class="muted" style="margin-top:10px;">Liste brute des tenants.</div>
-        <div id="createTenantPanel" class="helper-box hidden" style="margin-top:12px;">
-          <div class="space-between">
-            <strong>Création tenant</strong>
-            <button id="closeCreateTenantBtn" type="button" class="ghost" style="width:auto;">Fermer</button>
-          </div>
-          <div id="createTenantStatus" class="status" style="margin-top:10px;"></div>
-          <div class="inline-form-grid" style="margin-top:12px;">
-            <div class="field"><label for="createTenantName">Nom restaurant</label><input id="createTenantName" placeholder="Resto Démo" /></div>
-            <div class="field"><label for="createTenantSubdomain">Subdomain</label><input id="createTenantSubdomain" placeholder="resto-demo" /></div>
-            <div class="field"><label for="createTenantSlug">Slug</label><input id="createTenantSlug" placeholder="resto-demo" /></div>
-            <div class="field"><label for="createTenantTimezone">Timezone</label><input id="createTenantTimezone" value="Europe/Brussels" /></div>
-            <div class="field"><label for="createTenantBusinessCloseHour">Heure fermeture métier</label><input id="createTenantBusinessCloseHour" type="number" min="0" max="23" value="3" /></div>
-            <div class="field"><label for="createTenantStatusSelect">Statut initial</label><select id="createTenantStatusSelect"><option value="draft">draft</option><option value="onboarding" selected>onboarding</option><option value="active">active</option><option value="suspended">suspended</option></select></div>
-            <div class="field"><label for="createTenantTemplate">Template menu initial</label><select id="createTenantTemplate"></select></div>
-            <div class="field"><label for="createTenantInitialTableCount">Nombre de tables initiales</label><input id="createTenantInitialTableCount" type="number" min="0" max="50" value="0" /></div>
-            <div class="field"><label class="check-item"><input id="createTenantStaffEnabled" type="checkbox" checked /> Accès staff activé dès création</label></div>
-            <div class="field" style="grid-column: 1 / -1;"><label for="createTenantNotes">Notes internes</label><textarea id="createTenantNotes" placeholder="Contexte d’ouverture, notes exploitation…"></textarea></div>
-          </div>
-          <div class="row" style="margin-top:12px;">
-            <button id="createTenantBtn" class="success">Créer le tenant</button>
-          </div>
         </div>
         <div id="tenantList" class="tenant-list" style="margin-top:14px;"></div>
       </aside>
@@ -374,37 +232,6 @@
               <span id="staffBadge" class="pill warn">Accès staff inactif</span>
               <span id="centerBadge" class="pill warn">Centre QR inactif</span>
             </div>
-          </div>
-
-          <div class="helper-box" style="margin-top:18px;">
-            <div class="space-between">
-              <div>
-                <h3 style="margin:0; font-size:18px;">Provisioning guidé</h3>
-                <div class="muted" style="margin-top:6px;">Lis immédiatement ce qu’il manque pour rendre un tenant exploitable sans dev externe.</div>
-              </div>
-              <button id="refreshProvisioningBtn" class="secondary" disabled>Recharger provisioning</button>
-            </div>
-            <div id="provisioningStatus" class="status" style="margin-top:10px;"></div>
-            <div id="provisioningSummary" class="provision-grid" style="margin-top:14px;"></div>
-            <div class="row" style="margin-top:12px;">
-              <button id="provisioningGoSettingsBtn" class="ghost" disabled>Étape 1 — Settings</button>
-              <button id="provisioningGoTablesBtn" class="ghost" disabled>Étape 2 — Tables</button>
-              <button id="provisioningGoQrBtn" class="ghost" disabled>Étape 3 — QR</button>
-              <button id="provisioningGoStaffBtn" class="ghost" disabled>Étape 4 — Staff</button>
-              <button id="provisioningGoCatalogBtn" class="ghost" disabled>Étape 5 — Catalogue</button>
-            </div>
-          </div>
-
-          <div class="helper-box" style="margin-top:18px;">
-            <div class="space-between">
-              <div>
-                <h3 style="margin:0; font-size:18px;">Cohérence cockpit ↔ terrain</h3>
-                <div class="muted" style="margin-top:6px;">Lecture produit réelle : ce que le cockpit annonce doit correspondre à ce qu’un restaurant peut vraiment exploiter.</div>
-              </div>
-              <span id="coherenceBadge" class="pill warn">à vérifier</span>
-            </div>
-            <div id="coherenceGrid" class="coherence-grid"></div>
-            <div id="coherenceSummary" class="coherence-summary"></div>
           </div>
 
           <div class="section-grid" style="margin-top:18px;">
@@ -534,44 +361,7 @@
         </section>
 
 
-        <section id="tablesSection" class="panel">
-          <div class="space-between">
-            <div>
-              <h3 style="margin:0; font-size:20px;">Gestion des tables</h3>
-              <div class="muted" style="margin-top:6px;">Ajout, édition, ordre, activation et archivage depuis le cockpit.</div>
-            </div>
-            <div class="row">
-              <label class="check-item" style="width:auto;"><input id="includeArchivedTables" type="checkbox" /> Voir archivées</label>
-              <button id="reloadTablesBtn" class="secondary" disabled>Recharger tables</button>
-              <button id="newTableBtn" class="success" disabled>Ajouter table</button>
-            </div>
-          </div>
-          <div id="tablesStatus" class="status" style="margin-top:10px;"></div>
-          <div class="table-manage-grid" style="margin-top:14px;">
-            <div>
-              <div id="tablesManageList" class="compact-list"></div>
-            </div>
-            <div class="helper-box">
-              <div class="space-between">
-                <strong id="tableFormTitle">Nouvelle table</strong>
-                <button id="tableFormResetBtn" type="button" class="ghost" style="width:auto;">Réinitialiser</button>
-              </div>
-              <div class="inline-form-grid" style="margin-top:12px;">
-                <div class="field"><label for="tableCodeInput">Code</label><input id="tableCodeInput" placeholder="T1" /></div>
-                <div class="field"><label for="tableLabelInput">Label</label><input id="tableLabelInput" placeholder="Table 1" /></div>
-                <div class="field"><label for="tableDisplayNameInput">Nom affiché</label><input id="tableDisplayNameInput" placeholder="Table 1" /></div>
-                <div class="field"><label for="tableSeatsInput">Places</label><input id="tableSeatsInput" type="number" min="0" max="99" value="0" /></div>
-                <div class="field"><label class="check-item"><input id="tableActiveInput" type="checkbox" checked /> Table active</label></div>
-              </div>
-              <div id="tableFormInfo" class="muted" style="margin-top:12px;">Crée une table proprement ou sélectionne une table existante pour l’éditer.</div>
-              <div class="row" style="margin-top:12px;">
-                <button id="saveTableBtn" class="success" disabled>Enregistrer table</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="qrSection" class="panel">
+        <section class="panel">
           <div class="space-between">
             <div>
               <h3 style="margin:0; font-size:20px;">Centre QR</h3>
@@ -635,74 +425,11 @@
     </section>
   </div>
 
-  <div id="decisionModal" class="modal-overlay" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="decisionModalTitle">
-      <div class="modal-head">
-        <div>
-          <div id="decisionModalTitle" class="modal-title">Confirmation</div>
-          <div id="decisionModalSubtitle" class="muted" style="margin-top:6px;">Action sensible</div>
-        </div>
-        <button id="decisionModalClose" type="button" class="modal-close">✕</button>
-      </div>
-      <div class="modal-body">
-        <div id="decisionModalNote" class="modal-note warn">Vérifie l’impact avant de continuer.</div>
-        <div id="decisionModalMessage" class="modal-message"></div>
-        <div id="decisionModalImpact" class="modal-impact" style="display:none;">
-          <strong>Impact immédiat</strong>
-          <ul id="decisionModalImpactList"></ul>
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button id="decisionModalCancel" type="button" class="secondary">Annuler</button>
-        <button id="decisionModalConfirm" type="button" class="danger">Confirmer</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="catalogModal" class="modal-overlay" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="catalogModalTitle">
-      <div class="modal-head">
-        <div>
-          <div id="catalogModalTitle" class="modal-title">Catalogue</div>
-          <div id="catalogModalSubtitle" class="muted" style="margin-top:6px;">Édition structurée</div>
-        </div>
-        <button id="catalogModalClose" type="button" class="modal-close">✕</button>
-      </div>
-      <div class="modal-body">
-        <div id="catalogModalStatus" class="status"></div>
-        <div id="catalogCategoryFields" class="catalog-modal-grid hidden">
-          <div class="field"><label for="catalogCategoryLabelInput">Nom catégorie</label><input id="catalogCategoryLabelInput" placeholder="Boissons" /></div>
-          <div class="field"><label for="catalogCategoryCodeInput">Code catégorie</label><input id="catalogCategoryCodeInput" placeholder="boissons" /></div>
-          <div class="field"><label for="catalogCategorySortInput">Ordre</label><input id="catalogCategorySortInput" type="number" value="10" /></div>
-          <div class="field"><label class="check-item"><input id="catalogCategoryActiveInput" type="checkbox" checked /> Catégorie visible</label></div>
-        </div>
-        <div id="catalogItemFields" class="catalog-modal-grid hidden">
-          <div class="field"><label for="catalogItemCategorySelect">Catégorie</label><select id="catalogItemCategorySelect"></select></div>
-          <div class="field"><label for="catalogItemNameInput">Nom produit</label><input id="catalogItemNameInput" placeholder="Coca" /></div>
-          <div class="field"><label for="catalogItemCodeInput">Code produit</label><input id="catalogItemCodeInput" placeholder="coca" /></div>
-          <div class="field"><label for="catalogItemPriceInput">Prix</label><input id="catalogItemPriceInput" type="number" step="0.01" min="0" value="0" /></div>
-          <div class="field full"><label for="catalogItemDescriptionInput">Description</label><textarea id="catalogItemDescriptionInput" placeholder="Description produit"></textarea></div>
-          <div class="field full"><label for="catalogItemImageUrlInput">Image URL</label><input id="catalogItemImageUrlInput" placeholder="https://..." /></div>
-          <div class="field"><label for="catalogItemSortInput">Ordre</label><input id="catalogItemSortInput" type="number" value="10" /></div>
-          <div class="field"><label for="catalogItemAllergensInput">Allergènes</label><input id="catalogItemAllergensInput" placeholder="gluten, lait" /></div>
-          <div class="field full"><label for="catalogItemSupplementsInput">Suppléments</label><input id="catalogItemSupplementsInput" placeholder="grand:1 | glaçons:0" /></div>
-          <div class="field"><label class="check-item"><input id="catalogItemSoldOutInput" type="checkbox" /> Rupture temporaire</label></div>
-          <div class="field"><label class="check-item"><input id="catalogItemActiveInput" type="checkbox" checked /> Produit visible</label></div>
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button id="catalogModalCancel" type="button" class="secondary">Annuler</button>
-        <button id="catalogModalSave" type="button" class="success">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     const DEFAULT_COLOR = '#4f46e5';
     const state = {
       apiBase: localStorage.getItem('superadmin_api_base') || 'http://localhost:8080',
       adminToken: localStorage.getItem('superadmin_admin_token') || '',
-      adminEmail: localStorage.getItem('superadmin_admin_email') || '',
       adminEmail: localStorage.getItem('superadmin_admin_email') || '',
       tenants: [],
       selectedTenantId: null,
@@ -713,33 +440,17 @@
       overview: null,
       diagnostics: null,
       selectedDiagnosticId: null,
-      audits: null,
-      selectedAuditId: null,
       selectedTableIds: new Set(),
-      tenantTables: null,
-      selectedManageTableId: null,
-      includeArchivedTables: false,
-      provisioningDefaults: null,
       admin: null,
-      tenantWorkspaceSummary: {},
-      catalogEditor: { open: false, type: null, mode: null, entityId: null },
     };
 
     const els = {
       apiBase: document.getElementById('apiBase'),
       adminEmail: document.getElementById('adminEmail'),
       adminPassword: document.getElementById('adminPassword'),
-      toggleBootstrapBtn: document.getElementById('toggleBootstrapBtn'),
-      bootstrapPanel: document.getElementById('bootstrapPanel'),
-      bootstrapToken: document.getElementById('bootstrapToken'),
-      bootstrapFullName: document.getElementById('bootstrapFullName'),
-      bootstrapEmail: document.getElementById('bootstrapEmail'),
-      bootstrapPassword: document.getElementById('bootstrapPassword'),
-      bootstrapCreateBtn: document.getElementById('bootstrapCreateBtn'),
-      bootstrapCloseBtn: document.getElementById('bootstrapCloseBtn'),
-      bootstrapStatus: document.getElementById('bootstrapStatus'),
       loginBtn: document.getElementById('loginBtn'),
       refreshBtn: document.getElementById('refreshBtn'),
+      logoutBtn: document.getElementById('logoutBtn'),
       sessionInfo: document.getElementById('sessionInfo'),
       globalStatus: document.getElementById('globalStatus'),
       platformApiBadge: document.getElementById('platformApiBadge'),
@@ -781,69 +492,13 @@
       diagDetailMeta: document.getElementById('diagDetailMeta'),
       diagDetailMessage: document.getElementById('diagDetailMessage'),
       diagDetailPayload: document.getElementById('diagDetailPayload'),
-      auditViewCounts: document.getElementById('auditViewCounts'),
-      auditViewStatus: document.getElementById('auditViewStatus'),
-      auditTenantFilter: document.getElementById('auditTenantFilter'),
-      auditDangerFilter: document.getElementById('auditDangerFilter'),
-      auditActionFilter: document.getElementById('auditActionFilter'),
-      auditResourceTypeFilter: document.getElementById('auditResourceTypeFilter'),
-      auditResourceIdFilter: document.getElementById('auditResourceIdFilter'),
-      auditAdminFilter: document.getElementById('auditAdminFilter'),
-      auditFromFilter: document.getElementById('auditFromFilter'),
-      auditToFilter: document.getElementById('auditToFilter'),
-      auditOrderFilter: document.getElementById('auditOrderFilter'),
-      auditLimitFilter: document.getElementById('auditLimitFilter'),
-      auditChangedOnly: document.getElementById('auditChangedOnly'),
-      auditPlatformOnly: document.getElementById('auditPlatformOnly'),
-      auditApplyBtn: document.getElementById('auditApplyBtn'),
-      auditSelectedTenantBtn: document.getElementById('auditSelectedTenantBtn'),
-      auditResetBtn: document.getElementById('auditResetBtn'),
-      auditViewList: document.getElementById('auditViewList'),
-      auditDetailBadge: document.getElementById('auditDetailBadge'),
-      auditDetailMeta: document.getElementById('auditDetailMeta'),
-      auditDetailTitle: document.getElementById('auditDetailTitle'),
-      auditDetailSummary: document.getElementById('auditDetailSummary'),
-      auditDetailBefore: document.getElementById('auditDetailBefore'),
-      auditDetailAfter: document.getElementById('auditDetailAfter'),
-      auditDetailMetaJson: document.getElementById('auditDetailMetaJson'),
       tenantCount: document.getElementById('tenantCount'),
-      tenantSearchInput: document.getElementById('tenantSearchInput'),
-      tenantStatusFilter: document.getElementById('tenantStatusFilter'),
-      tenantReadinessFilter: document.getElementById('tenantReadinessFilter'),
-      tenantSortSelect: document.getElementById('tenantSortSelect'),
-      tenantFilterMeta: document.getElementById('tenantFilterMeta'),
-      openCreateTenantBtn: document.getElementById('openCreateTenantBtn'),
-      closeCreateTenantBtn: document.getElementById('closeCreateTenantBtn'),
-      createTenantPanel: document.getElementById('createTenantPanel'),
-      createTenantStatus: document.getElementById('createTenantStatus'),
-      createTenantName: document.getElementById('createTenantName'),
-      createTenantSubdomain: document.getElementById('createTenantSubdomain'),
-      createTenantSlug: document.getElementById('createTenantSlug'),
-      createTenantTimezone: document.getElementById('createTenantTimezone'),
-      createTenantBusinessCloseHour: document.getElementById('createTenantBusinessCloseHour'),
-      createTenantStatusSelect: document.getElementById('createTenantStatusSelect'),
-      createTenantTemplate: document.getElementById('createTenantTemplate'),
-      createTenantInitialTableCount: document.getElementById('createTenantInitialTableCount'),
-      createTenantStaffEnabled: document.getElementById('createTenantStaffEnabled'),
-      createTenantNotes: document.getElementById('createTenantNotes'),
-      createTenantBtn: document.getElementById('createTenantBtn'),
       tenantList: document.getElementById('tenantList'),
       tenantTitle: document.getElementById('tenantTitle'),
       tenantMeta: document.getElementById('tenantMeta'),
       settingsBadge: document.getElementById('settingsBadge'),
       staffBadge: document.getElementById('staffBadge'),
       centerBadge: document.getElementById('centerBadge'),
-      refreshProvisioningBtn: document.getElementById('refreshProvisioningBtn'),
-      coherenceBadge: document.getElementById('coherenceBadge'),
-      coherenceGrid: document.getElementById('coherenceGrid'),
-      coherenceSummary: document.getElementById('coherenceSummary'),
-      provisioningStatus: document.getElementById('provisioningStatus'),
-      provisioningSummary: document.getElementById('provisioningSummary'),
-      provisioningGoSettingsBtn: document.getElementById('provisioningGoSettingsBtn'),
-      provisioningGoTablesBtn: document.getElementById('provisioningGoTablesBtn'),
-      provisioningGoQrBtn: document.getElementById('provisioningGoQrBtn'),
-      provisioningGoStaffBtn: document.getElementById('provisioningGoStaffBtn'),
-      provisioningGoCatalogBtn: document.getElementById('provisioningGoCatalogBtn'),
       reloadSettingsBtn: document.getElementById('reloadSettingsBtn'),
       settingsStatus: document.getElementById('settingsStatus'),
       restaurantName: document.getElementById('restaurantName'),
@@ -875,20 +530,6 @@
       staffHistoryCount: document.getElementById('staffHistoryCount'),
       staffHistoryList: document.getElementById('staffHistoryList'),
       historyList: document.getElementById('historyList'),
-      includeArchivedTables: document.getElementById('includeArchivedTables'),
-      reloadTablesBtn: document.getElementById('reloadTablesBtn'),
-      newTableBtn: document.getElementById('newTableBtn'),
-      tablesStatus: document.getElementById('tablesStatus'),
-      tablesManageList: document.getElementById('tablesManageList'),
-      tableFormTitle: document.getElementById('tableFormTitle'),
-      tableCodeInput: document.getElementById('tableCodeInput'),
-      tableLabelInput: document.getElementById('tableLabelInput'),
-      tableDisplayNameInput: document.getElementById('tableDisplayNameInput'),
-      tableSeatsInput: document.getElementById('tableSeatsInput'),
-      tableActiveInput: document.getElementById('tableActiveInput'),
-      tableFormInfo: document.getElementById('tableFormInfo'),
-      tableFormResetBtn: document.getElementById('tableFormResetBtn'),
-      saveTableBtn: document.getElementById('saveTableBtn'),
       printSelectedBtn: document.getElementById('printSelectedBtn'),
       printAllBtn: document.getElementById('printAllBtn'),
       selectAllBtn: document.getElementById('selectAllBtn'),
@@ -905,40 +546,6 @@
       catalogCount: document.getElementById('catalogCount'),
       catalogStatus: document.getElementById('catalogStatus'),
       catalogList: document.getElementById('catalogList'),
-      catalogModal: document.getElementById('catalogModal'),
-      catalogModalTitle: document.getElementById('catalogModalTitle'),
-      catalogModalSubtitle: document.getElementById('catalogModalSubtitle'),
-      catalogModalStatus: document.getElementById('catalogModalStatus'),
-      catalogCategoryFields: document.getElementById('catalogCategoryFields'),
-      catalogCategoryLabelInput: document.getElementById('catalogCategoryLabelInput'),
-      catalogCategoryCodeInput: document.getElementById('catalogCategoryCodeInput'),
-      catalogCategorySortInput: document.getElementById('catalogCategorySortInput'),
-      catalogCategoryActiveInput: document.getElementById('catalogCategoryActiveInput'),
-      catalogItemFields: document.getElementById('catalogItemFields'),
-      catalogItemCategorySelect: document.getElementById('catalogItemCategorySelect'),
-      catalogItemNameInput: document.getElementById('catalogItemNameInput'),
-      catalogItemCodeInput: document.getElementById('catalogItemCodeInput'),
-      catalogItemPriceInput: document.getElementById('catalogItemPriceInput'),
-      catalogItemDescriptionInput: document.getElementById('catalogItemDescriptionInput'),
-      catalogItemImageUrlInput: document.getElementById('catalogItemImageUrlInput'),
-      catalogItemSortInput: document.getElementById('catalogItemSortInput'),
-      catalogItemAllergensInput: document.getElementById('catalogItemAllergensInput'),
-      catalogItemSupplementsInput: document.getElementById('catalogItemSupplementsInput'),
-      catalogItemSoldOutInput: document.getElementById('catalogItemSoldOutInput'),
-      catalogItemActiveInput: document.getElementById('catalogItemActiveInput'),
-      catalogModalCancel: document.getElementById('catalogModalCancel'),
-      catalogModalSave: document.getElementById('catalogModalSave'),
-      catalogModalClose: document.getElementById('catalogModalClose'),
-      decisionModal: document.getElementById('decisionModal'),
-      decisionModalTitle: document.getElementById('decisionModalTitle'),
-      decisionModalSubtitle: document.getElementById('decisionModalSubtitle'),
-      decisionModalNote: document.getElementById('decisionModalNote'),
-      decisionModalMessage: document.getElementById('decisionModalMessage'),
-      decisionModalImpact: document.getElementById('decisionModalImpact'),
-      decisionModalImpactList: document.getElementById('decisionModalImpactList'),
-      decisionModalCancel: document.getElementById('decisionModalCancel'),
-      decisionModalConfirm: document.getElementById('decisionModalConfirm'),
-      decisionModalClose: document.getElementById('decisionModalClose'),
     };
 
     function setStatus(target, message = '', type = '') {
@@ -994,192 +601,6 @@
       els.brandingSwatch.style.background = color;
     }
 
-
-    function describeApiError(error) {
-      const code = String(error?.message || error || 'erreur_inconnue');
-      const map = {
-        token_admin_requis: 'Session admin requise.',
-        admin_email_required: 'Email admin requis.',
-        admin_password_required: 'Mot de passe requis.',
-        admin_password_too_short: 'Mot de passe trop court (minimum 10 caractères).',
-        superadmin_session_secret_missing: 'Secret de session superadmin manquant côté API.',
-        superadmin_bootstrap_unauthorized: 'Bootstrap token invalide.',
-        tenant_requis: "Sélectionne d'abord un tenant.",
-        tenant_name_required: 'Le nom du tenant est obligatoire.',
-        tenant_subdomain_invalid: 'Le sous-domaine est invalide.',
-        tenant_subdomain_already_exists: 'Ce sous-domaine est déjà utilisé.',
-        tenant_slug_already_exists: 'Ce slug est déjà utilisé.',
-        menu_template_not_found: 'Le template menu demandé est introuvable.',
-        menu_template_inactive: 'Le template menu demandé est inactif.',
-        table_code_required: 'Le code table est obligatoire.',
-        table_code_invalid: 'Le code table est invalide.',
-        table_code_already_exists: 'Ce code table existe déjà pour ce tenant.',
-        ordered_table_ids_required: 'Impossible de réordonner sans liste complète des tables.',
-        table_reorder_count_mismatch: 'Le réordonnancement reçu ne correspond pas au nombre de tables actives.',
-        table_reorder_invalid_ids: 'Le réordonnancement contient des IDs invalides.',
-        http_401: 'Accès refusé. Le token admin est invalide ou expiré.',
-        http_403: 'Accès interdit pour cette action.',
-        http_404: 'La ressource demandée est introuvable.',
-        http_409: 'Conflit détecté. Recharge les données avant de recommencer.',
-        http_422: 'Données invalides. Vérifie les champs saisis.',
-        http_500: "Erreur serveur. Rien n'a été confirmé côté backend.",
-      };
-      return map[code] || code;
-    }
-
-    function getTenantLabel() {
-      const tenant = state.tenants.find((row) => row.id === state.selectedTenantId) || state.tenantSettings?.tenant || state.qrCenter?.tenant || null;
-      return tenant?.name || tenant?.slug || tenant?.subdomain || tenant?.id || 'ce tenant';
-    }
-
-    function closeDecisionModal(result = false) {
-      if (!state.pendingDecisionResolver) return;
-      const resolver = state.pendingDecisionResolver;
-      state.pendingDecisionResolver = null;
-      els.decisionModal.classList.remove('open');
-      els.decisionModal.setAttribute('aria-hidden', 'true');
-      resolver(Boolean(result));
-    }
-
-    function openDecisionModal({ title, subtitle = '', level = 'warn', message = '', impacts = [], confirmLabel = 'Confirmer', cancelLabel = 'Annuler' }) {
-      if (state.pendingDecisionResolver) closeDecisionModal(false);
-      els.decisionModalTitle.textContent = title || 'Confirmation';
-      els.decisionModalSubtitle.textContent = subtitle || 'Action sensible';
-      els.decisionModalMessage.textContent = message || '';
-      els.decisionModalNote.className = `modal-note ${level}`;
-      els.decisionModalNote.textContent = level === 'danger'
-        ? 'Action critique : lis l’impact avant de confirmer.'
-        : level === 'warn'
-          ? 'Action sensible : vérifie ce que tu es en train de changer.'
-          : 'Action encadrée.';
-      els.decisionModalCancel.textContent = cancelLabel;
-      els.decisionModalConfirm.textContent = confirmLabel;
-      els.decisionModalConfirm.className = level === 'danger' ? 'danger' : (level === 'warn' ? 'warning' : 'success');
-      if (Array.isArray(impacts) && impacts.length) {
-        els.decisionModalImpact.style.display = 'grid';
-        els.decisionModalImpactList.innerHTML = impacts.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
-      } else {
-        els.decisionModalImpact.style.display = 'none';
-        els.decisionModalImpactList.innerHTML = '';
-      }
-      els.decisionModal.classList.add('open');
-      els.decisionModal.setAttribute('aria-hidden', 'false');
-      return new Promise((resolve) => {
-        state.pendingDecisionResolver = resolve;
-      });
-    }
-
-    function diffSettingsPayload(nextPayload) {
-      const current = state.tenantSettings?.settings || {};
-      const currentFlags = current.operationsFlags || {};
-      const nextFlags = nextPayload.operationsFlags || {};
-      const changes = [];
-      const push = (key, label, from, to) => {
-        if (JSON.stringify(from) !== JSON.stringify(to)) changes.push({ key, label, from, to });
-      };
-      push('restaurantName', 'Nom restaurant', current.restaurantName || '', nextPayload.restaurantName || '');
-      push('status', 'Statut tenant', current.status || 'draft', nextPayload.status || 'draft');
-      push('timezone', 'Timezone', current.timezone || 'Europe/Brussels', nextPayload.timezone || 'Europe/Brussels');
-      push('businessCloseHour', 'Fermeture métier', current.businessCloseHour ?? 3, nextPayload.businessCloseHour ?? 3);
-      push('brandingName', 'Branding affiché', current.brandingName || '', nextPayload.brandingName || '');
-      push('brandingLogoUrl', 'Logo URL', current.brandingLogoUrl || '', nextPayload.brandingLogoUrl || '');
-      push('brandingPrimaryColor', 'Couleur principale', current.brandingPrimaryColor || DEFAULT_COLOR, nextPayload.brandingPrimaryColor || DEFAULT_COLOR);
-      push('qrOrderingEnabled', 'QR ordering', currentFlags.qrOrderingEnabled !== false, nextFlags.qrOrderingEnabled !== false);
-      push('clientMenuEnabled', 'Menu client visible', currentFlags.clientMenuEnabled !== false, nextFlags.clientMenuEnabled !== false);
-      push('takeawayEnabled', 'Takeaway', currentFlags.takeawayEnabled !== false, nextFlags.takeawayEnabled !== false);
-      push('demoMode', 'Mode démo', currentFlags.demoMode === true, nextFlags.demoMode === true);
-      return changes;
-    }
-
-    async function confirmSettingsChange(nextPayload) {
-      const changes = diffSettingsPayload(nextPayload);
-      if (!changes.length) {
-        setStatus(els.settingsStatus, 'Aucun changement détecté.', 'error');
-        return false;
-      }
-      const tenantLabel = getTenantLabel();
-      const statusChange = changes.find((item) => item.key === 'status');
-      const readiness = buildWorkspaceChecks();
-      const missingForActivation = readiness.checks.filter((item) => !item.ok).map((item) => item.label);
-      const disablingClient = changes.find((item) => ['qrOrderingEnabled', 'clientMenuEnabled'].includes(item.key) && item.to === false);
-      const scheduleChange = changes.find((item) => ['timezone', 'businessCloseHour'].includes(item.key));
-      const impactful = changes.map((item) => `${item.label} : ${String(item.from)} → ${String(item.to)}`);
-      if (statusChange && String(statusChange.to) === 'active' && missingForActivation.length) {
-        await openDecisionModal({
-          title: 'Activation bloquée',
-          subtitle: tenantLabel,
-          level: 'danger',
-          message: 'Passer un tenant en actif alors qu’il reste incomplet fabrique un cockpit mensonger.',
-          impacts: [
-            `Points encore manquants : ${missingForActivation.join(', ')}`,
-            'Le restaurant serait annoncé actif alors qu’il n’est pas réellement exploitable.',
-            'Corrige d’abord les briques manquantes avant de réessayer.',
-          ],
-          confirmLabel: 'Compris',
-        });
-        return false;
-      }
-      if (statusChange && ['suspended', 'archived'].includes(String(statusChange.to))) {
-        return openDecisionModal({
-          title: 'Suspendre ou archiver un tenant',
-          subtitle: tenantLabel,
-          level: 'danger',
-          message: "Tu modifies un statut structurant. Ce n'est pas un simple réglage cosmétique.",
-          impacts: [
-            `Le tenant ${tenantLabel} passe en statut ${statusChange.to}.`,
-            'Les équipes peuvent comprendre cela comme un arrêt d’exploitation ou un tenant sorti du circuit.',
-            'L’action sera visible dans l’audit admin avec un niveau de danger élevé.',
-            ...impactful,
-          ],
-          confirmLabel: `Oui, passer en ${statusChange.to}`,
-        });
-      }
-      if (disablingClient) {
-        return openDecisionModal({
-          title: 'Modifier la disponibilité côté client',
-          subtitle: tenantLabel,
-          level: 'danger',
-          message: 'Tu es en train de couper une capacité visible pour le restaurant ou pour ses clients.',
-          impacts: [
-            disablingClient.key === 'qrOrderingEnabled' ? 'Le flux QR ordering peut devenir indisponible.' : 'Le menu client peut ne plus être visible.',
-            'Ce changement peut générer immédiatement des tickets de support si fait au mauvais moment.',
-            ...impactful,
-          ],
-          confirmLabel: 'Oui, appliquer ce changement',
-        });
-      }
-      if (scheduleChange) {
-        return openDecisionModal({
-          title: 'Modifier un réglage métier structurant',
-          subtitle: tenantLabel,
-          level: 'warn',
-          message: 'Timezone et heure de fermeture impactent la lecture métier des services et du jour d’exploitation.',
-          impacts: impactful,
-          confirmLabel: 'Confirmer les réglages',
-        });
-      }
-      return true;
-    }
-
-    async function confirmStaffAccessChange(nextEnabled) {
-      const currentEnabled = state.tenantStaffAccess?.staffAccess?.isEnabled !== false;
-      if (currentEnabled === nextEnabled) return true;
-      const tenantLabel = getTenantLabel();
-      if (!nextEnabled) {
-        return openDecisionModal({
-          title: "Désactiver l'accès staff",
-          subtitle: tenantLabel,
-          level: 'warn',
-          message: "Tu coupes l'accès staff de ce tenant.",
-          impacts: [
-            'Le staff ne pourra plus utiliser son accès tenant dédié tant que tu ne le réactives pas.',
-            "Si tu fais ça en service, tu crées toi-même l'incident.",
-          ],
-          confirmLabel: 'Oui, désactiver',
-        });
-      }
-      return true;
-    }
     function buildSettingsPayload() {
       return {
         restaurantName: els.restaurantName.value.trim(),
@@ -1368,412 +789,25 @@
       els.diagDetailPayload.textContent = JSON.stringify(selected.payload || {}, null, 2);
     }
 
-    function getAuditDangerClass(level) {
-      const normalized = String(level || 'info').toLowerCase();
-      if (['critical', 'high', 'error'].includes(normalized)) return 'danger';
-      if (['medium', 'warn'].includes(normalized)) return 'warn';
-      return 'ok';
-    }
-
-    function buildAuditQuery() {
-      const params = new URLSearchParams();
-      if (els.auditTenantFilter.value) params.set('tenantId', els.auditTenantFilter.value);
-      if (els.auditDangerFilter.value) params.set('dangerLevel', els.auditDangerFilter.value);
-      if (els.auditActionFilter.value.trim()) params.set('action', els.auditActionFilter.value.trim());
-      if (els.auditResourceTypeFilter.value.trim()) params.set('resourceType', els.auditResourceTypeFilter.value.trim());
-      if (els.auditResourceIdFilter.value.trim()) params.set('resourceId', els.auditResourceIdFilter.value.trim());
-      if (els.auditAdminFilter.value.trim()) params.set('adminLabel', els.auditAdminFilter.value.trim());
-      if (els.auditFromFilter.value) params.set('from', new Date(els.auditFromFilter.value).toISOString());
-      if (els.auditToFilter.value) params.set('to', new Date(els.auditToFilter.value).toISOString());
-      if (els.auditChangedOnly.checked) params.set('changedOnly', 'true');
-      if (els.auditPlatformOnly.checked) params.set('platformOnly', 'true');
-      params.set('order', els.auditOrderFilter.value || 'desc');
-      params.set('limit', els.auditLimitFilter.value || '100');
-      return params.toString();
-    }
-
-    function renderAuditTenantOptions() {
-      const current = els.auditTenantFilter.value;
-      const options = ['<option value="">Tous</option>']
-        .concat((state.tenants || []).map((tenant) => `<option value="${escapeHtml(tenant.id)}">${escapeHtml(tenant.name || tenant.slug || tenant.id)}</option>`));
-      els.auditTenantFilter.innerHTML = options.join('');
-      if ((state.tenants || []).some((tenant) => tenant.id === current)) {
-        els.auditTenantFilter.value = current;
-      }
-    }
-
-    async function loadAudits() {
-      setStatus(els.auditViewStatus, 'Chargement audits…');
-      const query = buildAuditQuery();
-      const payload = await apiFetch(`/superadmin/audits${query ? `?${query}` : ''}`);
-      state.audits = payload.audits || { items: [], counts: { total: 0 } };
-      const items = state.audits.items || [];
-      if (!items.some((item) => item.id === state.selectedAuditId)) {
-        state.selectedAuditId = items[0]?.id || null;
-      }
-      renderAudits();
-      setStatus(els.auditViewStatus, 'Audits chargés.', 'ok');
-    }
-
-    function renderAudits() {
-      const audits = state.audits || {};
-      const counts = audits.counts || {};
-      const items = audits.items || [];
-      els.auditViewCounts.textContent = `${counts.total || 0} • info ${counts.info || 0} • warn ${counts.warn || 0} • critique ${counts.error || 0}`;
-      if (!items.length) {
-        els.auditViewList.innerHTML = '<div class="empty">Aucun audit pour ces filtres.</div>';
-        els.auditDetailBadge.className = 'pill warn';
-        els.auditDetailBadge.textContent = 'Aucun';
-        els.auditDetailMeta.textContent = 'Sélectionne un audit pour voir le détail.';
-        els.auditDetailTitle.textContent = '';
-        els.auditDetailSummary.textContent = '';
-        els.auditDetailBefore.textContent = '{}';
-        els.auditDetailAfter.textContent = '{}';
-        els.auditDetailMetaJson.textContent = '{}';
-        return;
-      }
-
-      els.auditViewList.innerHTML = items.map((item) => {
-        const activeClass = item.id === state.selectedAuditId ? ' active' : '';
-        const dangerClass = getAuditDangerClass(item.dangerLevel);
-        const summary = item.changedCount > 0 ? `${item.changedCount} champ(s) touché(s)` : 'sans diff structuré';
-        return `
-          <div class="audit-item${activeClass}" data-audit-id="${escapeHtml(item.id)}">
-            <div class="space-between">
-              <strong>${escapeHtml(item.action || 'action')}</strong>
-              <span class="pill ${dangerClass}">${escapeHtml(item.dangerLevel || 'info')}</span>
-            </div>
-            <div>${escapeHtml(item.tenantLabel || 'plateforme')} • ${escapeHtml(item.resourceType || 'ressource')}</div>
-            <div class="audit-meta">${escapeHtml(item.adminLabel || 'admin inconnu')} • ${escapeHtml(summary)} • ${escapeHtml(formatDate(item.createdAt))}</div>
-          </div>`;
-      }).join('');
-
-      els.auditViewList.querySelectorAll('[data-audit-id]').forEach((node) => node.addEventListener('click', () => {
-        state.selectedAuditId = node.getAttribute('data-audit-id');
-        renderAudits();
-      }));
-
-      const selected = items.find((item) => item.id === state.selectedAuditId) || items[0];
-      const dangerClass = getAuditDangerClass(selected.dangerLevel);
-      const changedKeys = Array.isArray(selected.changedKeys) ? selected.changedKeys : [];
-      const detailParts = [];
-      if (selected.resourceId) detailParts.push(`resource ${selected.resourceId}`);
-      if (selected.requestId) detailParts.push(`request ${selected.requestId}`);
-      detailParts.push(`${selected.changedCount || 0} champ(s) modifié(s)`);
-      if (changedKeys.length) detailParts.push(changedKeys.join(', '));
-
-      els.auditDetailBadge.className = `pill ${dangerClass}`;
-      els.auditDetailBadge.textContent = selected.dangerLevel || 'info';
-      els.auditDetailMeta.textContent = `${selected.tenantLabel || 'plateforme'} • ${selected.adminLabel || 'admin inconnu'} • ${formatDate(selected.createdAt)}`;
-      els.auditDetailTitle.textContent = `${selected.action || 'action'} — ${selected.resourceType || 'ressource'}`;
-      els.auditDetailSummary.textContent = detailParts.join(' • ');
-      els.auditDetailBefore.textContent = JSON.stringify(selected.before || {}, null, 2);
-      els.auditDetailAfter.textContent = JSON.stringify(selected.after || {}, null, 2);
-      els.auditDetailMetaJson.textContent = JSON.stringify(selected.meta || {}, null, 2);
-    }
-
-
-    function slugifyLocal(value) {
-      return String(value || '').toLowerCase().trim().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
-    }
-
-    function toggleCreateTenantPanel(forceOpen = null) {
-      const shouldOpen = forceOpen == null ? els.createTenantPanel.classList.contains('hidden') : Boolean(forceOpen);
-      els.createTenantPanel.classList.toggle('hidden', !shouldOpen);
-      if (shouldOpen) setStatus(els.createTenantStatus, '');
-    }
-
-    function resetCreateTenantForm(useDefaults = true) {
-      const defaults = state.provisioningDefaults?.provisioningDefaults || {};
-      els.createTenantName.value = '';
-      els.createTenantSubdomain.value = '';
-      els.createTenantSlug.value = '';
-      els.createTenantTimezone.value = useDefaults ? (defaults.timezone || 'Europe/Brussels') : 'Europe/Brussels';
-      els.createTenantBusinessCloseHour.value = String(useDefaults ? (defaults.businessCloseHour ?? 3) : 3);
-      els.createTenantStatusSelect.value = useDefaults ? (defaults.status || 'onboarding') : 'onboarding';
-      els.createTenantInitialTableCount.value = String(useDefaults ? (defaults.initialTableCount ?? 0) : 0);
-      els.createTenantStaffEnabled.checked = useDefaults ? (defaults.staffAccessEnabled !== false) : true;
-      els.createTenantNotes.value = '';
-      renderProvisioningDefaults();
-    }
-
-    function renderProvisioningDefaults() {
-      const defaults = state.provisioningDefaults?.provisioningDefaults || {};
-      const templates = Array.isArray(defaults.availableMenuTemplates) ? defaults.availableMenuTemplates : [];
-      const current = defaults.defaultMenuTemplateCode || templates[0]?.code || '';
-      els.createTenantTemplate.innerHTML = templates.length
-        ? templates.map((tpl) => `<option value="${escapeHtml(tpl.code)}" ${tpl.code === current ? 'selected' : ''}>${escapeHtml(tpl.name || tpl.code)}</option>`).join('')
-        : '<option value="">Aucun template disponible</option>';
-    }
-
-    async function loadProvisioningDefaults() {
-      const payload = await apiFetch('/superadmin/provisioning/defaults');
-      state.provisioningDefaults = payload;
-      renderProvisioningDefaults();
-      if (!els.createTenantName.value) resetCreateTenantForm(true);
-    }
-
-    function buildCreateTenantPayload() {
-      const name = els.createTenantName.value.trim();
-      const slug = slugifyLocal(els.createTenantSlug.value || name);
-      const subdomain = slugifyLocal(els.createTenantSubdomain.value || slug || name);
-      if (!name) throw new Error('tenant_name_required');
-      if (!subdomain) throw new Error('tenant_subdomain_invalid');
-      return {
-        name,
-        slug,
-        subdomain,
-        timezone: els.createTenantTimezone.value.trim() || 'Europe/Brussels',
-        businessCloseHour: Number(els.createTenantBusinessCloseHour.value || 3),
-        status: els.createTenantStatusSelect.value || 'onboarding',
-        notesInternal: els.createTenantNotes.value.trim(),
-        menuTemplateCode: els.createTenantTemplate.value || '',
-        staffAccessEnabled: els.createTenantStaffEnabled.checked,
-        initialTableCount: Number(els.createTenantInitialTableCount.value || 0),
-      };
-    }
-
-    async function createTenantFromUi() {
-      const payload = buildCreateTenantPayload();
-      setStatus(els.createTenantStatus, 'Création tenant…');
-      const created = await apiFetch('/superadmin/tenants', { method: 'POST', body: JSON.stringify(payload) });
-      await loadTenants();
-      state.selectedTenantId = created?.tenant?.id || state.selectedTenantId;
-      await loadTenantWorkspace(state.selectedTenantId);
-      renderTenantList();
-      toggleCreateTenantPanel(false);
-      resetCreateTenantForm(true);
-      setStatus(els.globalStatus, `Tenant créé : ${created?.tenant?.name || created?.tenant?.id}.`, 'ok');
-      setStatus(els.createTenantStatus, 'Tenant créé.', 'ok');
-    }
-
-    async function loadTenantTables(tenantId) {
-      setStatus(els.tablesStatus, 'Chargement tables…');
-      const params = new URLSearchParams();
-      if (state.includeArchivedTables) params.set('includeArchived', 'true');
-      const payload = await apiFetch(`/superadmin/tenants/${tenantId}/tables${params.toString() ? `?${params.toString()}` : ''}`);
-      state.tenantTables = payload;
-      if (state.selectedManageTableId && !((payload.tables || []).some((row) => row.id === state.selectedManageTableId))) state.selectedManageTableId = null;
-      renderTenantTables();
-      setStatus(els.tablesStatus, 'Tables chargées.', 'ok');
-    }
-
-    function resetTableForm() {
-      state.selectedManageTableId = null;
-      els.tableFormTitle.textContent = 'Nouvelle table';
-      els.tableCodeInput.value = '';
-      els.tableLabelInput.value = '';
-      els.tableDisplayNameInput.value = '';
-      els.tableSeatsInput.value = '0';
-      els.tableActiveInput.checked = true;
-      els.tableFormInfo.textContent = 'Crée une table proprement ou sélectionne une table existante pour l’éditer.';
-      renderTenantTables();
-    }
-
-    function fillTableForm(table) {
-      state.selectedManageTableId = table?.id || null;
-      els.tableFormTitle.textContent = table ? `Éditer ${table.displayName || table.label || table.code}` : 'Nouvelle table';
-      els.tableCodeInput.value = table?.code || '';
-      els.tableLabelInput.value = table?.label || '';
-      els.tableDisplayNameInput.value = table?.displayName || '';
-      els.tableSeatsInput.value = String(table?.seats || 0);
-      els.tableActiveInput.checked = table?.isActive !== false;
-      els.tableFormInfo.textContent = table ? 'La sauvegarde met à jour cette table uniquement.' : 'Crée une table proprement.';
-      renderTenantTables();
-    }
-
-    function buildTablePayload() {
-      const code = els.tableCodeInput.value.trim().toUpperCase();
-      if (!code) throw new Error('table_code_required');
-      return { code, label: els.tableLabelInput.value.trim() || code, displayName: els.tableDisplayNameInput.value.trim() || els.tableLabelInput.value.trim() || code, seats: Number(els.tableSeatsInput.value || 0), isActive: els.tableActiveInput.checked };
-    }
-
-    function renderTenantTables() {
-      const tenantId = state.selectedTenantId;
-      const tables = Array.isArray(state.tenantTables?.tables) ? state.tenantTables.tables : [];
-      els.reloadTablesBtn.disabled = !tenantId;
-      els.newTableBtn.disabled = !tenantId;
-      els.saveTableBtn.disabled = !tenantId;
-      els.tablesManageList.innerHTML = tables.length ? '' : '<div class="empty">Aucune table à gérer pour ce tenant.</div>';
-      tables.forEach((table, index) => {
-        const card = document.createElement('div');
-        card.className = `table-manage-card ${table.id === state.selectedManageTableId ? 'active' : ''}`;
-        const statusText = table.archivedAt ? 'archivée' : (table.isActive ? 'active' : 'inactive');
-        const statusClass = table.archivedAt ? 'danger' : (table.isActive ? 'ok' : 'warn');
-        card.innerHTML = `
-          <div class="space-between">
-            <strong>${escapeHtml(table.displayName || table.label || table.code)}</strong>
-            <span class="pill ${statusClass}">${statusText}</span>
-          </div>
-          <div class="muted">${escapeHtml(table.code)} • ${table.seats || 0} place(s) • ordre ${table.sortOrder || 0}</div>
-          <div class="row table-order-chip">Créée ${escapeHtml(formatDate(table.createdAt))} • mise à jour ${escapeHtml(formatDate(table.updatedAt))}</div>
-          <div class="actions">
-            <button type="button" class="secondary" data-action="edit">Éditer</button>
-            <button type="button" class="ghost" data-action="toggle">${table.isActive ? 'Désactiver' : 'Activer'}</button>
-            <button type="button" class="ghost" data-action="up" ${index === 0 || table.archivedAt ? 'disabled' : ''}>Monter</button>
-            <button type="button" class="ghost" data-action="down" ${index === tables.length - 1 || table.archivedAt ? 'disabled' : ''}>Descendre</button>
-            <button type="button" class="danger" data-action="archive" ${table.archivedAt ? 'disabled' : ''}>Archiver</button>
-          </div>`;
-        card.querySelectorAll('[data-action]').forEach((btn) => btn.addEventListener('click', async () => {
-          const action = btn.getAttribute('data-action');
-          if (action === 'edit') return fillTableForm(table);
-          if (action === 'toggle') return toggleManagedTable(table);
-          if (action === 'up') return reorderManagedTable(table.id, -1);
-          if (action === 'down') return reorderManagedTable(table.id, 1);
-          if (action === 'archive') return archiveManagedTable(table);
-        }));
-        els.tablesManageList.appendChild(card);
-      });
-      renderProvisioningSummary();
-    }
-
-    async function saveManagedTable() {
-      if (!state.selectedTenantId) throw new Error('tenant_requis');
-      const payload = buildTablePayload();
-      setStatus(els.tablesStatus, state.selectedManageTableId ? 'Mise à jour table…' : 'Création table…');
-      if (state.selectedManageTableId) {
-        await apiFetch(`/superadmin/tables/${state.selectedManageTableId}`, { method: 'PATCH', body: JSON.stringify(payload) });
+    function renderSessionInfo() {
+      const label = state.admin?.fullName || state.admin?.email || state.adminEmail || '';
+      const email = state.admin?.email || state.adminEmail || '';
+      if (state.adminToken) {
+        els.sessionInfo.textContent = email && label && email !== label ? `Connecté : ${label} • ${email}` : `Connecté : ${label || email || 'superadmin'}`;
+        els.logoutBtn.classList.remove('hidden');
       } else {
-        await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/tables`, { method: 'POST', body: JSON.stringify(payload) });
+        els.sessionInfo.textContent = 'Pas connecté.';
+        els.logoutBtn.classList.add('hidden');
       }
-      await Promise.all([loadTenantTables(state.selectedTenantId), loadQrCenter(state.selectedTenantId)]);
-      setStatus(els.tablesStatus, 'Table enregistrée.', 'ok');
-      resetTableForm();
     }
 
-    async function toggleManagedTable(table) {
-      const confirmed = await openDecisionModal({ title: table.isActive ? 'Désactiver une table' : 'Réactiver une table', subtitle: getTenantLabel(), level: 'warn', message: table.isActive ? 'Une table désactivée ne doit plus être considérée comme exploitable pour les QR et le service.' : 'La table redevient exploitable côté QR et exploitation.', impacts: [table.isActive ? 'Les QR associés ne doivent plus être utilisés tant que la table reste inactive.' : 'La table réapparaît dans le flux opérationnel du tenant.'], confirmLabel: table.isActive ? 'Oui, désactiver' : 'Oui, réactiver' });
-      if (!confirmed) return;
-      setStatus(els.tablesStatus, `${table.isActive ? 'Désactivation' : 'Réactivation'} table…`);
-      await apiFetch(`/superadmin/tables/${table.id}/toggle-active`, { method: 'POST', body: JSON.stringify({ isActive: !table.isActive }) });
-      await Promise.all([loadTenantTables(state.selectedTenantId), loadQrCenter(state.selectedTenantId)]);
-      setStatus(els.tablesStatus, 'État table mis à jour.', 'ok');
-    }
-
-    async function archiveManagedTable(table) {
-      const confirmed = await openDecisionModal({ title: 'Archiver une table', subtitle: getTenantLabel(), level: 'danger', message: 'Archiver une table la sort durablement de la structure exploitable du tenant.', impacts: ['La table disparaît des listes actives.', 'Le QR existant ne doit plus être considéré comme exploitable.', 'À faire seulement si la salle a réellement changé.'], confirmLabel: 'Oui, archiver la table' });
-      if (!confirmed) return;
-      setStatus(els.tablesStatus, 'Archivage table…');
-      await apiFetch(`/superadmin/tables/${table.id}/archive`, { method: 'POST' });
-      await Promise.all([loadTenantTables(state.selectedTenantId), loadQrCenter(state.selectedTenantId)]);
-      resetTableForm();
-      setStatus(els.tablesStatus, 'Table archivée.', 'ok');
-    }
-
-    async function reorderManagedTable(tableId, direction) {
-      const tables = Array.isArray(state.tenantTables?.tables) ? [...state.tenantTables.tables] : [];
-      const index = tables.findIndex((row) => row.id === tableId);
-      const target = index + direction;
-      if (index < 0 || target < 0 || target >= tables.length) return;
-      const [row] = tables.splice(index, 1);
-      tables.splice(target, 0, row);
-      setStatus(els.tablesStatus, 'Réordonnancement tables…');
-      await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/tables/reorder`, { method: 'POST', body: JSON.stringify({ orderedTableIds: tables.map((row) => row.id) }) });
-      await Promise.all([loadTenantTables(state.selectedTenantId), loadQrCenter(state.selectedTenantId)]);
-      setStatus(els.tablesStatus, 'Ordre tables mis à jour.', 'ok');
-    }
-
-    function getCatalogReadiness(catalogState = state.catalog) {
-      const rawCategories = catalogState?.catalog?.categories || catalogState?.categories || [];
-      const categories = Array.isArray(rawCategories) ? rawCategories : [];
-      const activeCategories = categories.filter((row) => row?.isActive !== false);
-      const activeItems = activeCategories.flatMap((row) => Array.isArray(row.items) ? row.items.filter((item) => item?.isActive !== false) : []);
-      return { categories, activeCategories, activeItems, ok: activeItems.length > 0 };
-    }
-
-    function buildWorkspaceChecks() {
-      const tenant = state.tenantSettings?.tenant || state.tenants.find((row) => row.id === state.selectedTenantId) || null;
-      const settings = state.tenantSettings?.settings || null;
-      const access = state.tenantStaffAccess?.staffAccess || null;
-      const tables = Array.isArray(state.tenantTables?.tables) ? state.tenantTables.tables.filter((row) => !row.archivedAt) : [];
-      const activeTables = tables.filter((row) => row.isActive !== false);
-      const qrTables = Array.isArray(state.qrCenter?.qrCenter?.tables) ? state.qrCenter.qrCenter.tables : [];
-      const readyQr = qrTables.filter((row) => row.qrStatus === 'ready').length;
-      const activeQrTargets = qrTables.filter((row) => row.isActive !== false).length;
-      const catalog = getCatalogReadiness();
-      return {
-        tenant,
-        settings,
-        access,
-        tables,
-        activeTables,
-        qrTables,
-        readyQr,
-        activeQrTargets,
-        catalog,
-        checks: [
-          { key: 'settings', label: 'Settings', ok: Boolean(settings && tenant?.id), note: settings ? `${settings.timezone || 'Europe/Brussels'} • fermeture ${settings.businessCloseHour ?? 3}h` : 'Réglages tenant non chargés', target: els.provisioningGoSettingsBtn },
-          { key: 'tables', label: 'Tables', ok: activeTables.length > 0, note: activeTables.length ? `${activeTables.length} table(s) actives` : 'Aucune table active', target: els.provisioningGoTablesBtn },
-          { key: 'qr', label: 'QR', ok: activeQrTargets > 0 && readyQr === activeQrTargets, note: qrTables.length ? `${readyQr}/${activeQrTargets || qrTables.length} QR prêts sur tables actives` : 'Aucun QR exploitable', target: els.provisioningGoQrBtn },
-          { key: 'staff', label: 'Accès staff', ok: Boolean(access?.isEnabled), note: access ? (access.isEnabled ? 'Accès staff activé' : 'Accès staff coupé') : 'Accès staff non chargé', target: els.provisioningGoStaffBtn },
-          { key: 'catalog', label: 'Catalogue', ok: catalog.ok, note: catalog.ok ? `${catalog.activeItems.length} produit(s) visibles dans ${catalog.activeCategories.length} catégorie(s)` : 'Aucun produit visible dans le catalogue', target: els.provisioningGoCatalogBtn },
-        ],
-      };
-    }
-
-    function updateTenantWorkspaceSummaryCache() {
-      if (!state.selectedTenantId) return null;
-      const data = buildWorkspaceChecks();
-      const missing = data.checks.filter((entry) => !entry.ok).map((entry) => entry.label);
-      const summary = {
-        tenantId: state.selectedTenantId,
-        ready: missing.length === 0,
-        missing,
-        activeTables: data.activeTables.length,
-        readyQr: data.readyQr,
-        expectedQr: data.activeQrTargets,
-        activeCatalogItems: data.catalog.activeItems.length,
-        staffEnabled: Boolean(data.access?.isEnabled),
-        tenantStatus: data.tenant?.status || 'draft',
-      };
-      state.tenantWorkspaceSummary[state.selectedTenantId] = summary;
-      return summary;
-    }
-
-    function renderCoherencePanel() {
-      const data = buildWorkspaceChecks();
-      const summary = updateTenantWorkspaceSummaryCache();
-      if (!data.tenant?.id) {
-        els.coherenceBadge.className = 'pill warn';
-        els.coherenceBadge.textContent = 'à vérifier';
-        els.coherenceGrid.innerHTML = '<div class="empty">Sélectionne un tenant pour lire la cohérence produit.</div>';
-        els.coherenceSummary.innerHTML = '';
-        return;
-      }
-      const statusActive = ['active'].includes(String(data.tenant.status || '').toLowerCase());
-      const clientVisible = data.settings?.operationsFlags?.clientMenuEnabled !== false && data.settings?.operationsFlags?.qrOrderingEnabled !== false;
-      const cards = [
-        { label: 'Statut exploitation', ok: !statusActive || (summary?.ready === true), note: statusActive ? (summary?.ready ? 'Tenant actif et exploitable' : 'Tenant actif alors que le provisioning est incomplet') : `Statut ${data.tenant.status || 'draft'}` },
-        { label: 'Exposition client', ok: clientVisible, note: clientVisible ? 'Menu client + QR ordering visibles' : 'Une capacité client est coupée' },
-        { label: 'Structure salle', ok: data.activeTables.length > 0, note: data.activeTables.length ? `${data.activeTables.length} table(s) actives` : 'Aucune table active' },
-        { label: 'QR terrain', ok: data.activeQrTargets > 0 && data.readyQr === data.activeQrTargets, note: data.qrTables.length ? `${data.readyQr}/${data.activeQrTargets || data.qrTables.length} QR prêts` : 'Pas de QR utilisable' },
-        { label: 'Carte commandable', ok: data.catalog.ok, note: data.catalog.ok ? `${data.catalog.activeItems.length} produit(s) visibles` : 'Aucun produit visible côté client' },
-      ];
-      els.coherenceGrid.innerHTML = cards.map((entry) => `<div class="coherence-card"><div class="space-between"><strong>${escapeHtml(entry.label)}</strong><span class="pill ${entry.ok ? 'ok' : 'warn'}">${entry.ok ? 'OK' : 'Point faible'}</span></div><div class="muted">${escapeHtml(entry.note)}</div></div>`).join('');
-      const weak = cards.filter((entry) => !entry.ok).map((entry) => entry.label);
-      els.coherenceBadge.className = `pill ${weak.length ? 'warn' : 'ok'}`;
-      els.coherenceBadge.textContent = weak.length ? 'écarts détectés' : 'cohérent';
-      els.coherenceSummary.innerHTML = weak.length
-        ? `<div class="modal-note warn">Le cockpit détecte encore des écarts : ${escapeHtml(weak.join(', '))}.</div>${statusActive && summary?.missing?.length ? `<div class="modal-note danger">Tu peux afficher un tenant actif qui reste incomplet. C’est exactement le type de mensonge cockpit → terrain qu’il faut éviter.</div>` : ''}`
-        : '<div class="modal-note info">Ce que dit le cockpit est aligné avec un tenant réellement exploitable.</div>';
-    }
-
-    function renderProvisioningSummary() {
-      const data = buildWorkspaceChecks();
-      const tenant = data.tenant;
-      const checks = data.checks;
-      els.provisioningSummary.innerHTML = checks.map((entry) => `<div class="provision-card"><div class="space-between"><strong>${escapeHtml(entry.label)}</strong><span class="pill ${entry.ok ? 'ok' : 'warn'}">${entry.ok ? 'OK' : 'À faire'}</span></div><div class="muted">${escapeHtml(entry.note)}</div></div>`).join('');
-      const remaining = checks.filter((entry) => !entry.ok).map((entry) => entry.label);
-      const tenantStatus = String(tenant?.status || '').toLowerCase();
-      const isActive = tenantStatus === 'active';
-      const baseMessage = tenant?.id
-        ? (remaining.length ? `Tenant incomplet : ${remaining.join(', ')}.` : 'Tenant provisionné correctement sur les points clés.')
-        : 'Sélectionne un tenant pour lire le provisioning.';
-      const finalMessage = isActive && remaining.length ? `${baseMessage} Attention : statut actif alors que le tenant n'est pas encore exploitable.` : baseMessage;
-      setStatus(els.provisioningStatus, finalMessage, tenant?.id ? (remaining.length ? 'error' : 'ok') : '');
-      [els.provisioningGoSettingsBtn, els.provisioningGoTablesBtn, els.provisioningGoQrBtn, els.provisioningGoStaffBtn, els.provisioningGoCatalogBtn, els.refreshProvisioningBtn].forEach((btn) => btn.disabled = !tenant?.id);
-      updateTenantWorkspaceSummaryCache();
-      renderCoherencePanel();
+    function logoutSession() {
+      state.adminToken = '';
+      state.admin = null;
+      localStorage.removeItem('superadmin_admin_token');
+      els.adminPassword.value = '';
+      renderSessionInfo();
+      setStatus(els.globalStatus, 'Session fermée.', 'ok');
     }
 
     async function login() {
@@ -1785,40 +819,16 @@
       setStatus(els.globalStatus, 'Connexion en cours…');
       const payload = await apiFetch('/superadmin/login', {
         method: 'POST',
-        body: JSON.stringify({ email: state.adminEmail, password: adminPassword }),
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: state.adminEmail, password: adminPassword }),
       });
       state.admin = payload.admin || null;
       state.adminToken = String(payload.token || '').trim();
       if (state.adminToken) localStorage.setItem('superadmin_admin_token', state.adminToken);
       els.adminPassword.value = '';
-      els.sessionInfo.textContent = `Connecté ${payload.admin?.fullName || payload.admin?.email || payload.admin?.authMode || 'superadmin'}`;
+      renderSessionInfo();
       setStatus(els.globalStatus, 'Connexion valide.', 'ok');
-      await Promise.all([loadOverview(), loadProvisioningDefaults(), loadTenants(), loadDiagnostics(), loadAudits()]);
-    }
-
-    async function bootstrapAdminAccount() {
-      const bootstrapToken = els.bootstrapToken.value.trim();
-      const fullName = els.bootstrapFullName.value.trim();
-      const email = els.bootstrapEmail.value.trim().toLowerCase();
-      const password = els.bootstrapPassword.value;
-      if (!bootstrapToken) throw new Error('superadmin_bootstrap_unauthorized');
-      if (!email) throw new Error('admin_email_required');
-      if (!password) throw new Error('admin_password_required');
-      state.apiBase = els.apiBase.value.trim();
-      localStorage.setItem('superadmin_api_base', state.apiBase);
-      setStatus(els.bootstrapStatus, 'Création du compte admin…');
-      const payload = await apiFetch('/superadmin/bootstrap/setup-admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-token': bootstrapToken },
-        body: JSON.stringify({ bootstrapToken, fullName, email, password }),
-      });
-      els.bootstrapPassword.value = '';
-      els.bootstrapEmail.value = email;
-      els.adminEmail.value = email;
-      state.adminEmail = email;
-      localStorage.setItem('superadmin_admin_email', email);
-      setStatus(els.bootstrapStatus, `Compte admin prêt : ${payload.admin?.fullName || payload.admin?.email || email}`, 'ok');
+      await Promise.all([loadOverview(), loadTenants(), loadDiagnostics()]);
     }
 
     async function loadTenants() {
@@ -1827,65 +837,31 @@
       els.tenantCount.textContent = String(state.tenants.length);
       if (!state.selectedTenantId && state.tenants[0]?.id) state.selectedTenantId = state.tenants[0].id;
       renderTenantList();
-      renderDiagnosticsTenantOptions();
-      renderAuditTenantOptions();
       if (state.selectedTenantId) await loadTenantWorkspace(state.selectedTenantId);
-      renderProvisioningSummary();
     }
 
     async function loadTenantWorkspace(tenantId) {
       state.selectedTableIds.clear();
-      await Promise.all([loadTenantSettings(tenantId), loadTenantStaffAccess(tenantId), loadTenantTables(tenantId), loadQrCenter(tenantId), loadCatalog(tenantId)]);
+      await Promise.all([loadTenantSettings(tenantId), loadTenantStaffAccess(tenantId), loadQrCenter(tenantId), loadCatalog(tenantId)]);
     }
 
     function renderTenantList() {
       els.tenantList.innerHTML = '';
-      const search = String(els.tenantSearchInput?.value || '').trim().toLowerCase();
-      const statusFilter = String(els.tenantStatusFilter?.value || '').trim().toLowerCase();
-      const readinessFilter = String(els.tenantReadinessFilter?.value || '').trim().toLowerCase();
-      const sortValue = String(els.tenantSortSelect?.value || 'name_asc');
-      let tenants = [...state.tenants];
-      if (search) tenants = tenants.filter((tenant) => [tenant.name, tenant.slug, tenant.subdomain].some((value) => String(value || '').toLowerCase().includes(search)));
-      if (statusFilter) tenants = tenants.filter((tenant) => String(tenant.status || '').toLowerCase() === statusFilter);
-      if (readinessFilter) {
-        tenants = tenants.filter((tenant) => {
-          const summary = state.tenantWorkspaceSummary[tenant.id];
-          if (readinessFilter === 'unknown') return !summary;
-          if (readinessFilter === 'ready') return summary?.ready === true;
-          if (readinessFilter === 'incomplete') return summary && summary.ready === false;
-          return true;
-        });
-      }
-      const sorters = {
-        name_asc: (a,b) => String(a.name || a.slug || '').localeCompare(String(b.name || b.slug || '')),
-        name_desc: (a,b) => String(b.name || b.slug || '').localeCompare(String(a.name || a.slug || '')),
-        status: (a,b) => String(a.status || '').localeCompare(String(b.status || '')) || String(a.name || '').localeCompare(String(b.name || '')),
-        tables_desc: (a,b) => Number(b.tableCount || 0) - Number(a.tableCount || 0),
-        tables_asc: (a,b) => Number(a.tableCount || 0) - Number(b.tableCount || 0),
-      };
-      tenants.sort(sorters[sortValue] || sorters.name_asc);
-      els.tenantCount.textContent = `${tenants.length}/${state.tenants.length}`;
-      els.tenantFilterMeta.textContent = search || statusFilter || readinessFilter ? `Filtres actifs • ${tenants.length} tenant(s) visibles sur ${state.tenants.length}.` : 'Liste brute des tenants.';
-      if (!tenants.length) {
-        els.tenantList.innerHTML = '<div class="empty">Aucun tenant ne correspond aux filtres.</div>';
+      if (!state.tenants.length) {
+        els.tenantList.innerHTML = '<div class="empty">Aucun tenant trouvé.</div>';
         return;
       }
-      tenants.forEach((tenant) => {
-        const summary = state.tenantWorkspaceSummary[tenant.id] || null;
-        const readinessBadge = summary ? `<span class="pill ${summary.ready ? 'ok' : 'warn'}">${summary.ready ? 'prêt' : 'incomplet'}</span>` : '<span class="pill warn">non évalué</span>';
+      state.tenants.forEach((tenant) => {
         const item = document.createElement('button');
         item.type = 'button';
         item.className = `tenant-card ${tenant.id === state.selectedTenantId ? 'active' : ''}`;
         item.innerHTML = `
-          <div class="tenant-card-head">
+          <div class="space-between">
             <strong>${escapeHtml(tenant.name || tenant.slug || tenant.id)}</strong>
             <span class="pill ${tenant.isActive ? 'ok' : 'warn'}">${tenant.status || (tenant.isActive ? 'active' : 'inactive')}</span>
           </div>
-          <div class="tenant-card-meta">
-            <div class="muted">${escapeHtml(tenant.subdomain || tenant.slug || 'sans sous-domaine')}</div>
-            <div class="muted">${tenant.tableCount || 0} table(s) • ${escapeHtml(tenant.timezone || 'Europe/Brussels')}</div>
-            <div class="tenant-badges">${readinessBadge}${summary ? `<span class="pill ${summary.staffEnabled ? 'ok' : 'warn'}">staff ${summary.staffEnabled ? 'on' : 'off'}</span><span class="pill ${summary.activeCatalogItems > 0 ? 'ok' : 'warn'}">catalogue ${summary.activeCatalogItems > 0 ? 'ok' : 'vide'}</span>` : ''}</div>
-          </div>
+          <div class="muted">${escapeHtml(tenant.subdomain || tenant.slug || 'sans sous-domaine')}</div>
+          <div class="muted">${tenant.tableCount || 0} table(s) • ${escapeHtml(tenant.timezone || 'Europe/Brussels')}</div>
         `;
         item.addEventListener('click', async () => {
           state.selectedTenantId = tenant.id;
@@ -1920,7 +896,6 @@
       els.reloadSettingsBtn.disabled = !tenant?.id;
       els.saveSettingsBtn.disabled = !tenant?.id;
 
-      renderProvisioningSummary();
       if (!settings) return;
 
       els.restaurantName.value = settings.restaurantName || '';
@@ -1952,16 +927,10 @@
 
     async function saveTenantSettings() {
       if (!state.selectedTenantId) return;
-      const nextPayload = buildSettingsPayload();
-      const confirmed = await confirmSettingsChange(nextPayload);
-      if (!confirmed) {
-        setStatus(els.settingsStatus, 'Changement annulé.', 'error');
-        return;
-      }
       setStatus(els.settingsStatus, 'Enregistrement settings…');
       const payload = await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/settings`, {
         method: 'PATCH',
-        body: JSON.stringify(nextPayload),
+        body: JSON.stringify(buildSettingsPayload()),
       });
       state.tenantSettings = {
         ok: true,
@@ -1980,7 +949,6 @@
       state.tenantStaffAccess = payload;
       renderTenantStaffAccess();
       setStatus(els.staffAccessStatus, 'Accès staff chargé.', 'ok');
-      renderProvisioningSummary();
     }
 
     function renderTenantStaffAccess() {
@@ -2016,11 +984,6 @@
 
     async function saveTenantStaffAccess() {
       if (!state.selectedTenantId) return;
-      const confirmed = await confirmStaffAccessChange(els.staffAccessEnabled.checked);
-      if (!confirmed) {
-        setStatus(els.staffAccessStatus, 'Changement annulé.', 'error');
-        return;
-      }
       setStatus(els.staffAccessStatus, 'Enregistrement accès staff…');
       const payload = await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/staff-access`, {
         method: 'PATCH',
@@ -2040,18 +1003,7 @@
     async function rotateTenantStaffToken() {
       if (!state.selectedTenantId) return;
       const customToken = els.customStaffToken.value.trim();
-      const confirmed = await openDecisionModal({
-        title: 'Rotation token staff',
-        subtitle: getTenantLabel(),
-        level: 'danger',
-        message: 'La rotation tue immédiatement l’ancien token staff.',
-        impacts: [
-          'L’ancien token devient inutilisable dès validation.',
-          'Le nouveau token doit être redonné proprement au staff concerné.',
-          customToken ? 'Tu imposes un token personnalisé. Vérifie qu’il a été communiqué sans erreur.' : 'Un nouveau token fort sera généré automatiquement.',
-        ],
-        confirmLabel: 'Oui, faire la rotation',
-      });
+      const confirmed = window.confirm('La rotation invalide immédiatement l’ancien token staff pour ce tenant. Continuer ?');
       if (!confirmed) return;
       setStatus(els.staffAccessStatus, 'Rotation token staff…');
       const payload = await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/staff-access/rotate`, {
@@ -2079,7 +1031,6 @@
       updateTenantHeader(payload);
       renderQrCenter();
       setStatus(els.tenantStatus, 'Centre QR chargé.', 'ok');
-      renderProvisioningSummary();
     }
 
     function updateTenantHeader(payload) {
@@ -2119,7 +1070,7 @@
         card.className = `table-card ${table.isActive ? '' : 'inactive'}`;
         const imageUrl = table.qrImageUrl ? (() => {
           const url = new URL(getApiUrl(table.qrImageUrl));
-          if (state.adminToken) url.searchParams.set('token', state.adminToken);
+          url.searchParams.set('token', state.adminToken);
           return url.toString();
         })() : '';
         card.innerHTML = `
@@ -2169,18 +1120,7 @@
     }
 
     async function regenerateTableQr(table) {
-      const confirmed = await openDecisionModal({
-        title: 'Régénérer un QR',
-        subtitle: `${getTenantLabel()} • ${table.displayName || table.label || table.code}`,
-        level: 'danger',
-        message: 'Tu es en train d’invalider un QR déjà potentiellement imprimé.',
-        impacts: [
-          'Tous les supports imprimés avec l’ancien QR cessent de fonctionner immédiatement.',
-          'Les clients ne pourront plus commander avec l’ancien QR.',
-          'Il faut réimprimer puis remplacer les supports physiques sans traîner.',
-        ],
-        confirmLabel: 'Oui, régénérer le QR',
-      });
+      const confirmed = window.confirm('Attention : régénérer ce QR code invalidera immédiatement l’ancien. Tous les supports déjà imprimés utilisant l’ancien QR ne fonctionneront plus. Confirmer la régénération ?');
       if (!confirmed) return;
       setStatus(els.tenantStatus, `Régénération de ${table.code}…`);
       await apiFetch(`/superadmin/tables/${table.id}/qr/regenerate`, { method: 'POST' });
@@ -2195,7 +1135,6 @@
       state.catalog = payload;
       renderCatalog();
       setStatus(els.catalogStatus, 'Catalogue chargé.', 'ok');
-      renderProvisioningSummary();
     }
 
     function parseSupplementsForApi(value) {
@@ -2228,8 +1167,7 @@
         els.catalogTemplateSelect.appendChild(option);
       });
       els.catalogTemplateMeta.textContent = catalog ? `Template actuel : ${catalog.currentTemplateCode || 'aucun'} • appliqué ${formatDate(catalog.currentTemplateAppliedAt)}` : 'Aucun catalogue chargé.';
-      const catalogReadiness = getCatalogReadiness(state.catalog);
-      els.catalogCount.textContent = `${categories.length} catégorie(s) • ${catalogReadiness.activeItems.length} produit(s) visible(s)`;
+      els.catalogCount.textContent = `${categories.length} catégorie(s)`;
       els.catalogList.innerHTML = categories.length ? '' : '<div class="empty">Aucune catégorie catalogue pour ce tenant.</div>';
       categories.forEach((category) => {
         const item = document.createElement('div');
@@ -2251,18 +1189,7 @@
     async function applyTemplate() {
       if (!state.selectedTenantId) return;
       const templateCode = els.catalogTemplateSelect.value;
-      const confirmed = await openDecisionModal({
-        title: 'Appliquer un template catalogue',
-        subtitle: getTenantLabel(),
-        level: 'danger',
-        message: 'Cette action recopie un template dans le tenant et peut écraser des lignes existantes portant les mêmes codes.',
-        impacts: [
-          'Les catégories et produits du tenant peuvent être remplacés code par code.',
-          'Si tu le fais sur un tenant actif sans contrôle, tu fabriques toi-même une incohérence de carte.',
-          `Template ciblé : ${els.catalogTemplateSelect.options[els.catalogTemplateSelect.selectedIndex]?.textContent || 'inconnu'}`,
-        ],
-        confirmLabel: 'Oui, appliquer le template',
-      });
+      const confirmed = window.confirm('Appliquer un template recopie son contenu vers le tenant. Les lignes existantes seront écrasées si les mêmes codes sont présents. Continuer ?');
       if (!confirmed) return;
       setStatus(els.catalogStatus, 'Application template…');
       await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/catalog/apply-template`, { method: 'POST', body: JSON.stringify({ templateCode }) });
@@ -2270,129 +1197,60 @@
       setStatus(els.catalogStatus, 'Template appliqué.', 'ok');
     }
 
-    function resetCatalogModalStatus() {
-      setStatus(els.catalogModalStatus, '');
-    }
-
-    function populateCatalogCategorySelect(selectedId = '') {
-      const categories = state.catalog?.catalog?.categories || [];
-      els.catalogItemCategorySelect.innerHTML = categories.map((entry) => `<option value="${escapeHtml(entry.id)}" ${entry.id === selectedId ? 'selected' : ''}>${escapeHtml(entry.label)} (${escapeHtml(entry.categoryCode)})</option>`).join('');
-    }
-
-    function openCatalogModal({ type, mode, entityId = null }) {
-      state.catalogEditor = { open: true, type, mode, entityId };
-      resetCatalogModalStatus();
-      els.catalogCategoryFields.classList.toggle('hidden', type !== 'category');
-      els.catalogItemFields.classList.toggle('hidden', type !== 'item');
-      els.catalogModalTitle.textContent = `${mode === 'create' ? 'Créer' : 'Modifier'} ${type === 'category' ? 'une catégorie' : 'un produit'}`;
-      els.catalogModalSubtitle.textContent = `${getTenantLabel()} • UX catalogue structurée`;
-      if (type === 'category') {
-        const category = mode === 'edit' ? (state.catalog?.catalog?.categories || []).find((entry) => entry.id === entityId) : null;
-        els.catalogCategoryLabelInput.value = category?.label || '';
-        els.catalogCategoryCodeInput.value = category?.categoryCode || '';
-        els.catalogCategorySortInput.value = String(category?.sortOrder ?? 10);
-        els.catalogCategoryActiveInput.checked = category?.isActive !== false;
-      } else {
-        const item = mode === 'edit' ? findItemById(entityId) : null;
-        populateCatalogCategorySelect(item?.categoryId || ((state.catalog?.catalog?.categories || [])[0]?.id || ''));
-        els.catalogItemNameInput.value = item?.name || '';
-        els.catalogItemCodeInput.value = item?.itemCode || '';
-        els.catalogItemPriceInput.value = String(item?.price ?? 0);
-        els.catalogItemDescriptionInput.value = item?.description || '';
-        els.catalogItemImageUrlInput.value = item?.imageUrl || '';
-        els.catalogItemSortInput.value = String(item?.sortOrder ?? 10);
-        els.catalogItemAllergensInput.value = Array.isArray(item?.allergens) ? item.allergens.join(', ') : '';
-        els.catalogItemSupplementsInput.value = formatSupplements(item?.supplements || []);
-        els.catalogItemSoldOutInput.checked = item?.isSoldOut === true;
-        els.catalogItemActiveInput.checked = item?.isActive !== false;
-      }
-      els.catalogModal.classList.add('open');
-      els.catalogModal.setAttribute('aria-hidden', 'false');
-    }
-
-    function closeCatalogModal() {
-      state.catalogEditor = { open: false, type: null, mode: null, entityId: null };
-      els.catalogModal.classList.remove('open');
-      els.catalogModal.setAttribute('aria-hidden', 'true');
-      resetCatalogModalStatus();
-    }
-
-    async function saveCatalogModal() {
-      if (!state.selectedTenantId) throw new Error('tenant_requis');
-      const { type, mode, entityId } = state.catalogEditor || {};
-      if (type === 'category') {
-        const payload = {
-          label: els.catalogCategoryLabelInput.value.trim(),
-          categoryCode: els.catalogCategoryCodeInput.value.trim(),
-          sortOrder: Number(els.catalogCategorySortInput.value || 0),
-          isActive: els.catalogCategoryActiveInput.checked,
-        };
-        if (!payload.label) throw new Error('category_label_required');
-        setStatus(els.catalogModalStatus, mode === 'create' ? 'Création catégorie…' : 'Mise à jour catégorie…');
-        if (mode === 'create') await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/categories`, { method: 'POST', body: JSON.stringify(payload) });
-        else await apiFetch(`/superadmin/categories/${entityId}`, { method: 'PATCH', body: JSON.stringify(payload) });
-      } else if (type === 'item') {
-        const payload = {
-          categoryId: els.catalogItemCategorySelect.value,
-          name: els.catalogItemNameInput.value.trim(),
-          itemCode: els.catalogItemCodeInput.value.trim(),
-          description: els.catalogItemDescriptionInput.value.trim(),
-          price: Number(els.catalogItemPriceInput.value || 0),
-          imageUrl: els.catalogItemImageUrlInput.value.trim(),
-          sortOrder: Number(els.catalogItemSortInput.value || 0),
-          allergens: els.catalogItemAllergensInput.value.split(',').map((entry) => entry.trim()).filter(Boolean),
-          supplements: parseSupplementsForApi(els.catalogItemSupplementsInput.value),
-          isSoldOut: els.catalogItemSoldOutInput.checked,
-          isActive: els.catalogItemActiveInput.checked,
-        };
-        if (!payload.categoryId) throw new Error('catalog_category_not_found');
-        if (!payload.name) throw new Error('catalog_item_name_required');
-        setStatus(els.catalogModalStatus, mode === 'create' ? 'Création produit…' : 'Mise à jour produit…');
-        if (mode === 'create') await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/items`, { method: 'POST', body: JSON.stringify(payload) });
-        else await apiFetch(`/superadmin/items/${entityId}`, { method: 'PATCH', body: JSON.stringify(payload) });
-      }
-      await loadCatalog(state.selectedTenantId);
-      closeCatalogModal();
-      setStatus(els.catalogStatus, type === 'category' ? (mode === 'create' ? 'Catégorie créée.' : 'Catégorie mise à jour.') : (mode === 'create' ? 'Produit créé.' : 'Produit mis à jour.'), 'ok');
-      renderCoherencePanel();
-      renderTenantList();
-    }
-
     async function createCategory() {
       if (!state.selectedTenantId) return;
-      openCatalogModal({ type: 'category', mode: 'create' });
+      const label = window.prompt('Nom de la catégorie ?');
+      if (!label) return;
+      const categoryCode = window.prompt('Code catégorie (laisser vide pour générer automatiquement) ?', '');
+      const sortOrder = window.prompt('Ordre affichage ?', '10');
+      setStatus(els.catalogStatus, 'Création catégorie…');
+      await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/categories`, { method: 'POST', body: JSON.stringify({ label, categoryCode, sortOrder: Number(sortOrder || 0) }) });
+      await loadCatalog(state.selectedTenantId);
+      setStatus(els.catalogStatus, 'Catégorie créée.', 'ok');
     }
 
     async function editCategory(categoryId) {
-      openCatalogModal({ type: 'category', mode: 'edit', entityId: categoryId });
+      const category = (state.catalog?.catalog?.categories || []).find((entry) => entry.id === categoryId);
+      if (!category) return;
+      const label = window.prompt('Nom catégorie', category.label || '');
+      if (!label) return;
+      const sortOrder = window.prompt('Ordre affichage', String(category.sortOrder || 0));
+      const keepActive = window.confirm('Catégorie visible ? OK = active / Annuler = inactive');
+      setStatus(els.catalogStatus, 'Mise à jour catégorie…');
+      await apiFetch(`/superadmin/categories/${categoryId}`, { method: 'PATCH', body: JSON.stringify({ label, sortOrder: Number(sortOrder || 0), isActive: keepActive }) });
+      await loadCatalog(state.selectedTenantId);
+      setStatus(els.catalogStatus, 'Catégorie mise à jour.', 'ok');
     }
 
     async function archiveCategory(categoryId) {
-      const confirmed = await openDecisionModal({
-        title: 'Archiver une catégorie',
-        subtitle: getTenantLabel(),
-        level: 'warn',
-        message: 'Archiver une catégorie la sort du catalogue visible et masque aussi ses produits.',
-        impacts: [
-          'Les produits rattachés ne seront plus visibles côté client.',
-          'C’est réversible seulement si tu remets ensuite une structure cohérente.',
-        ],
-        confirmLabel: 'Oui, archiver',
-      });
+      const confirmed = window.confirm('Archiver cette catégorie masque aussi ses produits. Continuer ?');
       if (!confirmed) return;
       setStatus(els.catalogStatus, 'Archivage catégorie…');
       await apiFetch(`/superadmin/categories/${categoryId}/archive`, { method: 'POST' });
       await loadCatalog(state.selectedTenantId);
       setStatus(els.catalogStatus, 'Catégorie archivée.', 'ok');
-      renderCoherencePanel();
-      renderTenantList();
     }
 
     async function createItem() {
       if (!state.selectedTenantId) return;
       const categories = state.catalog?.catalog?.categories || [];
       if (!categories.length) throw new Error('aucune_categorie');
-      openCatalogModal({ type: 'item', mode: 'create' });
+      const categoryLabel = window.prompt(`Choisis la catégorie parmi : ${categories.map((entry) => entry.label).join(', ')}`);
+      if (!categoryLabel) return;
+      const category = categories.find((entry) => entry.label.toLowerCase() === categoryLabel.toLowerCase() || entry.categoryCode.toLowerCase() === categoryLabel.toLowerCase());
+      if (!category) throw new Error('categorie_introuvable');
+      const name = window.prompt('Nom produit ?'); if (!name) return;
+      const itemCode = window.prompt('Code produit (laisser vide pour générer automatiquement) ?', '');
+      const description = window.prompt('Description ?', '');
+      const price = window.prompt('Prix ?', '0');
+      const imageUrl = window.prompt('Image URL ?', '');
+      const sortOrder = window.prompt('Ordre affichage ?', '10');
+      const allergens = window.prompt('Allergènes séparés par virgules ?', '');
+      const supplements = window.prompt('Suppléments au format nom:prix | nom:prix', '');
+      setStatus(els.catalogStatus, 'Création produit…');
+      await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/items`, { method: 'POST', body: JSON.stringify({ categoryId: category.id, name, itemCode, description, price: Number(price || 0), imageUrl, sortOrder: Number(sortOrder || 0), allergens: allergens.split(',').map((entry) => entry.trim()).filter(Boolean), supplements: parseSupplementsForApi(supplements) }) });
+      await loadCatalog(state.selectedTenantId);
+      setStatus(els.catalogStatus, 'Produit créé.', 'ok');
     }
 
     function findItemById(itemId) {
@@ -2405,33 +1263,38 @@
     }
 
     async function editItem(itemId) {
-      openCatalogModal({ type: 'item', mode: 'edit', entityId: itemId });
+      const item = findItemById(itemId);
+      if (!item) return;
+      const categories = state.catalog?.catalog?.categories || [];
+      const categoryTarget = window.prompt(`Catégorie (${categories.map((entry) => entry.label).join(', ')})`, item.categoryLabel || item.categoryCode || '');
+      const category = categories.find((entry) => entry.label.toLowerCase() === String(categoryTarget || '').toLowerCase() || entry.categoryCode.toLowerCase() === String(categoryTarget || '').toLowerCase()) || categories.find((entry) => entry.id === item.categoryId);
+      const name = window.prompt('Nom produit', item.name || ''); if (!name) return;
+      const description = window.prompt('Description', item.description || '');
+      const price = window.prompt('Prix', String(item.price || 0));
+      const imageUrl = window.prompt('Image URL', item.imageUrl || '');
+      const sortOrder = window.prompt('Ordre affichage', String(item.sortOrder || 0));
+      const allergens = window.prompt('Allergènes séparés par virgules', (item.allergens || []).join(', '));
+      const supplements = window.prompt('Suppléments au format nom:prix | nom:prix', formatSupplements(item.supplements));
+      const isSoldOut = window.confirm('Produit en rupture temporaire ? OK = rupture / Annuler = disponible');
+      const isActive = window.confirm('Produit visible ? OK = visible / Annuler = masqué');
+      setStatus(els.catalogStatus, 'Mise à jour produit…');
+      await apiFetch(`/superadmin/items/${itemId}`, { method: 'PATCH', body: JSON.stringify({ categoryId: category?.id || item.categoryId, name, description, price: Number(price || 0), imageUrl, sortOrder: Number(sortOrder || 0), allergens: allergens.split(',').map((entry) => entry.trim()).filter(Boolean), supplements: parseSupplementsForApi(supplements), isSoldOut, isActive }) });
+      await loadCatalog(state.selectedTenantId);
+      setStatus(els.catalogStatus, 'Produit mis à jour.', 'ok');
     }
 
     async function archiveItem(itemId) {
-      const confirmed = await openDecisionModal({
-        title: 'Archiver un produit',
-        subtitle: getTenantLabel(),
-        level: 'warn',
-        message: 'Archiver ce produit le retire du menu client.',
-        impacts: [
-          'Le produit ne sera plus commandable depuis le menu client.',
-          'À faire seulement si tu assumes la conséquence opérationnelle immédiatement.',
-        ],
-        confirmLabel: 'Oui, archiver le produit',
-      });
+      const confirmed = window.confirm('Archiver ce produit le masque du menu client. Continuer ?');
       if (!confirmed) return;
       setStatus(els.catalogStatus, 'Archivage produit…');
       await apiFetch(`/superadmin/items/${itemId}/archive`, { method: 'POST' });
       await loadCatalog(state.selectedTenantId);
       setStatus(els.catalogStatus, 'Produit archivé.', 'ok');
-      renderCoherencePanel();
-      renderTenantList();
     }
 
     function openWindow(path) {
       const url = new URL(getApiUrl(path));
-      if (state.adminToken) url.searchParams.set('token', state.adminToken);
+      url.searchParams.set('token', state.adminToken);
       window.open(url.toString(), '_blank', 'noopener');
     }
 
@@ -2446,57 +1309,31 @@
 
     els.apiBase.value = state.apiBase;
     els.adminEmail.value = state.adminEmail;
+    renderSessionInfo();
     updateColorPreview(DEFAULT_COLOR);
-
-
-    els.openCreateTenantBtn.addEventListener('click', () => toggleCreateTenantPanel(true));
-    els.closeCreateTenantBtn.addEventListener('click', () => toggleCreateTenantPanel(false));
-    els.createTenantName.addEventListener('input', () => {
-      const slug = slugifyLocal(els.createTenantName.value);
-      if (!els.createTenantSlug.value.trim()) els.createTenantSlug.value = slug;
-      if (!els.createTenantSubdomain.value.trim()) els.createTenantSubdomain.value = slug;
-    });
-    els.createTenantBtn.addEventListener('click', async () => {
-      try { await createTenantFromUi(); } catch (error) { setStatus(els.createTenantStatus, describeApiError(error) || 'Création tenant impossible', 'error'); }
-    });
-    els.refreshProvisioningBtn.addEventListener('click', async () => {
-      try { if (!state.selectedTenantId) throw new Error('tenant_requis'); await loadTenantWorkspace(state.selectedTenantId); setStatus(els.provisioningStatus, 'Provisioning rechargé.', 'ok'); } catch (error) { setStatus(els.provisioningStatus, describeApiError(error) || 'Rechargement provisioning impossible', 'error'); }
-    });
-    els.provisioningGoSettingsBtn.addEventListener('click', () => document.getElementById('tenantTitle')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-    els.provisioningGoTablesBtn.addEventListener('click', () => document.getElementById('tablesSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-    els.provisioningGoQrBtn.addEventListener('click', () => document.getElementById('qrSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-    els.provisioningGoStaffBtn.addEventListener('click', () => els.reloadStaffAccessBtn.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-    els.provisioningGoCatalogBtn.addEventListener('click', () => els.reloadCatalogBtn.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-    els.reloadTablesBtn.addEventListener('click', async () => { try { if (!state.selectedTenantId) throw new Error('tenant_requis'); await loadTenantTables(state.selectedTenantId); } catch (error) { setStatus(els.tablesStatus, describeApiError(error) || 'Rechargement tables impossible', 'error'); } });
-    els.newTableBtn.addEventListener('click', () => resetTableForm());
-    els.tableFormResetBtn.addEventListener('click', () => resetTableForm());
-    els.saveTableBtn.addEventListener('click', async () => { try { await saveManagedTable(); } catch (error) { setStatus(els.tablesStatus, describeApiError(error) || 'Enregistrement table impossible', 'error'); } });
-    els.includeArchivedTables.addEventListener('change', async (event) => { state.includeArchivedTables = event.target.checked; try { if (!state.selectedTenantId) throw new Error('tenant_requis'); await loadTenantTables(state.selectedTenantId); } catch (error) { setStatus(els.tablesStatus, describeApiError(error) || 'Chargement tables impossible', 'error'); } });
 
     els.brandingPrimaryColor.addEventListener('input', (event) => updateColorPreview(event.target.value));
 
     els.loginBtn.addEventListener('click', async () => {
-      try { await login(); } catch (error) { setStatus(els.globalStatus, describeApiError(error) || 'Connexion impossible', 'error'); }
-    });
-    els.toggleBootstrapBtn.addEventListener('click', () => els.bootstrapPanel.classList.toggle('hidden'));
-    els.bootstrapCloseBtn.addEventListener('click', () => els.bootstrapPanel.classList.add('hidden'));
-    els.bootstrapCreateBtn.addEventListener('click', async () => {
-      try { await bootstrapAdminAccount(); } catch (error) { setStatus(els.bootstrapStatus, describeApiError(error) || 'Initialisation admin impossible', 'error'); }
+      try { await login(); } catch (error) { setStatus(els.globalStatus, error.message || 'Connexion impossible', 'error'); }
     });
 
     els.refreshBtn.addEventListener('click', async () => {
       try {
         if (!state.adminToken) throw new Error('token_admin_requis');
-        await Promise.all([loadOverview(), loadProvisioningDefaults(), loadTenants(), loadDiagnostics(), loadAudits()]);
+        await Promise.all([loadOverview(), loadTenants(), loadDiagnostics()]);
         setStatus(els.globalStatus, 'Actualisation OK.', 'ok');
       } catch (error) {
-        setStatus(els.globalStatus, describeApiError(error) || 'Actualisation impossible', 'error');
+        setStatus(els.globalStatus, error.message || 'Actualisation impossible', 'error');
       }
     });
 
+    els.logoutBtn.addEventListener('click', () => {
+      logoutSession();
+    });
 
     els.diagApplyBtn.addEventListener('click', async () => {
-      try { await loadDiagnostics(); } catch (error) { setStatus(els.diagStatus, describeApiError(error) || 'Chargement diagnostics impossible', 'error'); }
+      try { await loadDiagnostics(); } catch (error) { setStatus(els.diagStatus, error.message || 'Chargement diagnostics impossible', 'error'); }
     });
 
     els.diagSelectedTenantBtn.addEventListener('click', async () => {
@@ -2505,7 +1342,7 @@
         els.diagTenantFilter.value = state.selectedTenantId;
         await loadDiagnostics();
       } catch (error) {
-        setStatus(els.diagStatus, describeApiError(error) || 'Filtre tenant impossible', 'error');
+        setStatus(els.diagStatus, error.message || 'Filtre tenant impossible', 'error');
       }
     });
 
@@ -2521,38 +1358,7 @@
       els.diagToFilter.value = '';
       els.diagOrderFilter.value = 'desc';
       els.diagUnresolvedOnly.checked = false;
-      try { await loadDiagnostics(); } catch (error) { setStatus(els.diagStatus, describeApiError(error) || 'Réinitialisation diagnostics impossible', 'error'); }
-    });
-
-    els.auditApplyBtn.addEventListener('click', async () => {
-      try { await loadAudits(); } catch (error) { setStatus(els.auditViewStatus, describeApiError(error) || 'Chargement audits impossible', 'error'); }
-    });
-
-    els.auditSelectedTenantBtn.addEventListener('click', async () => {
-      try {
-        if (!state.selectedTenantId) throw new Error('tenant_requis');
-        els.auditTenantFilter.value = state.selectedTenantId;
-        els.auditPlatformOnly.checked = false;
-        await loadAudits();
-      } catch (error) {
-        setStatus(els.auditViewStatus, describeApiError(error) || 'Filtre audit impossible', 'error');
-      }
-    });
-
-    els.auditResetBtn.addEventListener('click', async () => {
-      els.auditTenantFilter.value = '';
-      els.auditDangerFilter.value = '';
-      els.auditActionFilter.value = '';
-      els.auditResourceTypeFilter.value = '';
-      els.auditResourceIdFilter.value = '';
-      els.auditAdminFilter.value = '';
-      els.auditFromFilter.value = '';
-      els.auditToFilter.value = '';
-      els.auditOrderFilter.value = 'desc';
-      els.auditLimitFilter.value = '100';
-      els.auditChangedOnly.checked = false;
-      els.auditPlatformOnly.checked = false;
-      try { await loadAudits(); } catch (error) { setStatus(els.auditViewStatus, describeApiError(error) || 'Réinitialisation audits impossible', 'error'); }
+      try { await loadDiagnostics(); } catch (error) { setStatus(els.diagStatus, error.message || 'Réinitialisation diagnostics impossible', 'error'); }
     });
 
     els.reloadSettingsBtn.addEventListener('click', async () => {
@@ -2560,12 +1366,12 @@
         if (!state.selectedTenantId) throw new Error('tenant_requis');
         await loadTenantSettings(state.selectedTenantId);
       } catch (error) {
-        setStatus(els.settingsStatus, describeApiError(error) || 'Rechargement settings impossible', 'error');
+        setStatus(els.settingsStatus, error.message || 'Rechargement settings impossible', 'error');
       }
     });
 
     els.saveSettingsBtn.addEventListener('click', async () => {
-      try { await saveTenantSettings(); } catch (error) { setStatus(els.settingsStatus, describeApiError(error) || 'Enregistrement impossible', 'error'); }
+      try { await saveTenantSettings(); } catch (error) { setStatus(els.settingsStatus, error.message || 'Enregistrement impossible', 'error'); }
     });
 
     els.reloadStaffAccessBtn.addEventListener('click', async () => {
@@ -2573,16 +1379,16 @@
         if (!state.selectedTenantId) throw new Error('tenant_requis');
         await loadTenantStaffAccess(state.selectedTenantId);
       } catch (error) {
-        setStatus(els.staffAccessStatus, describeApiError(error) || 'Rechargement accès staff impossible', 'error');
+        setStatus(els.staffAccessStatus, error.message || 'Rechargement accès staff impossible', 'error');
       }
     });
 
     els.saveStaffAccessBtn.addEventListener('click', async () => {
-      try { await saveTenantStaffAccess(); } catch (error) { setStatus(els.staffAccessStatus, describeApiError(error) || 'Enregistrement accès staff impossible', 'error'); }
+      try { await saveTenantStaffAccess(); } catch (error) { setStatus(els.staffAccessStatus, error.message || 'Enregistrement accès staff impossible', 'error'); }
     });
 
     els.rotateStaffTokenBtn.addEventListener('click', async () => {
-      try { await rotateTenantStaffToken(); } catch (error) { setStatus(els.staffAccessStatus, describeApiError(error) || 'Rotation token impossible', 'error'); }
+      try { await rotateTenantStaffToken(); } catch (error) { setStatus(els.staffAccessStatus, error.message || 'Rotation token impossible', 'error'); }
     });
 
     els.reloadCenterBtn.addEventListener('click', async () => {
@@ -2590,7 +1396,7 @@
         if (!state.selectedTenantId) throw new Error('tenant_requis');
         await loadQrCenter(state.selectedTenantId);
       } catch (error) {
-        setStatus(els.tenantStatus, describeApiError(error) || 'Rechargement impossible', 'error');
+        setStatus(els.tenantStatus, error.message || 'Rechargement impossible', 'error');
       }
     });
 
@@ -2620,46 +1426,14 @@
     });
 
     els.reloadCatalogBtn.addEventListener('click', async () => {
-      try { if (!state.selectedTenantId) throw new Error('tenant_requis'); await loadCatalog(state.selectedTenantId); } catch (error) { setStatus(els.catalogStatus, describeApiError(error) || 'Rechargement catalogue impossible', 'error'); }
+      try { if (!state.selectedTenantId) throw new Error('tenant_requis'); await loadCatalog(state.selectedTenantId); } catch (error) { setStatus(els.catalogStatus, error.message || 'Rechargement catalogue impossible', 'error'); }
     });
-    els.applyTemplateBtn.addEventListener('click', async () => { try { await applyTemplate(); } catch (error) { setStatus(els.catalogStatus, describeApiError(error) || 'Application template impossible', 'error'); } });
-    els.createCategoryBtn.addEventListener('click', async () => { try { await createCategory(); } catch (error) { setStatus(els.catalogStatus, describeApiError(error) || 'Création catégorie impossible', 'error'); } });
-    els.createItemBtn.addEventListener('click', async () => { try { await createItem(); } catch (error) { setStatus(els.catalogStatus, describeApiError(error) || 'Création produit impossible', 'error'); } });
-
-    [els.tenantSearchInput, els.tenantStatusFilter, els.tenantReadinessFilter, els.tenantSortSelect].forEach((node) => node.addEventListener('input', () => renderTenantList()));
-    [els.tenantStatusFilter, els.tenantReadinessFilter, els.tenantSortSelect].forEach((node) => node.addEventListener('change', () => renderTenantList()));
-
-    els.catalogModalCancel.addEventListener('click', () => closeCatalogModal());
-    els.catalogModalClose.addEventListener('click', () => closeCatalogModal());
-    els.catalogModalSave.addEventListener('click', async () => {
-      try { await saveCatalogModal(); } catch (error) { setStatus(els.catalogModalStatus, describeApiError(error) || 'Enregistrement catalogue impossible', 'error'); }
-    });
-    els.catalogModal.addEventListener('click', (event) => {
-      if (event.target === els.catalogModal) closeCatalogModal();
-    });
-
-    els.decisionModalCancel.addEventListener('click', () => closeDecisionModal(false));
-    els.decisionModalClose.addEventListener('click', () => closeDecisionModal(false));
-    els.decisionModalConfirm.addEventListener('click', () => closeDecisionModal(true));
-    els.decisionModal.addEventListener('click', (event) => {
-      if (event.target === els.decisionModal) closeDecisionModal(false);
-    });
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && state.pendingDecisionResolver) closeDecisionModal(false);
-      if (event.key === 'Escape' && state.catalogEditor?.open) closeCatalogModal();
-    });
+    els.applyTemplateBtn.addEventListener('click', async () => { try { await applyTemplate(); } catch (error) { setStatus(els.catalogStatus, error.message || 'Application template impossible', 'error'); } });
+    els.createCategoryBtn.addEventListener('click', async () => { try { await createCategory(); } catch (error) { setStatus(els.catalogStatus, error.message || 'Création catégorie impossible', 'error'); } });
+    els.createItemBtn.addEventListener('click', async () => { try { await createItem(); } catch (error) { setStatus(els.catalogStatus, error.message || 'Création produit impossible', 'error'); } });
 
     if (state.adminToken) {
-      apiFetch('/superadmin/me').then((payload) => {
-        state.admin = payload.admin || null;
-        els.sessionInfo.textContent = `Connecté ${payload.admin?.fullName || payload.admin?.email || payload.admin?.authMode || 'superadmin'}`;
-        setStatus(els.globalStatus, 'Session restaurée.', 'ok');
-        return Promise.all([loadOverview(), loadProvisioningDefaults(), loadTenants(), loadDiagnostics(), loadAudits()]);
-      }).catch((error) => {
-        localStorage.removeItem('superadmin_admin_token');
-        state.adminToken = '';
-        setStatus(els.globalStatus, describeApiError(error) || 'Connexion automatique impossible', 'error');
-      });
+      login().catch((error) => setStatus(els.globalStatus, error.message || 'Connexion automatique impossible', 'error'));
     }
   </script>
 </body>
