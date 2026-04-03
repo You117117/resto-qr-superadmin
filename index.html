@@ -134,6 +134,16 @@
     .table-manage-toolbar { display:grid; gap:10px; grid-template-columns: repeat(5, minmax(120px, 1fr)); }
     .table-order-chip { font-size: 12px; color: var(--muted); }
     .helper-box { background:#0d1526; border:1px solid var(--border); border-radius:14px; padding:14px; }
+    .tenant-filter-grid { display:grid; gap:10px; grid-template-columns: 1.3fr 1fr 1fr 1fr; margin-top:12px; }
+    .tenant-card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+    .tenant-card-meta { display:grid; gap:6px; }
+    .tenant-badges { display:flex; gap:8px; flex-wrap:wrap; }
+    .coherence-grid { display:grid; gap:12px; grid-template-columns: repeat(5, minmax(160px, 1fr)); margin-top:14px; }
+    .coherence-card { background:#0d1526; border:1px solid var(--border); border-radius:14px; padding:14px; display:grid; gap:8px; }
+    .coherence-card strong { font-size:15px; }
+    .coherence-summary { margin-top:12px; display:grid; gap:8px; }
+    .catalog-modal-grid { display:grid; gap:12px; grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+    .catalog-modal-grid .full { grid-column:1 / -1; }
     .hidden { display:none !important; }
 
     @media (max-width: 1240px) {
@@ -150,14 +160,31 @@
     <section class="topbar">
       <div>
         <div class="title">Superadmin — Cockpit tenant</div>
-        <div class="subtitle">Bloc 14 : garde-fous UX ciblés sur les actions sensibles, sans friction inutile sur le reste du cockpit.</div>
+        <div class="subtitle">Lot B : catalogue structuré, lecture multi-tenant enrichie et cohérence cockpit ↔ terrain.</div>
       </div>
       <div class="auth-grid">
         <input id="apiBase" placeholder="API base URL" value="http://localhost:8080" />
-        <input id="adminToken" placeholder="x-admin-token" />
+        <input id="adminEmail" placeholder="Email admin" />
+        <input id="adminPassword" type="password" placeholder="Mot de passe" />
         <button id="loginBtn">Connexion</button>
         <button id="refreshBtn" class="secondary">Actualiser</button>
-        <button id="logoutBtn" class="secondary">Déconnexion</button>
+      </div>
+      <div class="row" style="margin-top:10px; gap:10px; align-items:center;">
+        <button id="toggleBootstrapBtn" class="secondary">Initialiser compte admin</button>
+        <span class="muted">À utiliser une seule fois avec le bootstrap token pour créer le premier compte DB.</span>
+      </div>
+      <div id="bootstrapPanel" class="panel hidden" style="margin-top:12px; padding:14px;">
+        <div class="inline-form-grid">
+          <input id="bootstrapToken" type="password" placeholder="Bootstrap token (.env)" />
+          <input id="bootstrapFullName" placeholder="Nom complet admin" />
+          <input id="bootstrapEmail" placeholder="Email admin" />
+          <input id="bootstrapPassword" type="password" placeholder="Mot de passe admin" />
+        </div>
+        <div class="row" style="margin-top:12px; gap:10px;">
+          <button id="bootstrapCreateBtn">Créer / mettre à jour le compte admin</button>
+          <button id="bootstrapCloseBtn" class="secondary">Fermer</button>
+        </div>
+        <div id="bootstrapStatus" class="status" style="margin-top:12px;"></div>
       </div>
       <div class="space-between">
         <div id="sessionInfo" class="muted">Pas connecté.</div>
@@ -303,6 +330,13 @@
         <div class="row" style="margin-top:12px;">
           <button id="openCreateTenantBtn" class="success">+ Créer un tenant</button>
         </div>
+        <div class="tenant-filter-grid">
+          <div class="field"><label for="tenantSearchInput">Recherche</label><input id="tenantSearchInput" placeholder="nom, slug, subdomain" /></div>
+          <div class="field"><label for="tenantStatusFilter">Statut</label><select id="tenantStatusFilter"><option value="">Tous</option><option value="draft">draft</option><option value="onboarding">onboarding</option><option value="active">active</option><option value="suspended">suspended</option><option value="archived">archived</option></select></div>
+          <div class="field"><label for="tenantReadinessFilter">Lecture</label><select id="tenantReadinessFilter"><option value="">Tous</option><option value="ready">prêts</option><option value="incomplete">incomplets</option><option value="unknown">non encore évalués</option></select></div>
+          <div class="field"><label for="tenantSortSelect">Tri</label><select id="tenantSortSelect"><option value="name_asc">Nom A → Z</option><option value="name_desc">Nom Z → A</option><option value="status">Statut</option><option value="tables_desc">Plus de tables</option><option value="tables_asc">Moins de tables</option></select></div>
+        </div>
+        <div id="tenantFilterMeta" class="muted" style="margin-top:10px;">Liste brute des tenants.</div>
         <div id="createTenantPanel" class="helper-box hidden" style="margin-top:12px;">
           <div class="space-between">
             <strong>Création tenant</strong>
@@ -359,6 +393,18 @@
               <button id="provisioningGoStaffBtn" class="ghost" disabled>Étape 4 — Staff</button>
               <button id="provisioningGoCatalogBtn" class="ghost" disabled>Étape 5 — Catalogue</button>
             </div>
+          </div>
+
+          <div class="helper-box" style="margin-top:18px;">
+            <div class="space-between">
+              <div>
+                <h3 style="margin:0; font-size:18px;">Cohérence cockpit ↔ terrain</h3>
+                <div class="muted" style="margin-top:6px;">Lecture produit réelle : ce que le cockpit annonce doit correspondre à ce qu’un restaurant peut vraiment exploiter.</div>
+              </div>
+              <span id="coherenceBadge" class="pill warn">à vérifier</span>
+            </div>
+            <div id="coherenceGrid" class="coherence-grid"></div>
+            <div id="coherenceSummary" class="coherence-summary"></div>
           </div>
 
           <div class="section-grid" style="margin-top:18px;">
@@ -613,11 +659,51 @@
     </div>
   </div>
 
+  <div id="catalogModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="catalogModalTitle">
+      <div class="modal-head">
+        <div>
+          <div id="catalogModalTitle" class="modal-title">Catalogue</div>
+          <div id="catalogModalSubtitle" class="muted" style="margin-top:6px;">Édition structurée</div>
+        </div>
+        <button id="catalogModalClose" type="button" class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="catalogModalStatus" class="status"></div>
+        <div id="catalogCategoryFields" class="catalog-modal-grid hidden">
+          <div class="field"><label for="catalogCategoryLabelInput">Nom catégorie</label><input id="catalogCategoryLabelInput" placeholder="Boissons" /></div>
+          <div class="field"><label for="catalogCategoryCodeInput">Code catégorie</label><input id="catalogCategoryCodeInput" placeholder="boissons" /></div>
+          <div class="field"><label for="catalogCategorySortInput">Ordre</label><input id="catalogCategorySortInput" type="number" value="10" /></div>
+          <div class="field"><label class="check-item"><input id="catalogCategoryActiveInput" type="checkbox" checked /> Catégorie visible</label></div>
+        </div>
+        <div id="catalogItemFields" class="catalog-modal-grid hidden">
+          <div class="field"><label for="catalogItemCategorySelect">Catégorie</label><select id="catalogItemCategorySelect"></select></div>
+          <div class="field"><label for="catalogItemNameInput">Nom produit</label><input id="catalogItemNameInput" placeholder="Coca" /></div>
+          <div class="field"><label for="catalogItemCodeInput">Code produit</label><input id="catalogItemCodeInput" placeholder="coca" /></div>
+          <div class="field"><label for="catalogItemPriceInput">Prix</label><input id="catalogItemPriceInput" type="number" step="0.01" min="0" value="0" /></div>
+          <div class="field full"><label for="catalogItemDescriptionInput">Description</label><textarea id="catalogItemDescriptionInput" placeholder="Description produit"></textarea></div>
+          <div class="field full"><label for="catalogItemImageUrlInput">Image URL</label><input id="catalogItemImageUrlInput" placeholder="https://..." /></div>
+          <div class="field"><label for="catalogItemSortInput">Ordre</label><input id="catalogItemSortInput" type="number" value="10" /></div>
+          <div class="field"><label for="catalogItemAllergensInput">Allergènes</label><input id="catalogItemAllergensInput" placeholder="gluten, lait" /></div>
+          <div class="field full"><label for="catalogItemSupplementsInput">Suppléments</label><input id="catalogItemSupplementsInput" placeholder="grand:1 | glaçons:0" /></div>
+          <div class="field"><label class="check-item"><input id="catalogItemSoldOutInput" type="checkbox" /> Rupture temporaire</label></div>
+          <div class="field"><label class="check-item"><input id="catalogItemActiveInput" type="checkbox" checked /> Produit visible</label></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="catalogModalCancel" type="button" class="secondary">Annuler</button>
+        <button id="catalogModalSave" type="button" class="success">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const DEFAULT_COLOR = '#4f46e5';
     const state = {
       apiBase: localStorage.getItem('superadmin_api_base') || 'http://localhost:8080',
       adminToken: localStorage.getItem('superadmin_admin_token') || '',
+      adminEmail: localStorage.getItem('superadmin_admin_email') || '',
+      adminEmail: localStorage.getItem('superadmin_admin_email') || '',
       tenants: [],
       selectedTenantId: null,
       qrCenter: null,
@@ -635,14 +721,25 @@
       includeArchivedTables: false,
       provisioningDefaults: null,
       admin: null,
+      tenantWorkspaceSummary: {},
+      catalogEditor: { open: false, type: null, mode: null, entityId: null },
     };
 
     const els = {
       apiBase: document.getElementById('apiBase'),
-      adminToken: document.getElementById('adminToken'),
+      adminEmail: document.getElementById('adminEmail'),
+      adminPassword: document.getElementById('adminPassword'),
+      toggleBootstrapBtn: document.getElementById('toggleBootstrapBtn'),
+      bootstrapPanel: document.getElementById('bootstrapPanel'),
+      bootstrapToken: document.getElementById('bootstrapToken'),
+      bootstrapFullName: document.getElementById('bootstrapFullName'),
+      bootstrapEmail: document.getElementById('bootstrapEmail'),
+      bootstrapPassword: document.getElementById('bootstrapPassword'),
+      bootstrapCreateBtn: document.getElementById('bootstrapCreateBtn'),
+      bootstrapCloseBtn: document.getElementById('bootstrapCloseBtn'),
+      bootstrapStatus: document.getElementById('bootstrapStatus'),
       loginBtn: document.getElementById('loginBtn'),
       refreshBtn: document.getElementById('refreshBtn'),
-      logoutBtn: document.getElementById('logoutBtn'),
       sessionInfo: document.getElementById('sessionInfo'),
       globalStatus: document.getElementById('globalStatus'),
       platformApiBadge: document.getElementById('platformApiBadge'),
@@ -710,6 +807,11 @@
       auditDetailAfter: document.getElementById('auditDetailAfter'),
       auditDetailMetaJson: document.getElementById('auditDetailMetaJson'),
       tenantCount: document.getElementById('tenantCount'),
+      tenantSearchInput: document.getElementById('tenantSearchInput'),
+      tenantStatusFilter: document.getElementById('tenantStatusFilter'),
+      tenantReadinessFilter: document.getElementById('tenantReadinessFilter'),
+      tenantSortSelect: document.getElementById('tenantSortSelect'),
+      tenantFilterMeta: document.getElementById('tenantFilterMeta'),
       openCreateTenantBtn: document.getElementById('openCreateTenantBtn'),
       closeCreateTenantBtn: document.getElementById('closeCreateTenantBtn'),
       createTenantPanel: document.getElementById('createTenantPanel'),
@@ -732,6 +834,9 @@
       staffBadge: document.getElementById('staffBadge'),
       centerBadge: document.getElementById('centerBadge'),
       refreshProvisioningBtn: document.getElementById('refreshProvisioningBtn'),
+      coherenceBadge: document.getElementById('coherenceBadge'),
+      coherenceGrid: document.getElementById('coherenceGrid'),
+      coherenceSummary: document.getElementById('coherenceSummary'),
       provisioningStatus: document.getElementById('provisioningStatus'),
       provisioningSummary: document.getElementById('provisioningSummary'),
       provisioningGoSettingsBtn: document.getElementById('provisioningGoSettingsBtn'),
@@ -800,6 +905,30 @@
       catalogCount: document.getElementById('catalogCount'),
       catalogStatus: document.getElementById('catalogStatus'),
       catalogList: document.getElementById('catalogList'),
+      catalogModal: document.getElementById('catalogModal'),
+      catalogModalTitle: document.getElementById('catalogModalTitle'),
+      catalogModalSubtitle: document.getElementById('catalogModalSubtitle'),
+      catalogModalStatus: document.getElementById('catalogModalStatus'),
+      catalogCategoryFields: document.getElementById('catalogCategoryFields'),
+      catalogCategoryLabelInput: document.getElementById('catalogCategoryLabelInput'),
+      catalogCategoryCodeInput: document.getElementById('catalogCategoryCodeInput'),
+      catalogCategorySortInput: document.getElementById('catalogCategorySortInput'),
+      catalogCategoryActiveInput: document.getElementById('catalogCategoryActiveInput'),
+      catalogItemFields: document.getElementById('catalogItemFields'),
+      catalogItemCategorySelect: document.getElementById('catalogItemCategorySelect'),
+      catalogItemNameInput: document.getElementById('catalogItemNameInput'),
+      catalogItemCodeInput: document.getElementById('catalogItemCodeInput'),
+      catalogItemPriceInput: document.getElementById('catalogItemPriceInput'),
+      catalogItemDescriptionInput: document.getElementById('catalogItemDescriptionInput'),
+      catalogItemImageUrlInput: document.getElementById('catalogItemImageUrlInput'),
+      catalogItemSortInput: document.getElementById('catalogItemSortInput'),
+      catalogItemAllergensInput: document.getElementById('catalogItemAllergensInput'),
+      catalogItemSupplementsInput: document.getElementById('catalogItemSupplementsInput'),
+      catalogItemSoldOutInput: document.getElementById('catalogItemSoldOutInput'),
+      catalogItemActiveInput: document.getElementById('catalogItemActiveInput'),
+      catalogModalCancel: document.getElementById('catalogModalCancel'),
+      catalogModalSave: document.getElementById('catalogModalSave'),
+      catalogModalClose: document.getElementById('catalogModalClose'),
       decisionModal: document.getElementById('decisionModal'),
       decisionModalTitle: document.getElementById('decisionModalTitle'),
       decisionModalSubtitle: document.getElementById('decisionModalSubtitle'),
@@ -817,30 +946,13 @@
       target.className = `status ${type}`.trim();
     }
 
-    function renderSessionInfo() {
-      if (state.admin && state.adminToken) {
-        const label = state.admin.fullName || state.admin.email || state.admin.authMode || 'superadmin';
-        const email = state.admin.email ? ` • ${state.admin.email}` : '';
-        els.sessionInfo.textContent = `Connecté : ${label}${email}`;
-        els.logoutBtn.disabled = false;
-        return;
-      }
-      els.sessionInfo.textContent = 'Pas connecté.';
-      els.logoutBtn.disabled = true;
-    }
-
-    function logout() {
-      state.admin = null;
-      state.adminToken = '';
-      localStorage.removeItem('superadmin_admin_token');
-      els.adminToken.value = '';
-      renderSessionInfo();
-      setStatus(els.globalStatus, 'Session fermée.', 'ok');
-      window.setTimeout(() => window.location.reload(), 120);
-    }
-
     function getHeaders() {
-      return { 'Content-Type': 'application/json', 'x-admin-token': state.adminToken };
+      const headers = { 'Content-Type': 'application/json' };
+      if (state.adminToken) {
+        headers['x-admin-token'] = state.adminToken;
+        headers['Authorization'] = `Bearer ${state.adminToken}`;
+      }
+      return headers;
     }
 
     function getApiUrl(path) {
@@ -886,7 +998,12 @@
     function describeApiError(error) {
       const code = String(error?.message || error || 'erreur_inconnue');
       const map = {
-        token_admin_requis: 'Token admin requis.',
+        token_admin_requis: 'Session admin requise.',
+        admin_email_required: 'Email admin requis.',
+        admin_password_required: 'Mot de passe requis.',
+        admin_password_too_short: 'Mot de passe trop court (minimum 10 caractères).',
+        superadmin_session_secret_missing: 'Secret de session superadmin manquant côté API.',
+        superadmin_bootstrap_unauthorized: 'Bootstrap token invalide.',
         tenant_requis: "Sélectionne d'abord un tenant.",
         tenant_name_required: 'Le nom du tenant est obligatoire.',
         tenant_subdomain_invalid: 'Le sous-domaine est invalide.',
@@ -982,9 +1099,26 @@
       }
       const tenantLabel = getTenantLabel();
       const statusChange = changes.find((item) => item.key === 'status');
+      const readiness = buildWorkspaceChecks();
+      const missingForActivation = readiness.checks.filter((item) => !item.ok).map((item) => item.label);
       const disablingClient = changes.find((item) => ['qrOrderingEnabled', 'clientMenuEnabled'].includes(item.key) && item.to === false);
       const scheduleChange = changes.find((item) => ['timezone', 'businessCloseHour'].includes(item.key));
       const impactful = changes.map((item) => `${item.label} : ${String(item.from)} → ${String(item.to)}`);
+      if (statusChange && String(statusChange.to) === 'active' && missingForActivation.length) {
+        await openDecisionModal({
+          title: 'Activation bloquée',
+          subtitle: tenantLabel,
+          level: 'danger',
+          message: 'Passer un tenant en actif alors qu’il reste incomplet fabrique un cockpit mensonger.',
+          impacts: [
+            `Points encore manquants : ${missingForActivation.join(', ')}`,
+            'Le restaurant serait annoncé actif alors qu’il n’est pas réellement exploitable.',
+            'Corrige d’abord les briques manquantes avant de réessayer.',
+          ],
+          confirmLabel: 'Compris',
+        });
+        return false;
+      }
       if (statusChange && ['suspended', 'archived'].includes(String(statusChange.to))) {
         return openDecisionModal({
           title: 'Suspendre ou archiver un tenant',
@@ -1539,38 +1673,152 @@
       setStatus(els.tablesStatus, 'Ordre tables mis à jour.', 'ok');
     }
 
-    function renderProvisioningSummary() {
+    function getCatalogReadiness(catalogState = state.catalog) {
+      const rawCategories = catalogState?.catalog?.categories || catalogState?.categories || [];
+      const categories = Array.isArray(rawCategories) ? rawCategories : [];
+      const activeCategories = categories.filter((row) => row?.isActive !== false);
+      const activeItems = activeCategories.flatMap((row) => Array.isArray(row.items) ? row.items.filter((item) => item?.isActive !== false) : []);
+      return { categories, activeCategories, activeItems, ok: activeItems.length > 0 };
+    }
+
+    function buildWorkspaceChecks() {
       const tenant = state.tenantSettings?.tenant || state.tenants.find((row) => row.id === state.selectedTenantId) || null;
       const settings = state.tenantSettings?.settings || null;
       const access = state.tenantStaffAccess?.staffAccess || null;
       const tables = Array.isArray(state.tenantTables?.tables) ? state.tenantTables.tables.filter((row) => !row.archivedAt) : [];
+      const activeTables = tables.filter((row) => row.isActive !== false);
       const qrTables = Array.isArray(state.qrCenter?.qrCenter?.tables) ? state.qrCenter.qrCenter.tables : [];
       const readyQr = qrTables.filter((row) => row.qrStatus === 'ready').length;
-      const categories = Array.isArray(state.catalog?.categories) ? state.catalog.categories : [];
-      const checks = [
-        { key: 'settings', label: 'Settings', ok: Boolean(settings && tenant?.id), note: settings ? `${settings.timezone || 'Europe/Brussels'} • fermeture ${settings.businessCloseHour ?? 3}h` : 'Réglages tenant non chargés', target: els.provisioningGoSettingsBtn },
-        { key: 'tables', label: 'Tables', ok: tables.length > 0, note: tables.length ? `${tables.length} table(s) pilotables` : 'Aucune table créée', target: els.provisioningGoTablesBtn },
-        { key: 'qr', label: 'QR', ok: readyQr > 0 && readyQr === qrTables.filter((row) => row.isActive).length, note: qrTables.length ? `${readyQr}/${qrTables.length} QR prêts` : 'Aucun QR exploitable', target: els.provisioningGoQrBtn },
-        { key: 'staff', label: 'Accès staff', ok: Boolean(access?.isEnabled), note: access ? (access.isEnabled ? 'Accès staff activé' : 'Accès staff coupé') : 'Accès staff non chargé', target: els.provisioningGoStaffBtn },
-        { key: 'catalog', label: 'Catalogue', ok: categories.length > 0, note: categories.length ? `${categories.length} catégorie(s) présentes` : 'Catalogue vide', target: els.provisioningGoCatalogBtn },
+      const activeQrTargets = qrTables.filter((row) => row.isActive !== false).length;
+      const catalog = getCatalogReadiness();
+      return {
+        tenant,
+        settings,
+        access,
+        tables,
+        activeTables,
+        qrTables,
+        readyQr,
+        activeQrTargets,
+        catalog,
+        checks: [
+          { key: 'settings', label: 'Settings', ok: Boolean(settings && tenant?.id), note: settings ? `${settings.timezone || 'Europe/Brussels'} • fermeture ${settings.businessCloseHour ?? 3}h` : 'Réglages tenant non chargés', target: els.provisioningGoSettingsBtn },
+          { key: 'tables', label: 'Tables', ok: activeTables.length > 0, note: activeTables.length ? `${activeTables.length} table(s) actives` : 'Aucune table active', target: els.provisioningGoTablesBtn },
+          { key: 'qr', label: 'QR', ok: activeQrTargets > 0 && readyQr === activeQrTargets, note: qrTables.length ? `${readyQr}/${activeQrTargets || qrTables.length} QR prêts sur tables actives` : 'Aucun QR exploitable', target: els.provisioningGoQrBtn },
+          { key: 'staff', label: 'Accès staff', ok: Boolean(access?.isEnabled), note: access ? (access.isEnabled ? 'Accès staff activé' : 'Accès staff coupé') : 'Accès staff non chargé', target: els.provisioningGoStaffBtn },
+          { key: 'catalog', label: 'Catalogue', ok: catalog.ok, note: catalog.ok ? `${catalog.activeItems.length} produit(s) visibles dans ${catalog.activeCategories.length} catégorie(s)` : 'Aucun produit visible dans le catalogue', target: els.provisioningGoCatalogBtn },
+        ],
+      };
+    }
+
+    function updateTenantWorkspaceSummaryCache() {
+      if (!state.selectedTenantId) return null;
+      const data = buildWorkspaceChecks();
+      const missing = data.checks.filter((entry) => !entry.ok).map((entry) => entry.label);
+      const summary = {
+        tenantId: state.selectedTenantId,
+        ready: missing.length === 0,
+        missing,
+        activeTables: data.activeTables.length,
+        readyQr: data.readyQr,
+        expectedQr: data.activeQrTargets,
+        activeCatalogItems: data.catalog.activeItems.length,
+        staffEnabled: Boolean(data.access?.isEnabled),
+        tenantStatus: data.tenant?.status || 'draft',
+      };
+      state.tenantWorkspaceSummary[state.selectedTenantId] = summary;
+      return summary;
+    }
+
+    function renderCoherencePanel() {
+      const data = buildWorkspaceChecks();
+      const summary = updateTenantWorkspaceSummaryCache();
+      if (!data.tenant?.id) {
+        els.coherenceBadge.className = 'pill warn';
+        els.coherenceBadge.textContent = 'à vérifier';
+        els.coherenceGrid.innerHTML = '<div class="empty">Sélectionne un tenant pour lire la cohérence produit.</div>';
+        els.coherenceSummary.innerHTML = '';
+        return;
+      }
+      const statusActive = ['active'].includes(String(data.tenant.status || '').toLowerCase());
+      const clientVisible = data.settings?.operationsFlags?.clientMenuEnabled !== false && data.settings?.operationsFlags?.qrOrderingEnabled !== false;
+      const cards = [
+        { label: 'Statut exploitation', ok: !statusActive || (summary?.ready === true), note: statusActive ? (summary?.ready ? 'Tenant actif et exploitable' : 'Tenant actif alors que le provisioning est incomplet') : `Statut ${data.tenant.status || 'draft'}` },
+        { label: 'Exposition client', ok: clientVisible, note: clientVisible ? 'Menu client + QR ordering visibles' : 'Une capacité client est coupée' },
+        { label: 'Structure salle', ok: data.activeTables.length > 0, note: data.activeTables.length ? `${data.activeTables.length} table(s) actives` : 'Aucune table active' },
+        { label: 'QR terrain', ok: data.activeQrTargets > 0 && data.readyQr === data.activeQrTargets, note: data.qrTables.length ? `${data.readyQr}/${data.activeQrTargets || data.qrTables.length} QR prêts` : 'Pas de QR utilisable' },
+        { label: 'Carte commandable', ok: data.catalog.ok, note: data.catalog.ok ? `${data.catalog.activeItems.length} produit(s) visibles` : 'Aucun produit visible côté client' },
       ];
+      els.coherenceGrid.innerHTML = cards.map((entry) => `<div class="coherence-card"><div class="space-between"><strong>${escapeHtml(entry.label)}</strong><span class="pill ${entry.ok ? 'ok' : 'warn'}">${entry.ok ? 'OK' : 'Point faible'}</span></div><div class="muted">${escapeHtml(entry.note)}</div></div>`).join('');
+      const weak = cards.filter((entry) => !entry.ok).map((entry) => entry.label);
+      els.coherenceBadge.className = `pill ${weak.length ? 'warn' : 'ok'}`;
+      els.coherenceBadge.textContent = weak.length ? 'écarts détectés' : 'cohérent';
+      els.coherenceSummary.innerHTML = weak.length
+        ? `<div class="modal-note warn">Le cockpit détecte encore des écarts : ${escapeHtml(weak.join(', '))}.</div>${statusActive && summary?.missing?.length ? `<div class="modal-note danger">Tu peux afficher un tenant actif qui reste incomplet. C’est exactement le type de mensonge cockpit → terrain qu’il faut éviter.</div>` : ''}`
+        : '<div class="modal-note info">Ce que dit le cockpit est aligné avec un tenant réellement exploitable.</div>';
+    }
+
+    function renderProvisioningSummary() {
+      const data = buildWorkspaceChecks();
+      const tenant = data.tenant;
+      const checks = data.checks;
       els.provisioningSummary.innerHTML = checks.map((entry) => `<div class="provision-card"><div class="space-between"><strong>${escapeHtml(entry.label)}</strong><span class="pill ${entry.ok ? 'ok' : 'warn'}">${entry.ok ? 'OK' : 'À faire'}</span></div><div class="muted">${escapeHtml(entry.note)}</div></div>`).join('');
       const remaining = checks.filter((entry) => !entry.ok).map((entry) => entry.label);
-      setStatus(els.provisioningStatus, tenant?.id ? (remaining.length ? `Tenant incomplet : ${remaining.join(', ')}.` : 'Tenant provisionné correctement sur les points clés.' ) : 'Sélectionne un tenant pour lire le provisioning.', tenant?.id ? (remaining.length ? 'error' : 'ok') : '');
+      const tenantStatus = String(tenant?.status || '').toLowerCase();
+      const isActive = tenantStatus === 'active';
+      const baseMessage = tenant?.id
+        ? (remaining.length ? `Tenant incomplet : ${remaining.join(', ')}.` : 'Tenant provisionné correctement sur les points clés.')
+        : 'Sélectionne un tenant pour lire le provisioning.';
+      const finalMessage = isActive && remaining.length ? `${baseMessage} Attention : statut actif alors que le tenant n'est pas encore exploitable.` : baseMessage;
+      setStatus(els.provisioningStatus, finalMessage, tenant?.id ? (remaining.length ? 'error' : 'ok') : '');
       [els.provisioningGoSettingsBtn, els.provisioningGoTablesBtn, els.provisioningGoQrBtn, els.provisioningGoStaffBtn, els.provisioningGoCatalogBtn, els.refreshProvisioningBtn].forEach((btn) => btn.disabled = !tenant?.id);
+      updateTenantWorkspaceSummaryCache();
+      renderCoherencePanel();
     }
 
     async function login() {
       state.apiBase = els.apiBase.value.trim();
-      state.adminToken = els.adminToken.value.trim();
+      state.adminEmail = els.adminEmail.value.trim().toLowerCase();
+      const adminPassword = els.adminPassword.value;
       localStorage.setItem('superadmin_api_base', state.apiBase);
-      localStorage.setItem('superadmin_admin_token', state.adminToken);
+      localStorage.setItem('superadmin_admin_email', state.adminEmail);
       setStatus(els.globalStatus, 'Connexion en cours…');
-      const payload = await apiFetch('/superadmin/login', { method: 'POST' });
+      const payload = await apiFetch('/superadmin/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: state.adminEmail, password: adminPassword }),
+        headers: { 'Content-Type': 'application/json' },
+      });
       state.admin = payload.admin || null;
-      renderSessionInfo();
+      state.adminToken = String(payload.token || '').trim();
+      if (state.adminToken) localStorage.setItem('superadmin_admin_token', state.adminToken);
+      els.adminPassword.value = '';
+      els.sessionInfo.textContent = `Connecté ${payload.admin?.fullName || payload.admin?.email || payload.admin?.authMode || 'superadmin'}`;
       setStatus(els.globalStatus, 'Connexion valide.', 'ok');
       await Promise.all([loadOverview(), loadProvisioningDefaults(), loadTenants(), loadDiagnostics(), loadAudits()]);
+    }
+
+    async function bootstrapAdminAccount() {
+      const bootstrapToken = els.bootstrapToken.value.trim();
+      const fullName = els.bootstrapFullName.value.trim();
+      const email = els.bootstrapEmail.value.trim().toLowerCase();
+      const password = els.bootstrapPassword.value;
+      if (!bootstrapToken) throw new Error('superadmin_bootstrap_unauthorized');
+      if (!email) throw new Error('admin_email_required');
+      if (!password) throw new Error('admin_password_required');
+      state.apiBase = els.apiBase.value.trim();
+      localStorage.setItem('superadmin_api_base', state.apiBase);
+      setStatus(els.bootstrapStatus, 'Création du compte admin…');
+      const payload = await apiFetch('/superadmin/bootstrap/setup-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': bootstrapToken },
+        body: JSON.stringify({ bootstrapToken, fullName, email, password }),
+      });
+      els.bootstrapPassword.value = '';
+      els.bootstrapEmail.value = email;
+      els.adminEmail.value = email;
+      state.adminEmail = email;
+      localStorage.setItem('superadmin_admin_email', email);
+      setStatus(els.bootstrapStatus, `Compte admin prêt : ${payload.admin?.fullName || payload.admin?.email || email}`, 'ok');
     }
 
     async function loadTenants() {
@@ -1592,21 +1840,52 @@
 
     function renderTenantList() {
       els.tenantList.innerHTML = '';
-      if (!state.tenants.length) {
-        els.tenantList.innerHTML = '<div class="empty">Aucun tenant trouvé.</div>';
+      const search = String(els.tenantSearchInput?.value || '').trim().toLowerCase();
+      const statusFilter = String(els.tenantStatusFilter?.value || '').trim().toLowerCase();
+      const readinessFilter = String(els.tenantReadinessFilter?.value || '').trim().toLowerCase();
+      const sortValue = String(els.tenantSortSelect?.value || 'name_asc');
+      let tenants = [...state.tenants];
+      if (search) tenants = tenants.filter((tenant) => [tenant.name, tenant.slug, tenant.subdomain].some((value) => String(value || '').toLowerCase().includes(search)));
+      if (statusFilter) tenants = tenants.filter((tenant) => String(tenant.status || '').toLowerCase() === statusFilter);
+      if (readinessFilter) {
+        tenants = tenants.filter((tenant) => {
+          const summary = state.tenantWorkspaceSummary[tenant.id];
+          if (readinessFilter === 'unknown') return !summary;
+          if (readinessFilter === 'ready') return summary?.ready === true;
+          if (readinessFilter === 'incomplete') return summary && summary.ready === false;
+          return true;
+        });
+      }
+      const sorters = {
+        name_asc: (a,b) => String(a.name || a.slug || '').localeCompare(String(b.name || b.slug || '')),
+        name_desc: (a,b) => String(b.name || b.slug || '').localeCompare(String(a.name || a.slug || '')),
+        status: (a,b) => String(a.status || '').localeCompare(String(b.status || '')) || String(a.name || '').localeCompare(String(b.name || '')),
+        tables_desc: (a,b) => Number(b.tableCount || 0) - Number(a.tableCount || 0),
+        tables_asc: (a,b) => Number(a.tableCount || 0) - Number(b.tableCount || 0),
+      };
+      tenants.sort(sorters[sortValue] || sorters.name_asc);
+      els.tenantCount.textContent = `${tenants.length}/${state.tenants.length}`;
+      els.tenantFilterMeta.textContent = search || statusFilter || readinessFilter ? `Filtres actifs • ${tenants.length} tenant(s) visibles sur ${state.tenants.length}.` : 'Liste brute des tenants.';
+      if (!tenants.length) {
+        els.tenantList.innerHTML = '<div class="empty">Aucun tenant ne correspond aux filtres.</div>';
         return;
       }
-      state.tenants.forEach((tenant) => {
+      tenants.forEach((tenant) => {
+        const summary = state.tenantWorkspaceSummary[tenant.id] || null;
+        const readinessBadge = summary ? `<span class="pill ${summary.ready ? 'ok' : 'warn'}">${summary.ready ? 'prêt' : 'incomplet'}</span>` : '<span class="pill warn">non évalué</span>';
         const item = document.createElement('button');
         item.type = 'button';
         item.className = `tenant-card ${tenant.id === state.selectedTenantId ? 'active' : ''}`;
         item.innerHTML = `
-          <div class="space-between">
+          <div class="tenant-card-head">
             <strong>${escapeHtml(tenant.name || tenant.slug || tenant.id)}</strong>
             <span class="pill ${tenant.isActive ? 'ok' : 'warn'}">${tenant.status || (tenant.isActive ? 'active' : 'inactive')}</span>
           </div>
-          <div class="muted">${escapeHtml(tenant.subdomain || tenant.slug || 'sans sous-domaine')}</div>
-          <div class="muted">${tenant.tableCount || 0} table(s) • ${escapeHtml(tenant.timezone || 'Europe/Brussels')}</div>
+          <div class="tenant-card-meta">
+            <div class="muted">${escapeHtml(tenant.subdomain || tenant.slug || 'sans sous-domaine')}</div>
+            <div class="muted">${tenant.tableCount || 0} table(s) • ${escapeHtml(tenant.timezone || 'Europe/Brussels')}</div>
+            <div class="tenant-badges">${readinessBadge}${summary ? `<span class="pill ${summary.staffEnabled ? 'ok' : 'warn'}">staff ${summary.staffEnabled ? 'on' : 'off'}</span><span class="pill ${summary.activeCatalogItems > 0 ? 'ok' : 'warn'}">catalogue ${summary.activeCatalogItems > 0 ? 'ok' : 'vide'}</span>` : ''}</div>
+          </div>
         `;
         item.addEventListener('click', async () => {
           state.selectedTenantId = tenant.id;
@@ -1840,7 +2119,7 @@
         card.className = `table-card ${table.isActive ? '' : 'inactive'}`;
         const imageUrl = table.qrImageUrl ? (() => {
           const url = new URL(getApiUrl(table.qrImageUrl));
-          url.searchParams.set('token', state.adminToken);
+          if (state.adminToken) url.searchParams.set('token', state.adminToken);
           return url.toString();
         })() : '';
         card.innerHTML = `
@@ -1949,7 +2228,8 @@
         els.catalogTemplateSelect.appendChild(option);
       });
       els.catalogTemplateMeta.textContent = catalog ? `Template actuel : ${catalog.currentTemplateCode || 'aucun'} • appliqué ${formatDate(catalog.currentTemplateAppliedAt)}` : 'Aucun catalogue chargé.';
-      els.catalogCount.textContent = `${categories.length} catégorie(s)`;
+      const catalogReadiness = getCatalogReadiness(state.catalog);
+      els.catalogCount.textContent = `${categories.length} catégorie(s) • ${catalogReadiness.activeItems.length} produit(s) visible(s)`;
       els.catalogList.innerHTML = categories.length ? '' : '<div class="empty">Aucune catégorie catalogue pour ce tenant.</div>';
       categories.forEach((category) => {
         const item = document.createElement('div');
@@ -1990,29 +2270,101 @@
       setStatus(els.catalogStatus, 'Template appliqué.', 'ok');
     }
 
+    function resetCatalogModalStatus() {
+      setStatus(els.catalogModalStatus, '');
+    }
+
+    function populateCatalogCategorySelect(selectedId = '') {
+      const categories = state.catalog?.catalog?.categories || [];
+      els.catalogItemCategorySelect.innerHTML = categories.map((entry) => `<option value="${escapeHtml(entry.id)}" ${entry.id === selectedId ? 'selected' : ''}>${escapeHtml(entry.label)} (${escapeHtml(entry.categoryCode)})</option>`).join('');
+    }
+
+    function openCatalogModal({ type, mode, entityId = null }) {
+      state.catalogEditor = { open: true, type, mode, entityId };
+      resetCatalogModalStatus();
+      els.catalogCategoryFields.classList.toggle('hidden', type !== 'category');
+      els.catalogItemFields.classList.toggle('hidden', type !== 'item');
+      els.catalogModalTitle.textContent = `${mode === 'create' ? 'Créer' : 'Modifier'} ${type === 'category' ? 'une catégorie' : 'un produit'}`;
+      els.catalogModalSubtitle.textContent = `${getTenantLabel()} • UX catalogue structurée`;
+      if (type === 'category') {
+        const category = mode === 'edit' ? (state.catalog?.catalog?.categories || []).find((entry) => entry.id === entityId) : null;
+        els.catalogCategoryLabelInput.value = category?.label || '';
+        els.catalogCategoryCodeInput.value = category?.categoryCode || '';
+        els.catalogCategorySortInput.value = String(category?.sortOrder ?? 10);
+        els.catalogCategoryActiveInput.checked = category?.isActive !== false;
+      } else {
+        const item = mode === 'edit' ? findItemById(entityId) : null;
+        populateCatalogCategorySelect(item?.categoryId || ((state.catalog?.catalog?.categories || [])[0]?.id || ''));
+        els.catalogItemNameInput.value = item?.name || '';
+        els.catalogItemCodeInput.value = item?.itemCode || '';
+        els.catalogItemPriceInput.value = String(item?.price ?? 0);
+        els.catalogItemDescriptionInput.value = item?.description || '';
+        els.catalogItemImageUrlInput.value = item?.imageUrl || '';
+        els.catalogItemSortInput.value = String(item?.sortOrder ?? 10);
+        els.catalogItemAllergensInput.value = Array.isArray(item?.allergens) ? item.allergens.join(', ') : '';
+        els.catalogItemSupplementsInput.value = formatSupplements(item?.supplements || []);
+        els.catalogItemSoldOutInput.checked = item?.isSoldOut === true;
+        els.catalogItemActiveInput.checked = item?.isActive !== false;
+      }
+      els.catalogModal.classList.add('open');
+      els.catalogModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeCatalogModal() {
+      state.catalogEditor = { open: false, type: null, mode: null, entityId: null };
+      els.catalogModal.classList.remove('open');
+      els.catalogModal.setAttribute('aria-hidden', 'true');
+      resetCatalogModalStatus();
+    }
+
+    async function saveCatalogModal() {
+      if (!state.selectedTenantId) throw new Error('tenant_requis');
+      const { type, mode, entityId } = state.catalogEditor || {};
+      if (type === 'category') {
+        const payload = {
+          label: els.catalogCategoryLabelInput.value.trim(),
+          categoryCode: els.catalogCategoryCodeInput.value.trim(),
+          sortOrder: Number(els.catalogCategorySortInput.value || 0),
+          isActive: els.catalogCategoryActiveInput.checked,
+        };
+        if (!payload.label) throw new Error('category_label_required');
+        setStatus(els.catalogModalStatus, mode === 'create' ? 'Création catégorie…' : 'Mise à jour catégorie…');
+        if (mode === 'create') await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/categories`, { method: 'POST', body: JSON.stringify(payload) });
+        else await apiFetch(`/superadmin/categories/${entityId}`, { method: 'PATCH', body: JSON.stringify(payload) });
+      } else if (type === 'item') {
+        const payload = {
+          categoryId: els.catalogItemCategorySelect.value,
+          name: els.catalogItemNameInput.value.trim(),
+          itemCode: els.catalogItemCodeInput.value.trim(),
+          description: els.catalogItemDescriptionInput.value.trim(),
+          price: Number(els.catalogItemPriceInput.value || 0),
+          imageUrl: els.catalogItemImageUrlInput.value.trim(),
+          sortOrder: Number(els.catalogItemSortInput.value || 0),
+          allergens: els.catalogItemAllergensInput.value.split(',').map((entry) => entry.trim()).filter(Boolean),
+          supplements: parseSupplementsForApi(els.catalogItemSupplementsInput.value),
+          isSoldOut: els.catalogItemSoldOutInput.checked,
+          isActive: els.catalogItemActiveInput.checked,
+        };
+        if (!payload.categoryId) throw new Error('catalog_category_not_found');
+        if (!payload.name) throw new Error('catalog_item_name_required');
+        setStatus(els.catalogModalStatus, mode === 'create' ? 'Création produit…' : 'Mise à jour produit…');
+        if (mode === 'create') await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/items`, { method: 'POST', body: JSON.stringify(payload) });
+        else await apiFetch(`/superadmin/items/${entityId}`, { method: 'PATCH', body: JSON.stringify(payload) });
+      }
+      await loadCatalog(state.selectedTenantId);
+      closeCatalogModal();
+      setStatus(els.catalogStatus, type === 'category' ? (mode === 'create' ? 'Catégorie créée.' : 'Catégorie mise à jour.') : (mode === 'create' ? 'Produit créé.' : 'Produit mis à jour.'), 'ok');
+      renderCoherencePanel();
+      renderTenantList();
+    }
+
     async function createCategory() {
       if (!state.selectedTenantId) return;
-      const label = window.prompt('Nom de la catégorie ?');
-      if (!label) return;
-      const categoryCode = window.prompt('Code catégorie (laisser vide pour générer automatiquement) ?', '');
-      const sortOrder = window.prompt('Ordre affichage ?', '10');
-      setStatus(els.catalogStatus, 'Création catégorie…');
-      await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/categories`, { method: 'POST', body: JSON.stringify({ label, categoryCode, sortOrder: Number(sortOrder || 0) }) });
-      await loadCatalog(state.selectedTenantId);
-      setStatus(els.catalogStatus, 'Catégorie créée.', 'ok');
+      openCatalogModal({ type: 'category', mode: 'create' });
     }
 
     async function editCategory(categoryId) {
-      const category = (state.catalog?.catalog?.categories || []).find((entry) => entry.id === categoryId);
-      if (!category) return;
-      const label = window.prompt('Nom catégorie', category.label || '');
-      if (!label) return;
-      const sortOrder = window.prompt('Ordre affichage', String(category.sortOrder || 0));
-      const keepActive = window.confirm('Catégorie visible ? OK = active / Annuler = inactive');
-      setStatus(els.catalogStatus, 'Mise à jour catégorie…');
-      await apiFetch(`/superadmin/categories/${categoryId}`, { method: 'PATCH', body: JSON.stringify({ label, sortOrder: Number(sortOrder || 0), isActive: keepActive }) });
-      await loadCatalog(state.selectedTenantId);
-      setStatus(els.catalogStatus, 'Catégorie mise à jour.', 'ok');
+      openCatalogModal({ type: 'category', mode: 'edit', entityId: categoryId });
     }
 
     async function archiveCategory(categoryId) {
@@ -2032,28 +2384,15 @@
       await apiFetch(`/superadmin/categories/${categoryId}/archive`, { method: 'POST' });
       await loadCatalog(state.selectedTenantId);
       setStatus(els.catalogStatus, 'Catégorie archivée.', 'ok');
+      renderCoherencePanel();
+      renderTenantList();
     }
 
     async function createItem() {
       if (!state.selectedTenantId) return;
       const categories = state.catalog?.catalog?.categories || [];
       if (!categories.length) throw new Error('aucune_categorie');
-      const categoryLabel = window.prompt(`Choisis la catégorie parmi : ${categories.map((entry) => entry.label).join(', ')}`);
-      if (!categoryLabel) return;
-      const category = categories.find((entry) => entry.label.toLowerCase() === categoryLabel.toLowerCase() || entry.categoryCode.toLowerCase() === categoryLabel.toLowerCase());
-      if (!category) throw new Error('categorie_introuvable');
-      const name = window.prompt('Nom produit ?'); if (!name) return;
-      const itemCode = window.prompt('Code produit (laisser vide pour générer automatiquement) ?', '');
-      const description = window.prompt('Description ?', '');
-      const price = window.prompt('Prix ?', '0');
-      const imageUrl = window.prompt('Image URL ?', '');
-      const sortOrder = window.prompt('Ordre affichage ?', '10');
-      const allergens = window.prompt('Allergènes séparés par virgules ?', '');
-      const supplements = window.prompt('Suppléments au format nom:prix | nom:prix', '');
-      setStatus(els.catalogStatus, 'Création produit…');
-      await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/items`, { method: 'POST', body: JSON.stringify({ categoryId: category.id, name, itemCode, description, price: Number(price || 0), imageUrl, sortOrder: Number(sortOrder || 0), allergens: allergens.split(',').map((entry) => entry.trim()).filter(Boolean), supplements: parseSupplementsForApi(supplements) }) });
-      await loadCatalog(state.selectedTenantId);
-      setStatus(els.catalogStatus, 'Produit créé.', 'ok');
+      openCatalogModal({ type: 'item', mode: 'create' });
     }
 
     function findItemById(itemId) {
@@ -2066,24 +2405,7 @@
     }
 
     async function editItem(itemId) {
-      const item = findItemById(itemId);
-      if (!item) return;
-      const categories = state.catalog?.catalog?.categories || [];
-      const categoryTarget = window.prompt(`Catégorie (${categories.map((entry) => entry.label).join(', ')})`, item.categoryLabel || item.categoryCode || '');
-      const category = categories.find((entry) => entry.label.toLowerCase() === String(categoryTarget || '').toLowerCase() || entry.categoryCode.toLowerCase() === String(categoryTarget || '').toLowerCase()) || categories.find((entry) => entry.id === item.categoryId);
-      const name = window.prompt('Nom produit', item.name || ''); if (!name) return;
-      const description = window.prompt('Description', item.description || '');
-      const price = window.prompt('Prix', String(item.price || 0));
-      const imageUrl = window.prompt('Image URL', item.imageUrl || '');
-      const sortOrder = window.prompt('Ordre affichage', String(item.sortOrder || 0));
-      const allergens = window.prompt('Allergènes séparés par virgules', (item.allergens || []).join(', '));
-      const supplements = window.prompt('Suppléments au format nom:prix | nom:prix', formatSupplements(item.supplements));
-      const isSoldOut = window.confirm('Produit en rupture temporaire ? OK = rupture / Annuler = disponible');
-      const isActive = window.confirm('Produit visible ? OK = visible / Annuler = masqué');
-      setStatus(els.catalogStatus, 'Mise à jour produit…');
-      await apiFetch(`/superadmin/items/${itemId}`, { method: 'PATCH', body: JSON.stringify({ categoryId: category?.id || item.categoryId, name, description, price: Number(price || 0), imageUrl, sortOrder: Number(sortOrder || 0), allergens: allergens.split(',').map((entry) => entry.trim()).filter(Boolean), supplements: parseSupplementsForApi(supplements), isSoldOut, isActive }) });
-      await loadCatalog(state.selectedTenantId);
-      setStatus(els.catalogStatus, 'Produit mis à jour.', 'ok');
+      openCatalogModal({ type: 'item', mode: 'edit', entityId: itemId });
     }
 
     async function archiveItem(itemId) {
@@ -2103,11 +2425,13 @@
       await apiFetch(`/superadmin/items/${itemId}/archive`, { method: 'POST' });
       await loadCatalog(state.selectedTenantId);
       setStatus(els.catalogStatus, 'Produit archivé.', 'ok');
+      renderCoherencePanel();
+      renderTenantList();
     }
 
     function openWindow(path) {
       const url = new URL(getApiUrl(path));
-      url.searchParams.set('token', state.adminToken);
+      if (state.adminToken) url.searchParams.set('token', state.adminToken);
       window.open(url.toString(), '_blank', 'noopener');
     }
 
@@ -2121,9 +2445,8 @@
     }
 
     els.apiBase.value = state.apiBase;
-    els.adminToken.value = state.adminToken;
+    els.adminEmail.value = state.adminEmail;
     updateColorPreview(DEFAULT_COLOR);
-    renderSessionInfo();
 
 
     els.openCreateTenantBtn.addEventListener('click', () => toggleCreateTenantPanel(true));
@@ -2155,8 +2478,11 @@
     els.loginBtn.addEventListener('click', async () => {
       try { await login(); } catch (error) { setStatus(els.globalStatus, describeApiError(error) || 'Connexion impossible', 'error'); }
     });
-
-    els.logoutBtn.addEventListener('click', () => logout());
+    els.toggleBootstrapBtn.addEventListener('click', () => els.bootstrapPanel.classList.toggle('hidden'));
+    els.bootstrapCloseBtn.addEventListener('click', () => els.bootstrapPanel.classList.add('hidden'));
+    els.bootstrapCreateBtn.addEventListener('click', async () => {
+      try { await bootstrapAdminAccount(); } catch (error) { setStatus(els.bootstrapStatus, describeApiError(error) || 'Initialisation admin impossible', 'error'); }
+    });
 
     els.refreshBtn.addEventListener('click', async () => {
       try {
@@ -2300,6 +2626,18 @@
     els.createCategoryBtn.addEventListener('click', async () => { try { await createCategory(); } catch (error) { setStatus(els.catalogStatus, describeApiError(error) || 'Création catégorie impossible', 'error'); } });
     els.createItemBtn.addEventListener('click', async () => { try { await createItem(); } catch (error) { setStatus(els.catalogStatus, describeApiError(error) || 'Création produit impossible', 'error'); } });
 
+    [els.tenantSearchInput, els.tenantStatusFilter, els.tenantReadinessFilter, els.tenantSortSelect].forEach((node) => node.addEventListener('input', () => renderTenantList()));
+    [els.tenantStatusFilter, els.tenantReadinessFilter, els.tenantSortSelect].forEach((node) => node.addEventListener('change', () => renderTenantList()));
+
+    els.catalogModalCancel.addEventListener('click', () => closeCatalogModal());
+    els.catalogModalClose.addEventListener('click', () => closeCatalogModal());
+    els.catalogModalSave.addEventListener('click', async () => {
+      try { await saveCatalogModal(); } catch (error) { setStatus(els.catalogModalStatus, describeApiError(error) || 'Enregistrement catalogue impossible', 'error'); }
+    });
+    els.catalogModal.addEventListener('click', (event) => {
+      if (event.target === els.catalogModal) closeCatalogModal();
+    });
+
     els.decisionModalCancel.addEventListener('click', () => closeDecisionModal(false));
     els.decisionModalClose.addEventListener('click', () => closeDecisionModal(false));
     els.decisionModalConfirm.addEventListener('click', () => closeDecisionModal(true));
@@ -2308,10 +2646,20 @@
     });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && state.pendingDecisionResolver) closeDecisionModal(false);
+      if (event.key === 'Escape' && state.catalogEditor?.open) closeCatalogModal();
     });
 
     if (state.adminToken) {
-      login().catch((error) => setStatus(els.globalStatus, describeApiError(error) || 'Connexion automatique impossible', 'error'));
+      apiFetch('/superadmin/me').then((payload) => {
+        state.admin = payload.admin || null;
+        els.sessionInfo.textContent = `Connecté ${payload.admin?.fullName || payload.admin?.email || payload.admin?.authMode || 'superadmin'}`;
+        setStatus(els.globalStatus, 'Session restaurée.', 'ok');
+        return Promise.all([loadOverview(), loadProvisioningDefaults(), loadTenants(), loadDiagnostics(), loadAudits()]);
+      }).catch((error) => {
+        localStorage.removeItem('superadmin_admin_token');
+        state.adminToken = '';
+        setStatus(els.globalStatus, describeApiError(error) || 'Connexion automatique impossible', 'error');
+      });
     }
   </script>
 </body>
