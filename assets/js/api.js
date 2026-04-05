@@ -1,20 +1,20 @@
 import { state } from './state.js';
 
 export function getApiUrl(path) {
-  const base = state.apiBase || '';
-  return `${base}${path.startsWith('/') ? '' : '/'}${path}`;
+  const base = String(state.apiBase || '').replace(/\/+$/, '');
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${base}${normalizedPath}`;
 }
 
 export function getHeaders() {
-  const headers = { 'Content-Type': 'application/json' };
-  if (state.adminToken) {
-    headers['x-superadmin-token'] = state.adminToken;
-  }
-  return headers;
+  return {
+    'Content-Type': 'application/json',
+    'x-admin-token': state.adminToken,
+  };
 }
 
 export async function apiFetch(path, options = {}) {
-  const res = await fetch(getApiUrl(path), {
+  const response = await fetch(getApiUrl(path), {
     ...options,
     headers: {
       ...getHeaders(),
@@ -22,14 +22,16 @@ export async function apiFetch(path, options = {}) {
     },
   });
 
+  const text = await response.text();
   let data = null;
   try {
-    data = await res.json();
-  } catch {}
+    data = text ? JSON.parse(text) : null;
+  } catch (_) {
+    data = { ok: false, error: text || 'invalid_json' };
+  }
 
-  if (!res.ok || data?.ok === false) {
-    const error = data?.error || `http_${res.status}`;
-    throw new Error(error);
+  if (!response.ok) {
+    throw new Error(data?.error || `http_${response.status}`);
   }
 
   return data;
