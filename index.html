@@ -897,7 +897,17 @@
       const text = await response.text();
       let data = null;
       try { data = text ? JSON.parse(text) : null; } catch (_) { data = { ok: false, error: text || 'invalid_json' }; }
-      if (!response.ok) throw new Error(data?.error || `http_${response.status}`);
+      if (!response.ok) {
+        const errorPayload = data?.error && typeof data.error === 'object'
+          ? data.error
+          : { code: data?.error || `http_${response.status}`, message: data?.error || `http_${response.status}`, meta: null };
+        const error = new Error(errorPayload.message || errorPayload.code || `http_${response.status}`);
+        error.code = errorPayload.code || `http_${response.status}`;
+        error.meta = errorPayload.meta || null;
+        error.statusCode = response.status;
+        error.payload = data || null;
+        throw error;
+      }
       return data;
     }
 
@@ -926,23 +936,48 @@
 
 
     function describeApiError(error) {
-      const code = String(error?.message || error || 'erreur_inconnue');
+      const code = String(error?.code || error?.message || error || 'erreur_inconnue');
       const map = {
         token_admin_requis: 'Connexion admin requise.',
         superadmin_unauthorized: 'Connexion admin requise.',
+        superadmin_bootstrap_not_available: 'Le bootstrap superadmin n’est pas disponible.',
         tenant_requis: "Sélectionne d'abord un tenant.",
+        tenant_not_found: 'Tenant introuvable.',
         tenant_name_required: 'Le nom du tenant est obligatoire.',
+        tenant_restaurant_name_required: 'Le nom du restaurant est obligatoire.',
         tenant_subdomain_invalid: 'Le sous-domaine est invalide.',
         tenant_subdomain_already_exists: 'Ce sous-domaine est déjà utilisé.',
         tenant_slug_already_exists: 'Ce slug est déjà utilisé.',
+        tenant_timezone_invalid: 'La timezone du tenant est invalide.',
+        tenant_business_close_hour_invalid: 'L’heure de fermeture métier est invalide.',
+        tenant_status_invalid: 'Le statut tenant est invalide.',
+        tenant_branding_logo_url_invalid: 'L’URL du logo est invalide.',
+        tenant_branding_primary_color_invalid: 'La couleur principale est invalide.',
+        tenant_status_blocked_by_active_sessions: 'Impossible de suspendre ou d’archiver ce tenant tant que des sessions restent ouvertes.',
         menu_template_not_found: 'Le template menu demandé est introuvable.',
         menu_template_inactive: 'Le template menu demandé est inactif.',
+        table_not_found: 'Table introuvable.',
         table_code_required: 'Le code table est obligatoire.',
         table_code_invalid: 'Le code table est invalide.',
         table_code_already_exists: 'Ce code table existe déjà pour ce tenant.',
+        table_active_session_conflict: 'Impossible de modifier cette table tant qu’une session reste ouverte dessus.',
+        table_disable_blocked_by_active_session: 'Impossible de désactiver cette table tant qu’une session reste ouverte dessus.',
+        table_archive_blocked_by_active_session: 'Impossible d’archiver cette table tant qu’une session reste ouverte dessus.',
         ordered_table_ids_required: 'Impossible de réordonner sans liste complète des tables.',
         table_reorder_count_mismatch: 'Le réordonnancement reçu ne correspond pas au nombre de tables actives.',
         table_reorder_invalid_ids: 'Le réordonnancement contient des IDs invalides.',
+        category_label_required: 'Le nom de la catégorie est obligatoire.',
+        catalog_category_not_found: 'Catégorie introuvable.',
+        catalog_category_sort_order_invalid: 'L’ordre d’affichage de la catégorie est invalide.',
+        catalog_category_code_already_exists: 'Ce code catégorie existe déjà pour ce tenant.',
+        catalog_category_archive_blocked_by_active_items: 'Impossible d’archiver cette catégorie tant qu’elle contient encore des produits actifs.',
+        catalog_item_name_required: 'Le nom du produit est obligatoire.',
+        catalog_item_not_found: 'Produit introuvable.',
+        catalog_item_price_invalid: 'Le prix du produit est invalide.',
+        catalog_item_sort_order_invalid: 'L’ordre d’affichage du produit est invalide.',
+        catalog_item_code_already_exists: 'Ce code produit existe déjà pour ce tenant.',
+        catalog_item_active_in_inactive_category_forbidden: 'Impossible d’activer un produit dans une catégorie inactive.',
+        no_tables_found: 'Aucune table trouvée pour cette impression.',
         http_401: 'Accès refusé. Le token admin est invalide ou expiré.',
         http_403: 'Accès interdit pour cette action.',
         http_404: 'La ressource demandée est introuvable.',
@@ -950,7 +985,16 @@
         http_422: 'Données invalides. Vérifie les champs saisis.',
         http_500: "Erreur serveur. Rien n'a été confirmé côté backend.",
       };
-      return map[code] || code;
+      const meta = error?.meta && typeof error.meta === 'object' ? error.meta : null;
+      if (code === 'tenant_status_blocked_by_active_sessions' && meta?.openSessions) {
+        return `Impossible de passer ce tenant en ${meta.nextStatus || 'statut demandé'} tant que ${meta.openSessions} session(s) restent ouverte(s).`;
+      }
+      if (['table_active_session_conflict', 'table_disable_blocked_by_active_session', 'table_archive_blocked_by_active_session'].includes(code)) {
+        const tableLabel = meta?.tableCode ? ` sur la table ${meta.tableCode}` : '';
+        const sessionLabel = meta?.sessionId ? ` Session ouverte : ${meta.sessionId}.` : '';
+        return `Impossible de modifier cette table${tableLabel} tant qu’une session reste ouverte dessus.${sessionLabel}`;
+      }
+      return map[code] || String(error?.message || code);
     }
 
     function getTenantLabel() {
