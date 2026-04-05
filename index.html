@@ -962,7 +962,9 @@
         table_code_already_exists: 'Ce code table existe déjà pour ce tenant.',
         table_active_session_conflict: 'Impossible de modifier cette table tant qu’une session reste ouverte dessus.',
         table_disable_blocked_by_active_session: 'Impossible de désactiver cette table tant qu’une session reste ouverte dessus.',
+        table_deactivation_blocked_by_active_session: 'Impossible de désactiver cette table tant qu’une session reste ouverte dessus.',
         table_archive_blocked_by_active_session: 'Impossible d’archiver cette table tant qu’une session reste ouverte dessus.',
+        table_code_change_blocked_by_active_session: 'Impossible de modifier le code de cette table tant qu’une session reste ouverte dessus.',
         ordered_table_ids_required: 'Impossible de réordonner sans liste complète des tables.',
         table_reorder_count_mismatch: 'Le réordonnancement reçu ne correspond pas au nombre de tables actives.',
         table_reorder_invalid_ids: 'Le réordonnancement contient des IDs invalides.',
@@ -1569,11 +1571,15 @@
           </div>`;
         card.querySelectorAll('[data-action]').forEach((btn) => btn.addEventListener('click', async () => {
           const action = btn.getAttribute('data-action');
-          if (action === 'edit') return fillTableForm(table);
-          if (action === 'toggle') return toggleManagedTable(table);
-          if (action === 'up') return reorderManagedTable(table.id, -1);
-          if (action === 'down') return reorderManagedTable(table.id, 1);
-          if (action === 'archive') return archiveManagedTable(table);
+          try {
+            if (action === 'edit') return fillTableForm(table);
+            if (action === 'toggle') return await toggleManagedTable(table);
+            if (action === 'up') return await reorderManagedTable(table.id, -1);
+            if (action === 'down') return await reorderManagedTable(table.id, 1);
+            if (action === 'archive') return await archiveManagedTable(table);
+          } catch (error) {
+            setStatus(els.tablesStatus, describeApiError(error) || 'Action table impossible', 'error');
+          }
         }));
         els.tablesManageList.appendChild(card);
       });
@@ -2057,10 +2063,34 @@
         `;
         els.catalogList.appendChild(item);
       });
-      els.catalogList.querySelectorAll('[data-cat-edit]').forEach((button) => button.addEventListener('click', () => editCategory(button.getAttribute('data-cat-edit'))));
-      els.catalogList.querySelectorAll('[data-cat-archive]').forEach((button) => button.addEventListener('click', () => archiveCategory(button.getAttribute('data-cat-archive'))));
-      els.catalogList.querySelectorAll('[data-item-edit]').forEach((button) => button.addEventListener('click', () => editItem(button.getAttribute('data-item-edit'))));
-      els.catalogList.querySelectorAll('[data-item-archive]').forEach((button) => button.addEventListener('click', () => archiveItem(button.getAttribute('data-item-archive'))));
+      els.catalogList.querySelectorAll('[data-cat-edit]').forEach((button) => button.addEventListener('click', async () => {
+        try {
+          await editCategory(button.getAttribute('data-cat-edit'));
+        } catch (error) {
+          setStatus(els.catalogStatus, describeApiError(error) || 'Modification catégorie impossible', 'error');
+        }
+      }));
+      els.catalogList.querySelectorAll('[data-cat-archive]').forEach((button) => button.addEventListener('click', async () => {
+        try {
+          await archiveCategory(button.getAttribute('data-cat-archive'));
+        } catch (error) {
+          setStatus(els.catalogStatus, describeApiError(error) || 'Archivage catégorie impossible', 'error');
+        }
+      }));
+      els.catalogList.querySelectorAll('[data-item-edit]').forEach((button) => button.addEventListener('click', async () => {
+        try {
+          await editItem(button.getAttribute('data-item-edit'));
+        } catch (error) {
+          setStatus(els.catalogStatus, describeApiError(error) || 'Modification produit impossible', 'error');
+        }
+      }));
+      els.catalogList.querySelectorAll('[data-item-archive]').forEach((button) => button.addEventListener('click', async () => {
+        try {
+          await archiveItem(button.getAttribute('data-item-archive'));
+        } catch (error) {
+          setStatus(els.catalogStatus, describeApiError(error) || 'Archivage produit impossible', 'error');
+        }
+      }));
     }
 
     async function applyTemplate() {
