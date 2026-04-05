@@ -258,6 +258,19 @@
     .auth-card { display:grid; gap:14px; padding:18px; background: var(--surface-soft); border:1px solid var(--border); border-radius:22px; }
     .auth-grid { grid-template-columns: 1fr 1fr; }
     .auth-grid .field-actions { display:grid; grid-template-columns: 1fr 1fr; gap:12px; grid-column: 1 / -1; }
+
+    .topbar-simple { display:flex; justify-content:space-between; align-items:flex-start; gap:18px; flex-wrap:wrap; }
+    .auth-grid-wide { grid-template-columns: 1.2fr .9fr .9fr 280px; }
+    .dashboard-focus-grid { display:grid; gap:16px; grid-template-columns: 1.05fr .95fr; }
+    .compact-kpi-list { max-height:none; }
+    .compact-kpi-list .overview-item { padding:14px 16px; background: var(--surface-strong); border:1px solid var(--border); border-radius:16px; }
+    .settings-layout-clean { grid-template-columns: minmax(0, 1.15fr) 320px; align-items:start; }
+    .settings-side-stack { display:grid; gap:16px; align-self:start; position:sticky; top:18px; }
+    .settings-section-card { background: #fff; border:1px solid var(--border); border-radius:18px; padding:16px; box-shadow: 0 8px 18px rgba(15,35,62,.04); }
+    .settings-section-title { font-size:14px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; color: var(--muted); }
+    .compact-settings-grid { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+    .tenant-danger-btn { width:auto; box-shadow:none; }
+    .tenant-list-shell .field input { background: var(--surface-soft); }
     .section-header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
     .panel-soft { background: linear-gradient(180deg, rgba(248,251,255,.95) 0%, rgba(255,255,255,.9) 100%); }
     .metric-card.accent { background: linear-gradient(135deg, rgba(45,125,246,.08), rgba(255,255,255,.98)); border-color: rgba(45,125,246,.16); }
@@ -270,7 +283,7 @@
     .overview-list .overview-item[data-tone="warn"] { border-left-color: var(--warn); }
     .overview-list .overview-item[data-tone="ok"] { border-left-color: var(--ok); }
     .overview-list .overview-item[data-tone="info"] { border-left-color: var(--info); }
-    .tenant-layout { display:grid; gap:18px; grid-template-columns: 320px 1fr; align-items:start; }
+    .tenant-layout { display:grid; gap:18px; grid-template-columns: 300px 1fr; align-items:start; }
     .tenant-sidebar { position: sticky; top: 18px; display:grid; gap:16px; }
     .tenant-section-tabs { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
     .tenant-tab { width:auto; background:#eef5ff; color:#29415d; border:1px solid var(--border); box-shadow:none; padding:11px 16px; }
@@ -284,7 +297,7 @@
     .tenant-badges .pill { background: rgba(255,255,255,.14); color:#fff; border-color: rgba(255,255,255,.16); }
     .tenant-list-shell { display:grid; gap:12px; }
     .tenant-action-card { padding:18px; display:grid; gap:12px; }
-    .tenant-card { border-radius: 20px; padding: 16px 17px; gap:10px; }
+    .tenant-card { border-radius: 18px; padding: 14px 15px; gap:8px; text-align:left; }
     .create-tenant-panel { padding:18px; display:grid; gap:16px; }
     .wizard-progress { display:grid; gap:12px; }
     .wizard-steps { display:grid; gap:10px; grid-template-columns: repeat(5, minmax(0, 1fr)); }
@@ -304,8 +317,8 @@
     .split-pane { display:grid; gap:16px; grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr); }
     .settings-form-shell, .staff-form-shell, .catalog-shell, .table-shell, .qr-shell, .compact-section { display:grid; gap:16px; }
     .table-manage-grid { grid-template-columns: minmax(0, 1.25fr) 360px; align-items:start; }
-    .table-manage-card { padding: 14px 15px; display:grid; gap:10px; border-radius: 18px; }
-    .table-manage-card .actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .table-manage-card { padding: 12px 14px; display:grid; gap:8px; border-radius: 16px; }
+    .table-manage-card .actions { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .table-manage-form { position: sticky; top: 18px; }
     .table-manage-form .inline-form-grid { grid-template-columns: 1fr; }
     .table-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
@@ -318,8 +331,8 @@
     .tenant-jumpbar { display:none; }
     .history-list { max-height: 58vh; }
     .diagnostics-layout, .audit-layout { grid-template-columns: minmax(0, 1fr) 360px; }
-    @media (max-width: 1480px) { .tenant-layout, .topbar-hero, .split-pane { grid-template-columns: 1fr; } .tenant-sidebar, .table-manage-form, .tenant-sticky-header { position: static; } }
-    @media (max-width: 1080px) { .wizard-steps, .wizard-stage-grid, .table-manage-grid, .diagnostics-layout, .audit-layout, .hero-stats { grid-template-columns: 1fr; } .table-manage-card .actions, .auth-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 1480px) { .tenant-layout, .split-pane, .settings-layout-clean, .dashboard-focus-grid { grid-template-columns: 1fr; } .tenant-sidebar, .table-manage-form, .tenant-sticky-header, .settings-side-stack { position: static; } }
+    @media (max-width: 1080px) { .wizard-steps, .wizard-stage-grid, .table-manage-grid, .diagnostics-layout, .audit-layout, .compact-settings-grid, .dashboard-focus-grid { grid-template-columns: 1fr; } .table-manage-card .actions, .auth-grid, .auth-grid-wide { grid-template-columns: 1fr; } }
 
 </style>
 </head>
@@ -352,37 +365,35 @@
     <div class="content-shell">
       <div class="wrap">
         <section class="topbar">
-      <div class="topbar-hero">
-        <div class="hero-card">
-          <div>
-            <div class="title">Superadmin — Pilotage clair</div>
-            <div class="subtitle">Cockpit réorganisé pour lire vite, agir vite et éviter les écrans surchargés. L’accueil reste centré sur l’état global, les tenants sur l’exploitation, le diagnostic sur le support.</div>
-          </div>
-          <div class="hero-stats">
-            <div class="hero-stat"><span>Lecture</span><strong>5 sec</strong></div>
-            <div class="hero-stat"><span>Parcours</span><strong>Guidé</strong></div>
-            <div class="hero-stat"><span>État</span><strong>Priorisé</strong></div>
-          </div>
+      <div class="topbar-simple">
+        <div>
+          <div class="title">Superadmin</div>
+          <div class="subtitle">Accueil = état global. Tenants = exploitation. Diagnostic = support. Audit = traçabilité.</div>
         </div>
-        <div class="auth-card">
+        <div class="row">
+          <span id="platformApiBadge" class="pill warn">API inconnue</span>
+          <span id="platformDbBadge" class="pill warn">DB inconnue</span>
+          <span id="platformSseBadge" class="pill warn">SSE inconnu</span>
+        </div>
+      </div>
+      <div class="auth-card">
+        <div class="space-between">
           <div>
             <strong style="font-size:18px; display:block;">Accès cockpit</strong>
-            <div class="muted" style="margin-top:6px;">Connexion admin, actualisation et état de session au même endroit.</div>
+            <div class="muted" style="margin-top:6px;">Connexion admin, actualisation et statut de session au même endroit.</div>
           </div>
-          <div class="auth-grid">
-            <input id="apiBase" placeholder="API base URL" value="http://localhost:8080" />
-            <input id="adminEmail" placeholder="Email admin" />
-            <input id="adminPassword" type="password" placeholder="Mot de passe" />
-            <div class="field-actions">
-              <button id="authBtn">Connexion</button>
-              <button id="refreshBtn" class="secondary">Actualiser</button>
-            </div>
-          </div>
-          <div>
-            <div id="sessionInfo" class="muted">Pas connecté.</div>
-            <div id="globalStatus" class="status" style="margin-top:8px;"></div>
+          <div id="sessionInfo" class="muted">Pas connecté.</div>
+        </div>
+        <div class="auth-grid auth-grid-wide">
+          <input id="apiBase" placeholder="API base URL" value="http://localhost:8080" />
+          <input id="adminEmail" placeholder="Email admin" />
+          <input id="adminPassword" type="password" placeholder="Mot de passe" />
+          <div class="field-actions">
+            <button id="authBtn">Connexion</button>
+            <button id="refreshBtn" class="secondary">Actualiser</button>
           </div>
         </div>
+        <div id="globalStatus" class="status"></div>
       </div>
     </section>
 
@@ -401,13 +412,9 @@
       <div class="section-header">
         <div>
           <h2 style="margin:0; font-size:24px;">Vue d’ensemble plateforme</h2>
-          <div class="muted" style="margin-top:6px;">État backend utile, volumes plateforme, incidents récents et derniers audits admin.</div>
+          <div class="muted" style="margin-top:6px;">Lecture rapide : volumes, état plateforme, priorités et accès directs.</div>
         </div>
-        <div class="row">
-          <span id="platformApiBadge" class="pill warn">API inconnue</span>
-          <span id="platformDbBadge" class="pill warn">DB inconnue</span>
-          <span id="platformSseBadge" class="pill warn">SSE inconnu</span>
-        </div>
+        <button class="secondary" type="button" data-view-target="tenants" style="width:auto;">Ouvrir les tenants</button>
       </div>
       <div id="overviewStatus" class="status" style="margin-top:12px;"></div>
       <div class="overview-grid" style="margin-top:14px;">
@@ -416,19 +423,20 @@
         <div class="metric-card warning"><div class="metric-label">Sessions</div><div id="metricSessionsOpen" class="metric-value">0</div><div id="metricSessionsNote" class="metric-note">0 en cours</div></div>
         <div class="metric-card danger"><div class="metric-label">Accès staff</div><div id="metricStaffEnabled" class="metric-value">0</div><div id="metricStaffNote" class="metric-note">0 dédiés / 0 total</div></div>
       </div>
-      <div class="section-grid" style="margin-top:16px; grid-template-columns: 1.1fr .9fr;">
-        <div class="panel" style="padding:16px;">
-          <div class="space-between"><h3 style="margin:0; font-size:18px;">Incidents récents</h3><span id="incidentCounts" class="muted">0</span></div>
-          <div id="incidentList" class="overview-list" style="margin-top:12px;"></div>
+      <div class="dashboard-focus-grid" style="margin-top:16px;">
+        <div class="panel panel-soft compact-section" style="padding:16px;">
+          <div class="space-between"><h3 style="margin:0; font-size:18px;">Priorités immédiates</h3><span id="incidentCounts" class="muted">0</span></div>
+          <div class="muted" style="margin-top:6px;">Seulement les signaux utiles. Le détail complet reste dans l’onglet Diagnostic.</div>
+          <div id="incidentList" class="overview-list compact-kpi-list" style="margin-top:12px;"></div>
         </div>
-        <div class="panel" style="padding:16px; display:grid; gap:16px;">
-          <div>
-            <div class="space-between"><h3 style="margin:0; font-size:18px;">Derniers audits admin</h3><span id="auditCounts" class="muted">0</span></div>
-            <div id="auditList" class="overview-list" style="margin-top:12px;"></div>
-          </div>
-          <div>
-            <div class="space-between"><h3 style="margin:0; font-size:18px;">Raccourcis utiles</h3><span id="shortcutCounts" class="muted">0</span></div>
-            <div id="shortcutList" class="overview-list" style="margin-top:12px;"></div>
+        <div class="panel panel-soft compact-section" style="padding:16px;">
+          <div class="space-between"><h3 style="margin:0; font-size:18px;">Accès rapides</h3><span id="shortcutCounts" class="muted">0</span></div>
+          <div class="muted" style="margin-top:6px;">Derniers tenants utiles et prochaines actions logiques.</div>
+          <div id="shortcutList" class="overview-list compact-kpi-list" style="margin-top:12px;"></div>
+          <div class="dashboard-admin-signal" style="margin-top:14px;">
+            <div class="space-between"><strong>Signal admin</strong><span id="auditCounts" class="muted">0</span></div>
+            <div class="muted" style="margin-top:6px;">Les audits restent consultables dans l’onglet dédié. Ici on ne garde qu’un résumé.</div>
+            <div id="auditList" class="hidden"></div>
           </div>
         </div>
       </div>
@@ -551,6 +559,10 @@
         <div class="row">
           <button id="openCreateTenantBtn" class="success">+ Nouveau tenant</button>
         </div>
+        <div class="field">
+          <label for="tenantSearchInput">Recherche rapide</label>
+          <input id="tenantSearchInput" placeholder="Nom, slug ou sous-domaine" />
+        </div>
         <div id="createTenantPanel" class="helper-box create-tenant-panel hidden">
           <div class="space-between">
             <div>
@@ -629,6 +641,7 @@
                 <span id="settingsBadge" class="pill warn">Settings inactifs</span>
                 <span id="staffBadge" class="pill warn">Accès staff inactif</span>
                 <span id="centerBadge" class="pill warn">Centre QR inactif</span>
+                <button id="deleteTenantBtn" type="button" class="danger tenant-danger-btn" disabled>Supprimer le tenant</button>
               </div>
             </div>
             <div class="tenant-section-tabs">
@@ -664,30 +677,57 @@
         </section>
 
         <section id="settingsTab" class="tenant-subview">
-          <div id="settingsBlock" class="split-pane view-anchor">
+          <div id="settingsBlock" class="split-pane view-anchor settings-layout-clean">
             <div class="panel panel-soft settings-form-shell" style="padding:16px;">
               <div class="space-between">
-                <h3 style="margin:0; font-size:18px;">Settings tenant</h3>
+                <div>
+                  <h3 style="margin:0; font-size:18px;">Settings tenant</h3>
+                  <div class="muted" style="margin-top:6px;">On garde l’essentiel visible. Le reste ne doit pas noyer la page.</div>
+                </div>
                 <button id="reloadSettingsBtn" class="secondary" disabled>Recharger settings</button>
               </div>
               <div id="settingsStatus" class="status" style="margin-top:10px;"></div>
-              <div class="settings-grid" style="margin-top:12px;">
-                <div class="field"><label for="restaurantName">Nom restaurant</label><input id="restaurantName" placeholder="Nom du restaurant" /></div>
-                <div class="field"><label for="tenantStatusSelect">Statut tenant</label><select id="tenantStatusSelect"><option value="draft">draft</option><option value="onboarding">onboarding</option><option value="active">active</option><option value="suspended">suspended</option><option value="archived">archived</option></select></div>
-                <div class="field"><label for="tenantTimezone">Timezone</label><input id="tenantTimezone" placeholder="Europe/Brussels" /></div>
-                <div class="field"><label for="businessCloseHour">Heure de fermeture métier (0-23)</label><input id="businessCloseHour" type="number" min="0" max="23" /></div>
-                <div class="field"><label for="brandingName">Branding simple — nom affiché</label><input id="brandingName" placeholder="Nom de marque optionnel" /></div>
-                <div class="field"><label for="brandingLogoUrl">Branding simple — logo URL</label><input id="brandingLogoUrl" placeholder="https://..." /></div>
-                <div class="field"><label for="brandingPrimaryColor">Couleur principale</label><div class="row"><input id="brandingPrimaryColor" type="color" value="#4f46e5" style="max-width:80px; padding:6px;" /><span id="brandingColorText" class="muted">#4f46e5</span><span id="brandingSwatch" class="swatch" style="background:#4f46e5;"></span></div></div>
-                <div class="field" style="grid-column: 1 / -1;"><label for="notesInternal">Notes internes</label><textarea id="notesInternal" placeholder="Notes internes, contexte d’exploitation, particularités terrain…"></textarea></div>
-                <div class="field" style="grid-column: 1 / -1;"><label>Flags d’exploitation</label><div class="check-grid"><label class="check-item"><input id="flagQrOrderingEnabled" type="checkbox" /> QR ordering activé</label><label class="check-item"><input id="flagClientMenuEnabled" type="checkbox" /> Menu client visible</label><label class="check-item"><input id="flagTakeawayEnabled" type="checkbox" /> Takeaway autorisé</label><label class="check-item"><input id="flagDemoMode" type="checkbox" /> Mode démo</label></div></div>
+
+              <div class="settings-section-card" style="margin-top:14px;">
+                <div class="settings-section-title">Identité</div>
+                <div class="settings-grid compact-settings-grid" style="margin-top:12px;">
+                  <div class="field"><label for="restaurantName">Nom restaurant</label><input id="restaurantName" placeholder="Nom du restaurant" /></div>
+                  <div class="field"><label for="tenantStatusSelect">Statut tenant</label><select id="tenantStatusSelect"><option value="draft">draft</option><option value="onboarding">onboarding</option><option value="active">active</option><option value="suspended">suspended</option><option value="archived">archived</option></select></div>
+                  <div class="field"><label for="tenantTimezone">Timezone</label><input id="tenantTimezone" placeholder="Europe/Brussels" /></div>
+                  <div class="field"><label for="businessCloseHour">Heure de fermeture métier (0-23)</label><input id="businessCloseHour" type="number" min="0" max="23" /></div>
+                </div>
               </div>
+
+              <div class="settings-section-card">
+                <div class="settings-section-title">Branding</div>
+                <div class="settings-grid compact-settings-grid" style="margin-top:12px;">
+                  <div class="field"><label for="brandingName">Nom affiché</label><input id="brandingName" placeholder="Nom de marque optionnel" /></div>
+                  <div class="field"><label for="brandingLogoUrl">Logo URL</label><input id="brandingLogoUrl" placeholder="https://..." /></div>
+                  <div class="field"><label for="brandingPrimaryColor">Couleur principale</label><div class="row"><input id="brandingPrimaryColor" type="color" value="#4f46e5" style="max-width:80px; padding:6px;" /><span id="brandingColorText" class="muted">#4f46e5</span><span id="brandingSwatch" class="swatch" style="background:#4f46e5;"></span></div></div>
+                </div>
+              </div>
+
+              <div class="settings-section-card">
+                <div class="settings-section-title">Exploitation</div>
+                <div class="field" style="margin-top:12px;"><label>Flags d’exploitation</label><div class="check-grid"><label class="check-item"><input id="flagQrOrderingEnabled" type="checkbox" /> QR ordering activé</label><label class="check-item"><input id="flagClientMenuEnabled" type="checkbox" /> Menu client visible</label><label class="check-item"><input id="flagTakeawayEnabled" type="checkbox" /> Takeaway autorisé</label><label class="check-item"><input id="flagDemoMode" type="checkbox" /> Mode démo</label></div></div>
+                <div class="field" style="margin-top:12px;"><label for="notesInternal">Notes internes</label><textarea id="notesInternal" placeholder="Notes internes, contexte d’exploitation, particularités terrain…"></textarea></div>
+              </div>
+
               <div class="row" style="margin-top:14px;"><button id="saveSettingsBtn" class="success" disabled>Enregistrer settings</button></div>
             </div>
 
-            <div class="panel panel-soft compact-section" style="padding:16px;">
-              <div class="space-between"><h3 style="margin:0; font-size:18px;">Historique settings</h3><span id="historyCount" class="muted">0</span></div>
-              <div id="historyList" class="history-list" style="margin-top:12px;"></div>
+            <div class="settings-side-stack">
+              <div class="panel panel-soft compact-section" style="padding:16px;">
+                <div class="space-between"><h3 style="margin:0; font-size:18px;">Résumé tenant</h3><span id="historyCount" class="muted">0</span></div>
+                <div class="muted" style="margin-top:8px;">Lecture rapide. Les traces détaillées restent dans Audit admin.</div>
+                <div id="settingsQuickFacts" class="overview-list compact-kpi-list" style="margin-top:12px;"></div>
+              </div>
+              <div class="panel danger-zone">
+                <strong>Zone sensible</strong>
+                <div class="muted">Suppression définitive du tenant. À faire uniquement si ce tenant ne doit plus exister du tout.</div>
+                <button id="deleteTenantBtnSecondary" type="button" class="danger" disabled>Supprimer le tenant</button>
+              </div>
+              <div id="historyList" class="hidden"></div>
             </div>
           </div>
         </section>
@@ -816,6 +856,7 @@
       lastDecisionTypedValue: '',
       createTenantStep: 1,
       tenantTab: 'overviewTab',
+      tenantSearch: '',
     };
 
     const els = {
@@ -894,6 +935,7 @@
       auditDetailAfter: document.getElementById('auditDetailAfter'),
       auditDetailMetaJson: document.getElementById('auditDetailMetaJson'),
       tenantCount: document.getElementById('tenantCount'),
+      tenantSearchInput: document.getElementById('tenantSearchInput'),
       openCreateTenantBtn: document.getElementById('openCreateTenantBtn'),
       closeCreateTenantBtn: document.getElementById('closeCreateTenantBtn'),
       createTenantPanel: document.getElementById('createTenantPanel'),
@@ -919,6 +961,9 @@
       settingsBadge: document.getElementById('settingsBadge'),
       staffBadge: document.getElementById('staffBadge'),
       centerBadge: document.getElementById('centerBadge'),
+      deleteTenantBtn: document.getElementById('deleteTenantBtn'),
+      deleteTenantBtnSecondary: document.getElementById('deleteTenantBtnSecondary'),
+      settingsQuickFacts: document.getElementById('settingsQuickFacts'),
       refreshProvisioningBtn: document.getElementById('refreshProvisioningBtn'),
       provisioningStatus: document.getElementById('provisioningStatus'),
       provisioningSummary: document.getElementById('provisioningSummary'),
@@ -1518,33 +1563,29 @@
       els.metricStaffNote.textContent = `${counts.staffDedicated || 0} dédiés / ${counts.staffAccessTotal || 0} total`;
 
       const sev = incidents.severityCounts || {};
-      els.incidentCounts.textContent = `${incidents.items?.length || 0} • info ${sev.info || 0} • warn ${sev.warn || 0} • error ${sev.error || 0}`;
-      els.incidentList.innerHTML = (incidents.items || []).length ? '' : '<div class="empty">Aucun incident récent exploitable.</div>';
-      (incidents.items || []).forEach((row) => {
+      els.incidentCounts.textContent = `${incidents.items?.length || 0} • warn ${sev.warn || 0} • error ${sev.error || 0}`;
+      const priorityItems = (incidents.items || []).filter((row) => ['warn', 'error'].includes(String(row.severity || '').toLowerCase())).slice(0, 4);
+      els.incidentList.innerHTML = priorityItems.length ? '' : '<div class="empty">Aucune priorité bloquante pour le moment.</div>';
+      priorityItems.forEach((row) => {
         const item = document.createElement('div');
         item.className = 'overview-item';
         item.innerHTML = `
-          <div class="space-between"><strong>${escapeHtml(row.eventCode || 'incident')}</strong><span class="pill ${row.severity === 'error' ? 'danger' : row.severity === 'warn' ? 'warn' : 'ok'}">${escapeHtml(row.severity || 'info')}</span></div>
+          <div class="space-between"><strong>${escapeHtml(row.eventCode || 'incident')}</strong><span class="pill ${row.severity === 'error' ? 'danger' : 'warn'}">${escapeHtml(row.severity || 'warn')}</span></div>
           <div class="muted" style="margin-top:6px;">${escapeHtml(row.tenantLabel || 'tenant inconnu')}${row.tableCode ? ` • table ${escapeHtml(row.tableCode)}` : ''}</div>
           <div class="muted" style="margin-top:4px;">${escapeHtml(row.message || 'sans message')} • ${formatDate(row.createdAt)}</div>
         `;
+        item.addEventListener('click', async () => {
+          switchView('diagnostics');
+          if (row.tenantId) els.diagTenantFilter.value = row.tenantId;
+          await loadDiagnostics();
+        });
         els.incidentList.appendChild(item);
       });
 
-      els.auditCounts.textContent = `${audits.items?.length || 0}`;
-      els.auditList.innerHTML = (audits.items || []).length ? '' : '<div class="empty">Aucun audit admin récent.</div>';
-      (audits.items || []).forEach((row) => {
-        const item = document.createElement('div');
-        item.className = 'overview-item';
-        item.innerHTML = `
-          <div class="space-between"><strong>${escapeHtml(row.action || 'action')}</strong><span class="pill ${row.dangerLevel === 'high' ? 'danger' : row.dangerLevel === 'medium' ? 'warn' : 'ok'}">${escapeHtml(row.dangerLevel || 'info')}</span></div>
-          <div class="muted" style="margin-top:6px;">${escapeHtml(row.tenantLabel || 'plateforme')} • ${escapeHtml(row.resourceType || 'ressource')}</div>
-          <div class="muted" style="margin-top:4px;">${escapeHtml(row.adminLabel || 'admin inconnu')} • ${formatDate(row.createdAt)}</div>
-        `;
-        els.auditList.appendChild(item);
-      });
+      els.auditCounts.textContent = `${audits.items?.length || 0} audit(s) récent(s)`;
+      els.auditList.innerHTML = '';
 
-      const shortcutItems = [...(shortcuts.recentTenants || []).map((row) => ({ type: 'tenant', row })), ...(shortcuts.suggestedActions || []).map((label) => ({ type: 'action', label }))];
+      const shortcutItems = [...(shortcuts.recentTenants || []).slice(0, 3).map((row) => ({ type: 'tenant', row })), ...(shortcuts.suggestedActions || []).slice(0, 3).map((label) => ({ type: 'action', label }))];
       els.shortcutCounts.textContent = String(shortcutItems.length);
       els.shortcutList.innerHTML = shortcutItems.length ? '' : '<div class="empty">Aucun raccourci utile.</div>';
       shortcutItems.forEach((entry) => {
@@ -1559,12 +1600,12 @@
           item.addEventListener('click', async () => {
             state.selectedTenantId = entry.row.id;
             renderTenantList();
-      renderDiagnosticsTenantOptions();
+            renderDiagnosticsTenantOptions();
+            switchView('tenants');
             await loadTenantWorkspace(entry.row.id);
-            window.scrollTo({ top: document.querySelector('.main-grid').offsetTop - 12, behavior: 'smooth' });
           });
         } else {
-          item.innerHTML = `<strong>${escapeHtml(entry.label)}</strong>`;
+          item.innerHTML = `<strong>${escapeHtml(entry.label)}</strong><div class="muted" style="margin-top:6px;">Action recommandée pour avancer sans te disperser.</div>`;
         }
         els.shortcutList.appendChild(item);
       });
@@ -1941,8 +1982,8 @@
             <strong>${escapeHtml(table.displayName || table.label || table.code)}</strong>
             <span class="pill ${statusClass}">${statusText}</span>
           </div>
-          <div class="muted">${escapeHtml(table.code)} • ${table.seats || 0} place(s) • ordre ${table.sortOrder || 0}</div>
-          <div class="row table-order-chip">Créée ${escapeHtml(formatDate(table.createdAt))} • mise à jour ${escapeHtml(formatDate(table.updatedAt))}</div>
+          <div class="muted">${escapeHtml(table.code)} • ${table.seats || 0} place(s)</div>
+          <div class="row table-order-chip">ordre ${table.sortOrder || 0} • maj ${escapeHtml(formatDate(table.updatedAt))}</div>
           <div class="actions">
             <button type="button" class="secondary" data-action="edit">Éditer</button>
             <button type="button" class="ghost" data-action="toggle">${table.isActive ? 'Désactiver' : 'Activer'}</button>
@@ -2036,6 +2077,42 @@
       [els.provisioningGoSettingsBtn, els.provisioningGoTablesBtn, els.provisioningGoQrBtn, els.provisioningGoStaffBtn, els.provisioningGoCatalogBtn, els.refreshProvisioningBtn].forEach((btn) => btn.disabled = !tenant?.id);
     }
 
+    async function deleteCurrentTenant() {
+      const tenant = state.tenantSettings?.tenant || state.tenants.find((row) => row.id === state.selectedTenantId) || null;
+      if (!tenant?.id) return;
+      assertCriticalActionAllowed('la suppression définitive de ce tenant');
+      const phrase = 'CONFIRMER';
+      const confirmed = await openDecisionModal({
+        title: 'Supprimer définitivement le tenant',
+        subtitle: tenant.name || tenant.slug || tenant.id,
+        level: 'danger',
+        message: 'Cette action supprime le tenant et sa configuration cockpit. Elle ne doit pas être utilisée comme simple archivage.',
+        impacts: [
+          'Le tenant disparaît de la liste superadmin.',
+          'Les settings, accès staff et tables liées au tenant sont supprimés.',
+          'À faire uniquement si ce tenant ne doit plus exister du tout.'
+        ],
+        confirmLabel: 'Oui, supprimer définitivement',
+        requireTypedConfirmation: true,
+        confirmationPhrase: phrase
+      });
+      if (!confirmed) return;
+      setStatus(els.settingsStatus, 'Suppression tenant…');
+      await apiFetch(`/superadmin/tenants/${tenant.id}`, {
+        method: 'DELETE',
+        body: JSON.stringify({ criticalConfirmationPhrase: state.lastDecisionTypedValue || '' })
+      });
+      state.selectedTenantId = null;
+      state.tenantSettings = null;
+      state.tenantStaffAccess = null;
+      state.tenantTables = null;
+      state.qrCenter = null;
+      state.catalog = null;
+      await Promise.all([loadOverview(), loadTenants(), loadDiagnostics(), loadAudits()]);
+      setStatus(els.globalStatus, 'Tenant supprimé.', 'ok');
+      switchView('tenants');
+    }
+
     async function login() {
       state.apiBase = els.apiBase.value.trim();
       state.adminEmail = els.adminEmail.value.trim();
@@ -2080,7 +2157,13 @@
         els.tenantList.innerHTML = '<div class="empty">Aucun tenant trouvé.</div>';
         return;
       }
-      state.tenants.forEach((tenant) => {
+      const search = String(state.tenantSearch || '').trim().toLowerCase();
+      const tenantRows = !search ? state.tenants : state.tenants.filter((tenant) => [tenant.name, tenant.slug, tenant.subdomain].filter(Boolean).join(' ').toLowerCase().includes(search));
+      if (!tenantRows.length) {
+        els.tenantList.innerHTML = '<div class="empty">Aucun tenant pour cette recherche.</div>';
+        return;
+      }
+      tenantRows.forEach((tenant) => {
         const item = document.createElement('button');
         item.type = 'button';
         item.className = `tenant-card ${tenant.id === state.selectedTenantId ? 'active' : ''}`;
@@ -2118,6 +2201,8 @@
       els.tenantMeta.textContent = `${tenant?.subdomain || tenant?.slug || tenant?.id || ''} • timezone ${escapeHtml(settings?.timezone || 'Europe/Brussels')} • fermeture ${settings?.businessCloseHour ?? 3}h`;
       els.settingsBadge.className = `pill ${tenant?.id ? 'ok' : 'warn'}`;
       els.settingsBadge.textContent = tenant?.id ? 'Settings prêts' : 'Settings inactifs';
+      els.deleteTenantBtn.disabled = !tenant?.id;
+      els.deleteTenantBtnSecondary.disabled = !tenant?.id;
       if (!tenant?.id) {
         els.staffBadge.className = 'pill warn';
         els.staffBadge.textContent = 'Accès staff inactif';
@@ -2142,17 +2227,18 @@
       els.flagTakeawayEnabled.checked = flags.takeawayEnabled !== false;
       els.flagDemoMode.checked = flags.demoMode === true;
 
-      els.historyCount.textContent = String(history.length);
-      els.historyList.innerHTML = history.length ? '' : '<div class="empty">Aucun historique settings pour ce tenant.</div>';
-      history.forEach((row) => {
-        const item = document.createElement('div');
-        item.className = 'history-card';
-        item.innerHTML = `
-          <div class="history-title">${escapeHtml(row.action || 'action')}</div>
-          <div class="history-meta">${escapeHtml(row.adminLabel || 'admin inconnu')} • ${escapeHtml(row.dangerLevel || 'info')} • ${formatDate(row.createdAt)}</div>
-        `;
-        els.historyList.appendChild(item);
-      });
+      els.historyCount.textContent = `${history.length} trace(s)`;
+      const quickFacts = [
+        { label: 'Statut', value: settings.status || 'draft', tone: settings.status === 'active' ? 'ok' : (settings.status === 'suspended' ? 'danger' : 'warn') },
+        { label: 'Salle', value: `${(state.tenantTables?.tables || []).filter((row) => !row.archivedAt).length} table(s) active(s)`, tone: 'info' },
+        { label: 'Staff', value: state.tenantStaffAccess?.staffAccess?.isEnabled ? 'Accès staff activé' : 'Accès staff coupé', tone: state.tenantStaffAccess?.staffAccess?.isEnabled ? 'ok' : 'warn' },
+        { label: 'Catalogue', value: `${(state.catalog?.categories || []).length} catégorie(s)`, tone: (state.catalog?.categories || []).length ? 'ok' : 'warn' },
+      ];
+      els.settingsQuickFacts.innerHTML = quickFacts.map((entry) => `
+        <div class="overview-item" data-tone="${entry.tone}">
+          <div class="space-between"><strong>${escapeHtml(entry.label)}</strong><span class="pill ${entry.tone === 'danger' ? 'danger' : entry.tone === 'warn' ? 'warn' : 'ok'}">${escapeHtml(entry.value)}</span></div>
+        </div>`).join('');
+      els.historyList.innerHTML = history.map((row) => `<div class="history-card"><div class="history-title">${escapeHtml(row.action || 'action')}</div><div class="history-meta">${escapeHtml(row.adminLabel || 'admin inconnu')} • ${escapeHtml(row.dangerLevel || 'info')} • ${formatDate(row.createdAt)}</div></div>`).join('');
     }
 
     async function saveTenantSettings() {
