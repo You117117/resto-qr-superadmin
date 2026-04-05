@@ -242,6 +242,85 @@
       .auth-grid { grid-template-columns: 1fr; }
       .title { font-size: 28px; }
     }
+
+    .topbar-hero { display:grid; gap:18px; grid-template-columns: 1.2fr .8fr; align-items:start; }
+    .hero-card {
+      background: linear-gradient(135deg, #0f2747 0%, #174d8f 52%, #2f86f7 100%);
+      color:#fff; border-radius: 24px; padding: 24px; box-shadow: 0 22px 42px rgba(20,63,122,.22);
+      display:grid; gap:16px;
+    }
+    .hero-card .title { color:#fff; font-size: 36px; }
+    .hero-card .subtitle { color: rgba(255,255,255,.82); font-size:15px; max-width: 760px; }
+    .hero-stats { display:grid; gap:12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .hero-stat { background: rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); border-radius:18px; padding:14px 16px; }
+    .hero-stat strong { display:block; color:#fff; font-size:20px; }
+    .hero-stat span { color: rgba(255,255,255,.76); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    .auth-card { display:grid; gap:14px; padding:18px; background: var(--surface-soft); border:1px solid var(--border); border-radius:22px; }
+    .auth-grid { grid-template-columns: 1fr 1fr; }
+    .auth-grid .field-actions { display:grid; grid-template-columns: 1fr 1fr; gap:12px; grid-column: 1 / -1; }
+    .section-header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+    .panel-soft { background: linear-gradient(180deg, rgba(248,251,255,.95) 0%, rgba(255,255,255,.9) 100%); }
+    .metric-card.accent { background: linear-gradient(135deg, rgba(45,125,246,.08), rgba(255,255,255,.98)); border-color: rgba(45,125,246,.16); }
+    .metric-card.success { background: linear-gradient(135deg, rgba(16,185,129,.08), rgba(255,255,255,.98)); border-color: rgba(16,185,129,.18); }
+    .metric-card.warning { background: linear-gradient(135deg, rgba(245,158,11,.09), rgba(255,255,255,.98)); border-color: rgba(245,158,11,.18); }
+    .metric-card.danger { background: linear-gradient(135deg, rgba(239,68,68,.08), rgba(255,255,255,.98)); border-color: rgba(239,68,68,.18); }
+    .overview-grid .metric-card { min-height: 150px; }
+    .overview-list .overview-item { border-left: 4px solid transparent; }
+    .overview-list .overview-item[data-tone="danger"] { border-left-color: var(--danger); }
+    .overview-list .overview-item[data-tone="warn"] { border-left-color: var(--warn); }
+    .overview-list .overview-item[data-tone="ok"] { border-left-color: var(--ok); }
+    .overview-list .overview-item[data-tone="info"] { border-left-color: var(--info); }
+    .tenant-layout { display:grid; gap:18px; grid-template-columns: 320px 1fr; align-items:start; }
+    .tenant-sidebar { position: sticky; top: 18px; display:grid; gap:16px; }
+    .tenant-section-tabs { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+    .tenant-tab { width:auto; background:#eef5ff; color:#29415d; border:1px solid var(--border); box-shadow:none; padding:11px 16px; }
+    .tenant-tab.active { background: linear-gradient(135deg, #2b87ff 0%, #1f6fe8 100%); color:#fff; border-color: transparent; box-shadow: 0 10px 24px rgba(31,111,232,.22); }
+    .tenant-subview { display:none; }
+    .tenant-subview.active { display:block; }
+    .tenant-sticky-header { position: sticky; top: 12px; z-index: 2; }
+    .tenant-hero { background: linear-gradient(135deg, rgba(20,57,105,.98) 0%, rgba(36,100,180,.96) 100%); border-radius: 26px; padding: 22px; color:#fff; display:grid; gap:18px; box-shadow: 0 18px 40px rgba(14,45,92,.22); }
+    .tenant-hero h2 { color:#fff; }
+    .tenant-hero .muted { color: rgba(255,255,255,.78); }
+    .tenant-badges .pill { background: rgba(255,255,255,.14); color:#fff; border-color: rgba(255,255,255,.16); }
+    .tenant-list-shell { display:grid; gap:12px; }
+    .tenant-action-card { padding:18px; display:grid; gap:12px; }
+    .tenant-card { border-radius: 20px; padding: 16px 17px; gap:10px; }
+    .create-tenant-panel { padding:18px; display:grid; gap:16px; }
+    .wizard-progress { display:grid; gap:12px; }
+    .wizard-steps { display:grid; gap:10px; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .wizard-step-chip { padding: 12px 10px; border-radius: 16px; border:1px solid var(--border); background: #f4f8ff; color: var(--muted); font-size: 12px; font-weight: 800; text-align:center; text-transform: uppercase; letter-spacing: .06em; }
+    .wizard-step-chip.active { background: linear-gradient(135deg, #2b87ff 0%, #1f6fe8 100%); color:#fff; border-color: transparent; }
+    .wizard-step-chip.done { background: rgba(16,185,129,.12); color: #0f8b61; border-color: rgba(16,185,129,.18); }
+    .wizard-stage { display:none; gap:14px; }
+    .wizard-stage.active { display:grid; }
+    .wizard-stage-grid { display:grid; gap:14px; grid-template-columns: repeat(2, minmax(240px, 1fr)); }
+    .wizard-stage-grid .field.full { grid-column: 1 / -1; }
+    .wizard-actions { display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; }
+    .wizard-actions-right { display:flex; gap:10px; }
+    .wizard-summary-card { background: var(--surface-soft); border:1px solid var(--border); border-radius: 18px; padding: 16px; display:grid; gap:10px; }
+    .wizard-summary-line { display:flex; justify-content:space-between; gap:12px; font-size:14px; }
+    .wizard-summary-line span:last-child { font-weight:800; color: var(--heading); text-align:right; }
+    .tenant-main-stack { display:grid; gap:18px; min-width:0; }
+    .split-pane { display:grid; gap:16px; grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr); }
+    .settings-form-shell, .staff-form-shell, .catalog-shell, .table-shell, .qr-shell, .compact-section { display:grid; gap:16px; }
+    .table-manage-grid { grid-template-columns: minmax(0, 1.25fr) 360px; align-items:start; }
+    .table-manage-card { padding: 14px 15px; display:grid; gap:10px; border-radius: 18px; }
+    .table-manage-card .actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .table-manage-form { position: sticky; top: 18px; }
+    .table-manage-form .inline-form-grid { grid-template-columns: 1fr; }
+    .table-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .table-card { grid-template-columns: 56px 1fr; align-items:start; padding:18px; }
+    .table-card > *:nth-child(3), .table-card > *:nth-child(4) { grid-column: 2; }
+    .table-card > .actions { grid-column: 1 / -1; }
+    .table-card .actions { grid-template-columns: 1fr; }
+    .preview { width:72px; height:72px; }
+    .qr-toolbar { display:flex; flex-wrap:wrap; gap:10px; }
+    .tenant-jumpbar { display:none; }
+    .history-list { max-height: 58vh; }
+    .diagnostics-layout, .audit-layout { grid-template-columns: minmax(0, 1fr) 360px; }
+    @media (max-width: 1480px) { .tenant-layout, .topbar-hero, .split-pane { grid-template-columns: 1fr; } .tenant-sidebar, .table-manage-form, .tenant-sticky-header { position: static; } }
+    @media (max-width: 1080px) { .wizard-steps, .wizard-stage-grid, .table-manage-grid, .diagnostics-layout, .audit-layout, .hero-stats { grid-template-columns: 1fr; } .table-manage-card .actions, .auth-grid { grid-template-columns: 1fr; } }
+
 </style>
 </head>
 <body>
@@ -273,20 +352,37 @@
     <div class="content-shell">
       <div class="wrap">
         <section class="topbar">
-      <div>
-        <div class="title">Superadmin — Cockpit tenant</div>
-        <div class="subtitle">Cockpit superadmin restructuré : accueil KPI, espace tenants, diagnostic séparé et audit admin lisible.</div>
-      </div>
-      <div class="auth-grid">
-        <input id="apiBase" placeholder="API base URL" value="http://localhost:8080" />
-        <input id="adminEmail" placeholder="Email admin" />
-        <input id="adminPassword" type="password" placeholder="Mot de passe" />
-        <button id="authBtn">Connexion</button>
-        <button id="refreshBtn" class="secondary">Actualiser</button>
-      </div>
-      <div class="space-between">
-        <div id="sessionInfo" class="muted">Pas connecté.</div>
-        <div id="globalStatus" class="status"></div>
+      <div class="topbar-hero">
+        <div class="hero-card">
+          <div>
+            <div class="title">Superadmin — Pilotage clair</div>
+            <div class="subtitle">Cockpit réorganisé pour lire vite, agir vite et éviter les écrans surchargés. L’accueil reste centré sur l’état global, les tenants sur l’exploitation, le diagnostic sur le support.</div>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat"><span>Lecture</span><strong>5 sec</strong></div>
+            <div class="hero-stat"><span>Parcours</span><strong>Guidé</strong></div>
+            <div class="hero-stat"><span>État</span><strong>Priorisé</strong></div>
+          </div>
+        </div>
+        <div class="auth-card">
+          <div>
+            <strong style="font-size:18px; display:block;">Accès cockpit</strong>
+            <div class="muted" style="margin-top:6px;">Connexion admin, actualisation et état de session au même endroit.</div>
+          </div>
+          <div class="auth-grid">
+            <input id="apiBase" placeholder="API base URL" value="http://localhost:8080" />
+            <input id="adminEmail" placeholder="Email admin" />
+            <input id="adminPassword" type="password" placeholder="Mot de passe" />
+            <div class="field-actions">
+              <button id="authBtn">Connexion</button>
+              <button id="refreshBtn" class="secondary">Actualiser</button>
+            </div>
+          </div>
+          <div>
+            <div id="sessionInfo" class="muted">Pas connecté.</div>
+            <div id="globalStatus" class="status" style="margin-top:8px;"></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -302,9 +398,9 @@
 
         <section id="dashboardView" class="view-panel" data-view="dashboard">
         <section id="overviewSection" class="panel">
-      <div class="space-between">
+      <div class="section-header">
         <div>
-          <h2 style="margin:0; font-size:22px;">Vue d’ensemble plateforme</h2>
+          <h2 style="margin:0; font-size:24px;">Vue d’ensemble plateforme</h2>
           <div class="muted" style="margin-top:6px;">État backend utile, volumes plateforme, incidents récents et derniers audits admin.</div>
         </div>
         <div class="row">
@@ -315,10 +411,10 @@
       </div>
       <div id="overviewStatus" class="status" style="margin-top:12px;"></div>
       <div class="overview-grid" style="margin-top:14px;">
-        <div class="metric-card"><div class="metric-label">Tenants</div><div id="metricTenantsTotal" class="metric-value">0</div><div id="metricTenantsNote" class="metric-note">0 actifs / 0 inactifs</div></div>
-        <div class="metric-card"><div class="metric-label">Tables</div><div id="metricTablesTotal" class="metric-value">0</div><div id="metricTablesNote" class="metric-note">Structure salle provisionnée</div></div>
-        <div class="metric-card"><div class="metric-label">Sessions</div><div id="metricSessionsOpen" class="metric-value">0</div><div id="metricSessionsNote" class="metric-note">0 en cours</div></div>
-        <div class="metric-card"><div class="metric-label">Accès staff</div><div id="metricStaffEnabled" class="metric-value">0</div><div id="metricStaffNote" class="metric-note">0 dédiés / 0 total</div></div>
+        <div class="metric-card accent"><div class="metric-label">Tenants</div><div id="metricTenantsTotal" class="metric-value">0</div><div id="metricTenantsNote" class="metric-note">0 actifs / 0 inactifs</div></div>
+        <div class="metric-card success"><div class="metric-label">Tables</div><div id="metricTablesTotal" class="metric-value">0</div><div id="metricTablesNote" class="metric-note">Structure salle provisionnée</div></div>
+        <div class="metric-card warning"><div class="metric-label">Sessions</div><div id="metricSessionsOpen" class="metric-value">0</div><div id="metricSessionsNote" class="metric-note">0 en cours</div></div>
+        <div class="metric-card danger"><div class="metric-label">Accès staff</div><div id="metricStaffEnabled" class="metric-value">0</div><div id="metricStaffNote" class="metric-note">0 dédiés / 0 total</div></div>
       </div>
       <div class="section-grid" style="margin-top:16px; grid-template-columns: 1.1fr .9fr;">
         <div class="panel" style="padding:16px;">
@@ -442,63 +538,112 @@
       </section>
 
       <section id="tenantsView" class="view-panel hidden" data-view="tenants">
-        <div class="tenant-jumpbar">
-          <button type="button" data-anchor-target="tenantOverviewBlock">Vue tenant</button>
-          <button type="button" data-anchor-target="settingsBlock">Settings</button>
-          <button type="button" data-anchor-target="staffBlock">Staff</button>
-          <button type="button" data-anchor-target="tablesSection">Tables</button>
-          <button type="button" data-anchor-target="qrSection">Centre QR</button>
-          <button type="button" data-anchor-target="catalogBlock">Catalogue</button>
-        </div>
-        <section id="tenantWorkspace" class="main-grid">
-      <aside class="panel">
+        <section id="tenantWorkspace" class="tenant-layout">
+<aside class="tenant-sidebar">
+      <section class="panel tenant-action-card">
         <div class="space-between">
-          <h2 style="margin:0; font-size:20px;">Tenants</h2>
-          <span id="tenantCount" class="muted">0</span>
-        </div>
-        <div class="row" style="margin-top:12px;">
-          <button id="openCreateTenantBtn" class="success">+ Créer un tenant</button>
-        </div>
-        <div id="createTenantPanel" class="helper-box hidden" style="margin-top:12px;">
-          <div class="space-between">
-            <strong>Création tenant</strong>
-            <button id="closeCreateTenantBtn" type="button" class="ghost" style="width:auto;">Fermer</button>
+          <div>
+            <h2 style="margin:0; font-size:20px;">Tenants</h2>
+            <div class="muted" style="margin-top:6px;">Liste claire à gauche, détail à droite. Tu ne te noies plus dans tout le cockpit en même temps.</div>
           </div>
-          <div id="createTenantStatus" class="status" style="margin-top:10px;"></div>
-          <div class="inline-form-grid" style="margin-top:12px;">
-            <div class="field"><label for="createTenantName">Nom restaurant</label><input id="createTenantName" placeholder="Resto Démo" /></div>
-            <div class="field"><label for="createTenantSubdomain">Subdomain</label><input id="createTenantSubdomain" placeholder="resto-demo" /></div>
-            <div class="field"><label for="createTenantSlug">Slug</label><input id="createTenantSlug" placeholder="resto-demo" /></div>
-            <div class="field"><label for="createTenantTimezone">Timezone</label><input id="createTenantTimezone" value="Europe/Brussels" /></div>
-            <div class="field"><label for="createTenantBusinessCloseHour">Heure fermeture métier</label><input id="createTenantBusinessCloseHour" type="number" min="0" max="23" value="3" /></div>
-            <div class="field"><label for="createTenantStatusSelect">Statut initial</label><select id="createTenantStatusSelect"><option value="draft">draft</option><option value="onboarding" selected>onboarding</option><option value="active">active</option><option value="suspended">suspended</option></select></div>
-            <div class="field"><label for="createTenantTemplate">Template menu initial</label><select id="createTenantTemplate"></select></div>
-            <div class="field"><label for="createTenantInitialTableCount">Nombre de tables initiales</label><input id="createTenantInitialTableCount" type="number" min="0" max="50" value="0" /></div>
-            <div class="field"><label class="check-item"><input id="createTenantStaffEnabled" type="checkbox" checked /> Accès staff activé dès création</label></div>
-            <div class="field" style="grid-column: 1 / -1;"><label for="createTenantNotes">Notes internes</label><textarea id="createTenantNotes" placeholder="Contexte d’ouverture, notes exploitation…"></textarea></div>
-          </div>
-          <div class="row" style="margin-top:12px;">
-            <button id="createTenantBtn" class="success">Créer le tenant</button>
-          </div>
+          <span id="tenantCount" class="pill ok">0</span>
         </div>
-        <div id="tenantList" class="tenant-list" style="margin-top:14px;"></div>
-      </aside>
-
-      <main class="main-stack">
-        <section id="tenantOverviewBlock" class="panel view-anchor">
+        <div class="row">
+          <button id="openCreateTenantBtn" class="success">+ Nouveau tenant</button>
+        </div>
+        <div id="createTenantPanel" class="helper-box create-tenant-panel hidden">
           <div class="space-between">
             <div>
-              <h2 id="tenantTitle" style="margin:0; font-size:22px;">Aucun tenant sélectionné</h2>
-              <div id="tenantMeta" class="muted" style="margin-top:6px;">Choisis un tenant pour ouvrir les settings et le centre QR.</div>
+              <strong style="font-size:18px; display:block;">Création guidée</strong>
+              <div class="muted" style="margin-top:4px;">Chaque étape force un remplissage propre au lieu d’étaler tout le formulaire d’un coup.</div>
             </div>
-            <div class="row">
-              <span id="settingsBadge" class="pill warn">Settings inactifs</span>
-              <span id="staffBadge" class="pill warn">Accès staff inactif</span>
-              <span id="centerBadge" class="pill warn">Centre QR inactif</span>
+            <button id="closeCreateTenantBtn" type="button" class="ghost" style="width:auto;">Fermer</button>
+          </div>
+          <div class="wizard-progress">
+            <div class="wizard-steps">
+              <div class="wizard-step-chip active" data-step-chip="1">Identité</div>
+              <div class="wizard-step-chip" data-step-chip="2">Exploitation</div>
+              <div class="wizard-step-chip" data-step-chip="3">Structure</div>
+              <div class="wizard-step-chip" data-step-chip="4">Accès</div>
+              <div class="wizard-step-chip" data-step-chip="5">Validation</div>
+            </div>
+            <div id="createTenantStatus" class="status"></div>
+          </div>
+          <div class="wizard-stage active" data-step="1">
+            <div class="wizard-stage-grid">
+              <div class="field full"><label for="createTenantName">Nom restaurant</label><input id="createTenantName" placeholder="Resto Démo" /></div>
+              <div class="field"><label for="createTenantSubdomain">Subdomain</label><input id="createTenantSubdomain" placeholder="resto-demo" /></div>
+              <div class="field"><label for="createTenantSlug">Slug</label><input id="createTenantSlug" placeholder="resto-demo" /></div>
+              <div class="field full"><label for="createTenantNotes">Notes internes</label><textarea id="createTenantNotes" placeholder="Contexte d’ouverture, notes exploitation…"></textarea></div>
             </div>
           </div>
+          <div class="wizard-stage" data-step="2">
+            <div class="wizard-stage-grid">
+              <div class="field"><label for="createTenantTimezone">Timezone</label><input id="createTenantTimezone" value="Europe/Brussels" /></div>
+              <div class="field"><label for="createTenantBusinessCloseHour">Heure fermeture métier</label><input id="createTenantBusinessCloseHour" type="number" min="0" max="23" value="3" /></div>
+              <div class="field full"><label for="createTenantStatusSelect">Statut initial</label><select id="createTenantStatusSelect"><option value="draft">draft</option><option value="onboarding" selected>onboarding</option><option value="active">active</option><option value="suspended">suspended</option></select></div>
+            </div>
+          </div>
+          <div class="wizard-stage" data-step="3">
+            <div class="wizard-stage-grid">
+              <div class="field"><label for="createTenantTemplate">Template menu initial</label><select id="createTenantTemplate"></select></div>
+              <div class="field"><label for="createTenantInitialTableCount">Nombre de tables initiales</label><input id="createTenantInitialTableCount" type="number" min="0" max="50" value="0" /></div>
+            </div>
+          </div>
+          <div class="wizard-stage" data-step="4">
+            <div class="wizard-stage-grid">
+              <div class="field full"><label class="check-item"><input id="createTenantStaffEnabled" type="checkbox" checked /> Accès staff activé dès création</label></div>
+            </div>
+          </div>
+          <div class="wizard-stage" data-step="5">
+            <div class="wizard-summary-card" id="createTenantSummaryCard"></div>
+          </div>
+          <div class="wizard-actions">
+            <div class="muted" id="createTenantStepHint">Étape 1 sur 5</div>
+            <div class="wizard-actions-right">
+              <button id="createTenantPrevBtn" type="button" class="ghost">Précédent</button>
+              <button id="createTenantNextBtn" type="button" class="secondary">Suivant</button>
+              <button id="createTenantBtn" class="success hidden">Créer le tenant</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="panel tenant-list-shell">
+        <div class="space-between">
+          <strong style="font-size:16px;">Restaurants</strong>
+          <span class="muted">Sélection</span>
+        </div>
+        <div id="tenantList" class="tenant-list"></div>
+      </section>
+    </aside>
 
-          <div class="helper-box" style="margin-top:18px;">
+      <main class="tenant-main-stack">
+        <section id="tenantOverviewBlock" class="tenant-sticky-header view-anchor">
+          <div class="tenant-hero">
+            <div class="space-between">
+              <div>
+                <h2 id="tenantTitle" style="margin:0; font-size:24px;">Aucun tenant sélectionné</h2>
+                <div id="tenantMeta" class="muted" style="margin-top:6px;">Choisis un tenant pour ouvrir les settings et le centre QR.</div>
+              </div>
+              <div class="row tenant-badges">
+                <span id="settingsBadge" class="pill warn">Settings inactifs</span>
+                <span id="staffBadge" class="pill warn">Accès staff inactif</span>
+                <span id="centerBadge" class="pill warn">Centre QR inactif</span>
+              </div>
+            </div>
+            <div class="tenant-section-tabs">
+              <button type="button" class="tenant-tab active" data-tenant-tab-target="overviewTab">Vue tenant</button>
+              <button type="button" class="tenant-tab" data-tenant-tab-target="settingsTab">Settings</button>
+              <button type="button" class="tenant-tab" data-tenant-tab-target="staffTab">Staff</button>
+              <button type="button" class="tenant-tab" data-tenant-tab-target="tablesTab">Tables</button>
+              <button type="button" class="tenant-tab" data-tenant-tab-target="qrTab">Centre QR</button>
+              <button type="button" class="tenant-tab" data-tenant-tab-target="catalogTab">Catalogue</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="overviewTab" class="tenant-subview active">
+          <div class="helper-box">
             <div class="space-between">
               <div>
                 <h3 style="margin:0; font-size:18px;">Provisioning guidé</h3>
@@ -516,230 +661,95 @@
               <button id="provisioningGoCatalogBtn" class="ghost" disabled>Étape 5 — Catalogue</button>
             </div>
           </div>
+        </section>
 
-          <div id="settingsBlock" class="section-grid view-anchor" style="margin-top:18px;">
-            <div class="panel" style="padding:16px;">
+        <section id="settingsTab" class="tenant-subview">
+          <div id="settingsBlock" class="split-pane view-anchor">
+            <div class="panel panel-soft settings-form-shell" style="padding:16px;">
               <div class="space-between">
                 <h3 style="margin:0; font-size:18px;">Settings tenant</h3>
                 <button id="reloadSettingsBtn" class="secondary" disabled>Recharger settings</button>
               </div>
               <div id="settingsStatus" class="status" style="margin-top:10px;"></div>
               <div class="settings-grid" style="margin-top:12px;">
-                <div class="field">
-                  <label for="restaurantName">Nom restaurant</label>
-                  <input id="restaurantName" placeholder="Nom du restaurant" />
-                </div>
-                <div class="field">
-                  <label for="tenantStatusSelect">Statut tenant</label>
-                  <select id="tenantStatusSelect">
-                    <option value="draft">draft</option>
-                    <option value="onboarding">onboarding</option>
-                    <option value="active">active</option>
-                    <option value="suspended">suspended</option>
-                    <option value="archived">archived</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label for="tenantTimezone">Timezone</label>
-                  <input id="tenantTimezone" placeholder="Europe/Brussels" />
-                </div>
-                <div class="field">
-                  <label for="businessCloseHour">Heure de fermeture métier (0-23)</label>
-                  <input id="businessCloseHour" type="number" min="0" max="23" />
-                </div>
-                <div class="field">
-                  <label for="brandingName">Branding simple — nom affiché</label>
-                  <input id="brandingName" placeholder="Nom de marque optionnel" />
-                </div>
-                <div class="field">
-                  <label for="brandingLogoUrl">Branding simple — logo URL</label>
-                  <input id="brandingLogoUrl" placeholder="https://..." />
-                </div>
-                <div class="field">
-                  <label for="brandingPrimaryColor">Couleur principale</label>
-                  <div class="row">
-                    <input id="brandingPrimaryColor" type="color" value="#4f46e5" style="max-width:80px; padding:6px;" />
-                    <span id="brandingColorText" class="muted">#4f46e5</span>
-                    <span id="brandingSwatch" class="swatch" style="background:#4f46e5;"></span>
-                  </div>
-                </div>
-                <div class="field" style="grid-column: 1 / -1;">
-                  <label for="notesInternal">Notes internes</label>
-                  <textarea id="notesInternal" placeholder="Notes internes, contexte d’exploitation, particularités terrain…"></textarea>
-                </div>
-                <div class="field" style="grid-column: 1 / -1;">
-                  <label>Flags d’exploitation</label>
-                  <div class="check-grid">
-                    <label class="check-item"><input id="flagQrOrderingEnabled" type="checkbox" /> QR ordering activé</label>
-                    <label class="check-item"><input id="flagClientMenuEnabled" type="checkbox" /> Menu client visible</label>
-                    <label class="check-item"><input id="flagTakeawayEnabled" type="checkbox" /> Takeaway autorisé</label>
-                    <label class="check-item"><input id="flagDemoMode" type="checkbox" /> Mode démo</label>
-                  </div>
-                </div>
+                <div class="field"><label for="restaurantName">Nom restaurant</label><input id="restaurantName" placeholder="Nom du restaurant" /></div>
+                <div class="field"><label for="tenantStatusSelect">Statut tenant</label><select id="tenantStatusSelect"><option value="draft">draft</option><option value="onboarding">onboarding</option><option value="active">active</option><option value="suspended">suspended</option><option value="archived">archived</option></select></div>
+                <div class="field"><label for="tenantTimezone">Timezone</label><input id="tenantTimezone" placeholder="Europe/Brussels" /></div>
+                <div class="field"><label for="businessCloseHour">Heure de fermeture métier (0-23)</label><input id="businessCloseHour" type="number" min="0" max="23" /></div>
+                <div class="field"><label for="brandingName">Branding simple — nom affiché</label><input id="brandingName" placeholder="Nom de marque optionnel" /></div>
+                <div class="field"><label for="brandingLogoUrl">Branding simple — logo URL</label><input id="brandingLogoUrl" placeholder="https://..." /></div>
+                <div class="field"><label for="brandingPrimaryColor">Couleur principale</label><div class="row"><input id="brandingPrimaryColor" type="color" value="#4f46e5" style="max-width:80px; padding:6px;" /><span id="brandingColorText" class="muted">#4f46e5</span><span id="brandingSwatch" class="swatch" style="background:#4f46e5;"></span></div></div>
+                <div class="field" style="grid-column: 1 / -1;"><label for="notesInternal">Notes internes</label><textarea id="notesInternal" placeholder="Notes internes, contexte d’exploitation, particularités terrain…"></textarea></div>
+                <div class="field" style="grid-column: 1 / -1;"><label>Flags d’exploitation</label><div class="check-grid"><label class="check-item"><input id="flagQrOrderingEnabled" type="checkbox" /> QR ordering activé</label><label class="check-item"><input id="flagClientMenuEnabled" type="checkbox" /> Menu client visible</label><label class="check-item"><input id="flagTakeawayEnabled" type="checkbox" /> Takeaway autorisé</label><label class="check-item"><input id="flagDemoMode" type="checkbox" /> Mode démo</label></div></div>
               </div>
-              <div class="row" style="margin-top:14px;">
-                <button id="saveSettingsBtn" class="success" disabled>Enregistrer settings</button>
-              </div>
+              <div class="row" style="margin-top:14px;"><button id="saveSettingsBtn" class="success" disabled>Enregistrer settings</button></div>
             </div>
 
-            <div class="panel" style="padding:16px;">
-              <div class="space-between">
-                <h3 style="margin:0; font-size:18px;">Historique settings</h3>
-                <span id="historyCount" class="muted">0</span>
-              </div>
+            <div class="panel panel-soft compact-section" style="padding:16px;">
+              <div class="space-between"><h3 style="margin:0; font-size:18px;">Historique settings</h3><span id="historyCount" class="muted">0</span></div>
               <div id="historyList" class="history-list" style="margin-top:12px;"></div>
             </div>
           </div>
         </section>
 
-        <section id="staffBlock" class="panel view-anchor">
-          <div class="space-between">
-            <div>
-              <h3 style="margin:0; font-size:20px;">Accès staff par tenant</h3>
-              <div class="muted" style="margin-top:6px;">Activation, désactivation, rotation contrôlée du token et audit visible.</div>
+        <section id="staffTab" class="tenant-subview">
+          <section id="staffBlock" class="panel view-anchor">
+            <div class="space-between">
+              <div><h3 style="margin:0; font-size:20px;">Accès staff par tenant</h3><div class="muted" style="margin-top:6px;">Activation, désactivation, rotation contrôlée du token et audit visible.</div></div>
+              <div class="row"><button id="reloadStaffAccessBtn" class="secondary" disabled>Recharger accès staff</button><button id="saveStaffAccessBtn" class="secondary" disabled>Enregistrer accès</button><button id="rotateStaffTokenBtn" class="warning" disabled>Rotation auto</button></div>
             </div>
-            <div class="row">
-              <button id="reloadStaffAccessBtn" class="secondary" disabled>Recharger accès staff</button>
-              <button id="saveStaffAccessBtn" class="secondary" disabled>Enregistrer accès</button>
-              <button id="rotateStaffTokenBtn" class="warning" disabled>Rotation auto</button>
-            </div>
-          </div>
-          <div class="section-grid" style="margin-top:16px; grid-template-columns: 1fr 380px;">
-            <div class="panel" style="padding:16px;">
-              <div id="staffAccessStatus" class="status"></div>
-              <div class="settings-grid" style="margin-top:12px;">
-                <div class="field">
-                  <label class="check-item"><input id="staffAccessEnabled" type="checkbox" /> Accès staff activé pour ce tenant</label>
-                </div>
-                <div class="field">
-                  <label>Mode actuel</label>
-                  <div id="staffAccessMode" class="token-box">—</div>
-                </div>
-                <div class="field">
-                  <label>Dernière rotation</label>
-                  <div id="staffRotatedAt" class="token-box">jamais</div>
-                </div>
-                <div class="field">
-                  <label>Dernière mise à jour</label>
-                  <div id="staffUpdatedAt" class="token-box">jamais</div>
-                </div>
-                <div class="field" style="grid-column: 1 / -1;">
-                  <label for="customStaffToken">Rotation contrôlée — token personnalisé (optionnel)</label>
-                  <input id="customStaffToken" placeholder="Laisser vide pour générer un token fort automatiquement" />
-                </div>
-                <div class="field" style="grid-column: 1 / -1;">
-                  <label>Nouveau token émis</label>
-                  <div id="issuedStaffToken" class="token-box">Aucune rotation effectuée dans cette session.</div>
+            <div class="split-pane" style="margin-top:16px;">
+              <div class="panel panel-soft staff-form-shell" style="padding:16px;">
+                <div id="staffAccessStatus" class="status"></div>
+                <div class="settings-grid" style="margin-top:12px;">
+                  <div class="field"><label class="check-item"><input id="staffAccessEnabled" type="checkbox" /> Accès staff activé pour ce tenant</label></div>
+                  <div class="field"><label>Mode actuel</label><div id="staffAccessMode" class="token-box">—</div></div>
+                  <div class="field"><label>Dernière rotation</label><div id="staffRotatedAt" class="token-box">jamais</div></div>
+                  <div class="field"><label>Dernière mise à jour</label><div id="staffUpdatedAt" class="token-box">jamais</div></div>
+                  <div class="field" style="grid-column: 1 / -1;"><label for="customStaffToken">Rotation contrôlée — token personnalisé (optionnel)</label><input id="customStaffToken" placeholder="Laisser vide pour générer un token fort automatiquement" /></div>
+                  <div class="field" style="grid-column: 1 / -1;"><label>Nouveau token émis</label><div id="issuedStaffToken" class="token-box">Aucune rotation effectuée dans cette session.</div></div>
                 </div>
               </div>
-            </div>
-            <div class="panel" style="padding:16px;">
-              <div class="space-between">
-                <h4 style="margin:0; font-size:18px;">Historique staff</h4>
-                <span id="staffHistoryCount" class="muted">0</span>
+              <div class="panel panel-soft compact-section" style="padding:16px;">
+                <div class="space-between"><h4 style="margin:0; font-size:18px;">Historique staff</h4><span id="staffHistoryCount" class="muted">0</span></div>
+                <div id="staffHistoryList" class="history-list" style="margin-top:12px;"></div>
               </div>
-              <div id="staffHistoryList" class="history-list" style="margin-top:12px;"></div>
             </div>
-          </div>
+          </section>
         </section>
 
-
-        <section id="tablesSection" class="panel">
-          <div class="space-between">
-            <div>
-              <h3 style="margin:0; font-size:20px;">Gestion des tables</h3>
-              <div class="muted" style="margin-top:6px;">Ajout, édition, ordre, activation et archivage depuis le cockpit.</div>
+        <section id="tablesTab" class="tenant-subview">
+          <section id="tablesSection" class="panel view-anchor">
+            <div class="space-between">
+              <div><h3 style="margin:0; font-size:20px;">Gestion des tables</h3><div class="muted" style="margin-top:6px;">Vue compacte à gauche, édition ciblée à droite. On arrête d’étaler les formulaires.</div></div>
+              <div class="row"><label class="check-item" style="width:auto;"><input id="includeArchivedTables" type="checkbox" /> Voir archivées</label><button id="reloadTablesBtn" class="secondary" disabled>Recharger tables</button><button id="newTableBtn" class="success" disabled>Ajouter table</button></div>
             </div>
-            <div class="row">
-              <label class="check-item" style="width:auto;"><input id="includeArchivedTables" type="checkbox" /> Voir archivées</label>
-              <button id="reloadTablesBtn" class="secondary" disabled>Recharger tables</button>
-              <button id="newTableBtn" class="success" disabled>Ajouter table</button>
+            <div id="tablesStatus" class="status" style="margin-top:10px;"></div>
+            <div class="table-manage-grid" style="margin-top:14px;">
+              <div><div id="tablesManageList" class="compact-list"></div></div>
+              <div class="helper-box table-manage-form"><div class="space-between"><strong id="tableFormTitle">Nouvelle table</strong><button id="tableFormResetBtn" type="button" class="ghost" style="width:auto;">Réinitialiser</button></div><div class="inline-form-grid" style="margin-top:12px;"><div class="field"><label for="tableCodeInput">Code</label><input id="tableCodeInput" placeholder="T1" /></div><div class="field"><label for="tableLabelInput">Label</label><input id="tableLabelInput" placeholder="Table 1" /></div><div class="field"><label for="tableDisplayNameInput">Nom affiché</label><input id="tableDisplayNameInput" placeholder="Table 1" /></div><div class="field"><label for="tableSeatsInput">Places</label><input id="tableSeatsInput" type="number" min="0" max="99" value="0" /></div><div class="field"><label class="check-item"><input id="tableActiveInput" type="checkbox" checked /> Table active</label></div></div><div id="tableFormInfo" class="muted" style="margin-top:12px;">Crée une table proprement ou sélectionne une table existante pour l’éditer.</div><div class="row" style="margin-top:12px;"><button id="saveTableBtn" class="success" disabled>Enregistrer table</button></div></div>
             </div>
-          </div>
-          <div id="tablesStatus" class="status" style="margin-top:10px;"></div>
-          <div class="table-manage-grid" style="margin-top:14px;">
-            <div>
-              <div id="tablesManageList" class="compact-list"></div>
-            </div>
-            <div class="helper-box">
-              <div class="space-between">
-                <strong id="tableFormTitle">Nouvelle table</strong>
-                <button id="tableFormResetBtn" type="button" class="ghost" style="width:auto;">Réinitialiser</button>
-              </div>
-              <div class="inline-form-grid" style="margin-top:12px;">
-                <div class="field"><label for="tableCodeInput">Code</label><input id="tableCodeInput" placeholder="T1" /></div>
-                <div class="field"><label for="tableLabelInput">Label</label><input id="tableLabelInput" placeholder="Table 1" /></div>
-                <div class="field"><label for="tableDisplayNameInput">Nom affiché</label><input id="tableDisplayNameInput" placeholder="Table 1" /></div>
-                <div class="field"><label for="tableSeatsInput">Places</label><input id="tableSeatsInput" type="number" min="0" max="99" value="0" /></div>
-                <div class="field"><label class="check-item"><input id="tableActiveInput" type="checkbox" checked /> Table active</label></div>
-              </div>
-              <div id="tableFormInfo" class="muted" style="margin-top:12px;">Crée une table proprement ou sélectionne une table existante pour l’éditer.</div>
-              <div class="row" style="margin-top:12px;">
-                <button id="saveTableBtn" class="success" disabled>Enregistrer table</button>
-              </div>
-            </div>
-          </div>
+          </section>
         </section>
 
-        <section id="qrSection" class="panel">
-          <div class="space-between">
-            <div>
-              <h3 style="margin:0; font-size:20px;">Centre QR</h3>
-              <div class="muted" style="margin-top:6px;">Réimpression et régénération restent volontairement séparées.</div>
-            </div>
-          </div>
-
-          <div class="toolbar" style="margin-top:16px;">
-            <button id="printSelectedBtn" class="success" disabled>Imprimer sélection</button>
-            <button id="printAllBtn" class="secondary" disabled>Imprimer tout</button>
-            <button id="selectAllBtn" class="ghost" disabled>Tout sélectionner</button>
-            <button id="clearSelectionBtn" class="ghost" disabled>Vider sélection</button>
-            <button id="reloadCenterBtn" class="secondary" disabled>Recharger centre QR</button>
-          </div>
-
-          <div class="danger-zone" style="margin-top:16px;">
-            <strong>Zone de danger — régénération</strong>
-            <div class="muted">Régénérer un QR invalide immédiatement l’ancien. Tous les supports déjà imprimés avec l’ancien QR cessent de fonctionner.</div>
-          </div>
-
-          <div id="tenantStatus" class="status" style="margin-top:14px;"></div>
-          <div id="tableList" class="table-grid" style="margin-top:14px;"></div>
+        <section id="qrTab" class="tenant-subview">
+          <section id="qrSection" class="panel view-anchor">
+            <div class="space-between"><div><h3 style="margin:0; font-size:20px;">Centre QR</h3><div class="muted" style="margin-top:6px;">Réimpression et régénération restent volontairement séparées.</div></div></div>
+            <div class="qr-toolbar" style="margin-top:16px;"><button id="printSelectedBtn" class="success" disabled>Imprimer sélection</button><button id="printAllBtn" class="secondary" disabled>Imprimer tout</button><button id="selectAllBtn" class="ghost" disabled>Tout sélectionner</button><button id="clearSelectionBtn" class="ghost" disabled>Vider sélection</button><button id="reloadCenterBtn" class="secondary" disabled>Recharger centre QR</button></div>
+            <div class="danger-zone" style="margin-top:16px;"><strong>Zone de danger — régénération</strong><div class="muted">Régénérer un QR invalide immédiatement l’ancien. Tous les supports déjà imprimés avec l’ancien QR cessent de fonctionner.</div></div>
+            <div id="tenantStatus" class="status" style="margin-top:14px;"></div>
+            <div id="tableList" class="table-grid" style="margin-top:14px;"></div>
+          </section>
         </section>
 
-
-        <section id="catalogBlock" class="panel view-anchor">
-          <div class="space-between">
-            <div>
-              <h3 style="margin:0; font-size:20px;">Catalogue tenant</h3>
-              <div class="muted" style="margin-top:6px;">Template, catégories, produits, prix, images, suppléments, allergènes, disponibilité et rupture temporaire.</div>
+        <section id="catalogTab" class="tenant-subview">
+          <section id="catalogBlock" class="panel view-anchor">
+            <div class="space-between"><div><h3 style="margin:0; font-size:20px;">Catalogue tenant</h3><div class="muted" style="margin-top:6px;">Template, catégories, produits, prix, images, suppléments, allergènes, disponibilité et rupture temporaire.</div></div><div class="row"><button id="reloadCatalogBtn" class="secondary" disabled>Recharger catalogue</button><button id="createCategoryBtn" class="secondary" disabled>Ajouter catégorie</button><button id="createItemBtn" class="success" disabled>Ajouter produit</button></div></div>
+            <div class="split-pane" style="margin-top:16px;">
+              <div class="panel panel-soft compact-section" style="padding:16px;"><h4 style="margin:0 0 12px;">Template menu</h4><div class="field"><label for="catalogTemplateSelect">Template actif</label><select id="catalogTemplateSelect"></select></div><div class="row" style="margin-top:12px;"><button id="applyTemplateBtn" class="danger" disabled>Appliquer template au tenant</button></div><div class="muted" id="catalogTemplateMeta" style="margin-top:10px;"></div></div>
+              <div class="panel panel-soft catalog-shell" style="padding:16px;"><div class="space-between"><h4 style="margin:0;">Contenu catalogue</h4><span id="catalogCount" class="muted">0 catégorie</span></div><div id="catalogStatus" class="status" style="margin-top:10px;"></div><div id="catalogList" class="history-list" style="margin-top:12px;"></div></div>
             </div>
-            <div class="row">
-              <button id="reloadCatalogBtn" class="secondary" disabled>Recharger catalogue</button>
-              <button id="createCategoryBtn" class="secondary" disabled>Ajouter catégorie</button>
-              <button id="createItemBtn" class="success" disabled>Ajouter produit</button>
-            </div>
-          </div>
-          <div class="section-grid" style="margin-top:16px; grid-template-columns: 360px 1fr;">
-            <div class="panel" style="padding:16px;">
-              <h4 style="margin:0 0 12px;">Template menu</h4>
-              <div class="field">
-                <label for="catalogTemplateSelect">Template actif</label>
-                <select id="catalogTemplateSelect"></select>
-              </div>
-              <div class="row" style="margin-top:12px;">
-                <button id="applyTemplateBtn" class="danger" disabled>Appliquer template au tenant</button>
-              </div>
-              <div class="muted" id="catalogTemplateMeta" style="margin-top:10px;"></div>
-            </div>
-            <div class="panel" style="padding:16px;">
-              <div class="space-between">
-                <h4 style="margin:0;">Contenu catalogue</h4>
-                <span id="catalogCount" class="muted">0 catégorie</span>
-              </div>
-              <div id="catalogStatus" class="status" style="margin-top:10px;"></div>
-              <div id="catalogList" class="history-list" style="margin-top:12px;"></div>
-            </div>
-          </div>
+          </section>
         </section>
       </main>
     </section>
@@ -804,6 +814,8 @@
       recoveryTimer: null,
       recoveryInFlight: false,
       lastDecisionTypedValue: '',
+      createTenantStep: 1,
+      tenantTab: 'overviewTab',
     };
 
     const els = {
@@ -897,6 +909,10 @@
       createTenantStaffEnabled: document.getElementById('createTenantStaffEnabled'),
       createTenantNotes: document.getElementById('createTenantNotes'),
       createTenantBtn: document.getElementById('createTenantBtn'),
+      createTenantPrevBtn: document.getElementById('createTenantPrevBtn'),
+      createTenantNextBtn: document.getElementById('createTenantNextBtn'),
+      createTenantStepHint: document.getElementById('createTenantStepHint'),
+      createTenantSummaryCard: document.getElementById('createTenantSummaryCard'),
       tenantList: document.getElementById('tenantList'),
       tenantTitle: document.getElementById('tenantTitle'),
       tenantMeta: document.getElementById('tenantMeta'),
@@ -1193,11 +1209,14 @@
       document.querySelectorAll('[data-anchor-target]').forEach((btn) => {
         btn.addEventListener('click', () => {
           setActiveView('tenants');
+          const map = { tenantOverviewBlock: 'overviewTab', settingsBlock: 'settingsTab', staffBlock: 'staffTab', tablesSection: 'tablesTab', qrSection: 'qrTab', catalogBlock: 'catalogTab' };
+          setTenantTab(map[btn.dataset.anchorTarget] || 'overviewTab');
           const target = document.getElementById(btn.dataset.anchorTarget);
           if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       });
       setActiveView('dashboard');
+      setTenantTab('overviewTab');
     }
 
     function formatDate(value) {
@@ -1743,7 +1762,10 @@
     function toggleCreateTenantPanel(forceOpen = null) {
       const shouldOpen = forceOpen == null ? els.createTenantPanel.classList.contains('hidden') : Boolean(forceOpen);
       els.createTenantPanel.classList.toggle('hidden', !shouldOpen);
-      if (shouldOpen) setStatus(els.createTenantStatus, '');
+      if (shouldOpen) {
+        setCreateTenantStep(1);
+        setStatus(els.createTenantStatus, '');
+      }
     }
 
     function resetCreateTenantForm(useDefaults = true) {
@@ -1757,7 +1779,9 @@
       els.createTenantInitialTableCount.value = String(useDefaults ? (defaults.initialTableCount ?? 0) : 0);
       els.createTenantStaffEnabled.checked = useDefaults ? (defaults.staffAccessEnabled !== false) : true;
       els.createTenantNotes.value = '';
+      state.createTenantStep = 1;
       renderProvisioningDefaults();
+      renderCreateTenantWizard();
     }
 
     function renderProvisioningDefaults() {
@@ -1767,6 +1791,55 @@
       els.createTenantTemplate.innerHTML = templates.length
         ? templates.map((tpl) => `<option value="${escapeHtml(tpl.code)}" ${tpl.code === current ? 'selected' : ''}>${escapeHtml(tpl.name || tpl.code)}</option>`).join('')
         : '<option value="">Aucun template disponible</option>';
+    }
+
+
+    function buildCreateTenantSummary() {
+      const rows = [
+        ['Nom', els.createTenantName.value.trim() || '—'],
+        ['Subdomain', slugifyLocal(els.createTenantSubdomain.value || els.createTenantName.value) || '—'],
+        ['Slug', slugifyLocal(els.createTenantSlug.value || els.createTenantName.value) || '—'],
+        ['Timezone', els.createTenantTimezone.value.trim() || 'Europe/Brussels'],
+        ['Fermeture métier', `${Number(els.createTenantBusinessCloseHour.value || 3)}h`],
+        ['Statut', els.createTenantStatusSelect.value || 'onboarding'],
+        ['Template', els.createTenantTemplate.options[els.createTenantTemplate.selectedIndex]?.text || 'Aucun'],
+        ['Tables initiales', String(Number(els.createTenantInitialTableCount.value || 0))],
+        ['Accès staff', els.createTenantStaffEnabled.checked ? 'Activé' : 'Désactivé'],
+        ['Notes', els.createTenantNotes.value.trim() || '—'],
+      ];
+      els.createTenantSummaryCard.innerHTML = rows.map(([label, value]) => `<div class="wizard-summary-line"><span>${escapeHtml(label)}</span><span>${escapeHtml(value)}</span></div>`).join('');
+    }
+
+    function renderCreateTenantWizard() {
+      const step = Number(state.createTenantStep || 1);
+      document.querySelectorAll('[data-step-chip]').forEach((node) => {
+        const current = Number(node.getAttribute('data-step-chip'));
+        node.classList.toggle('active', current === step);
+        node.classList.toggle('done', current < step);
+      });
+      document.querySelectorAll('.wizard-stage').forEach((node) => {
+        node.classList.toggle('active', Number(node.dataset.step) === step);
+      });
+      if (els.createTenantStepHint) els.createTenantStepHint.textContent = `Étape ${step} sur 5`;
+      if (els.createTenantPrevBtn) els.createTenantPrevBtn.disabled = step <= 1;
+      if (els.createTenantNextBtn) els.createTenantNextBtn.classList.toggle('hidden', step >= 5);
+      if (els.createTenantBtn) els.createTenantBtn.classList.toggle('hidden', step < 5);
+      if (step === 5) buildCreateTenantSummary();
+    }
+
+    function setCreateTenantStep(step) {
+      state.createTenantStep = Math.min(5, Math.max(1, Number(step || 1)));
+      renderCreateTenantWizard();
+    }
+
+    function setTenantTab(tabId = 'overviewTab') {
+      state.tenantTab = tabId;
+      document.querySelectorAll('.tenant-subview').forEach((node) => {
+        node.classList.toggle('active', node.id === tabId);
+      });
+      document.querySelectorAll('[data-tenant-tab-target]').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.tenantTabTarget === tabId);
+      });
     }
 
     async function loadProvisioningDefaults() {
@@ -2584,17 +2657,30 @@
       if (!els.createTenantSlug.value.trim()) els.createTenantSlug.value = slug;
       if (!els.createTenantSubdomain.value.trim()) els.createTenantSubdomain.value = slug;
     });
+    [els.createTenantName, els.createTenantSubdomain, els.createTenantSlug, els.createTenantTimezone, els.createTenantBusinessCloseHour, els.createTenantStatusSelect, els.createTenantTemplate, els.createTenantInitialTableCount, els.createTenantNotes].forEach((node) => {
+      node?.addEventListener('input', () => { if (state.createTenantStep === 5) buildCreateTenantSummary(); });
+      node?.addEventListener('change', () => { if (state.createTenantStep === 5) buildCreateTenantSummary(); });
+    });
+    els.createTenantStaffEnabled?.addEventListener('change', () => { if (state.createTenantStep === 5) buildCreateTenantSummary(); });
+    els.createTenantPrevBtn?.addEventListener('click', () => setCreateTenantStep((state.createTenantStep || 1) - 1));
+    els.createTenantNextBtn?.addEventListener('click', () => setCreateTenantStep((state.createTenantStep || 1) + 1));
+    document.querySelectorAll('[data-tenant-tab-target]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        setTenantTab(btn.dataset.tenantTabTarget || 'overviewTab');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
     els.createTenantBtn.addEventListener('click', async () => {
       try { await createTenantFromUi(); } catch (error) { setStatus(els.createTenantStatus, describeApiError(error) || 'Création tenant impossible', 'error'); }
     });
     els.refreshProvisioningBtn.addEventListener('click', async () => {
       try { if (!state.selectedTenantId) throw new Error('tenant_requis'); await loadTenantWorkspace(state.selectedTenantId); setStatus(els.provisioningStatus, 'Provisioning rechargé.', 'ok'); } catch (error) { setStatus(els.provisioningStatus, describeApiError(error) || 'Rechargement provisioning impossible', 'error'); }
     });
-    els.provisioningGoSettingsBtn.addEventListener('click', () => document.getElementById('tenantTitle')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-    els.provisioningGoTablesBtn.addEventListener('click', () => document.getElementById('tablesSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-    els.provisioningGoQrBtn.addEventListener('click', () => document.getElementById('qrSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-    els.provisioningGoStaffBtn.addEventListener('click', () => els.reloadStaffAccessBtn.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-    els.provisioningGoCatalogBtn.addEventListener('click', () => els.reloadCatalogBtn.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    els.provisioningGoSettingsBtn.addEventListener('click', () => { setTenantTab('settingsTab'); document.getElementById('settingsBlock')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    els.provisioningGoTablesBtn.addEventListener('click', () => { setTenantTab('tablesTab'); document.getElementById('tablesSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    els.provisioningGoQrBtn.addEventListener('click', () => { setTenantTab('qrTab'); document.getElementById('qrSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    els.provisioningGoStaffBtn.addEventListener('click', () => { setTenantTab('staffTab'); els.reloadStaffAccessBtn.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    els.provisioningGoCatalogBtn.addEventListener('click', () => { setTenantTab('catalogTab'); els.reloadCatalogBtn.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
     els.reloadTablesBtn.addEventListener('click', async () => { try { if (!state.selectedTenantId) throw new Error('tenant_requis'); await loadTenantTables(state.selectedTenantId); } catch (error) { setStatus(els.tablesStatus, describeApiError(error) || 'Rechargement tables impossible', 'error'); } });
     els.newTableBtn.addEventListener('click', () => resetTableForm());
     els.tableFormResetBtn.addEventListener('click', () => resetTableForm());
