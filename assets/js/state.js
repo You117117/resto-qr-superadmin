@@ -1,0 +1,26 @@
+export const DEFAULT_COLOR = '#4f46e5';
+
+export const state = {
+  apiBase: localStorage.getItem('superadmin_api_base') || 'http://localhost:8080',
+  adminToken: localStorage.getItem('superadmin_admin_token') || '',
+  adminEmail: localStorage.getItem('superadmin_admin_email') || '',
+  tenants: [],
+  selectedTenantId: null,
+  qrCenter: null,
+  tenantSettings: null,
+  tenantStaffAccess: null,
+  catalog: null,
+  overview: null,
+  diagnostics: null,
+  selectedDiagnosticId: null,
+  audits: null,
+  selectedAuditId: null,
+  selectedTableIds: new Set(),
+  tenantTables: null,
+  selectedManageTableId: null,
+  includeArchivedTables: false,
+  provisioningDefaults: null,
+  admin: null,
+  pendingDecisionResolver: null,
+  lastIssuedStaffToken: '',
+};
