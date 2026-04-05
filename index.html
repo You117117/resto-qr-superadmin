@@ -136,6 +136,24 @@
     .helper-box { background:#0d1526; border:1px solid var(--border); border-radius:14px; padding:14px; }
     .hidden { display:none !important; }
 
+
+    .degraded-banner {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(220,38,38,.45);
+      background: rgba(59,22,32,.88);
+      display: none;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .degraded-banner.open { display: flex; }
+    .degraded-banner strong { font-size: 14px; }
+    .degraded-banner .muted { color: #ffb0b0; }
+    .modal-confirm-grid { display:none; gap:8px; }
+    .modal-confirm-grid.open { display:grid; }
+    .modal-confirm-help { font-size:12px; color: var(--muted); }
     @media (max-width: 1240px) {
       .section-grid, .table-manage-grid { grid-template-columns: 1fr; }
     }
@@ -162,6 +180,16 @@
       <div class="space-between">
         <div id="sessionInfo" class="muted">Pas connecté.</div>
         <div id="globalStatus" class="status"></div>
+      </div>
+    </section>
+
+    <section id="degradedBanner" class="degraded-banner" aria-live="polite">
+      <div>
+        <strong>Mode dégradé actif</strong>
+        <div id="degradedBannerText" class="muted">L’API ne répond plus. Le cockpit garde le dernier état connu, bloque les actions critiques et tentera une reprise automatique.</div>
+      </div>
+      <div class="row">
+        <button id="degradedRetryBtn" type="button" class="warning">Réessayer</button>
       </div>
     </section>
 
@@ -605,6 +633,11 @@
           <strong>Impact immédiat</strong>
           <ul id="decisionModalImpactList"></ul>
         </div>
+        <div id="decisionModalConfirmGrid" class="modal-confirm-grid">
+          <label for="decisionModalConfirmInput"><strong>Confirmation forte</strong></label>
+          <input id="decisionModalConfirmInput" type="text" autocomplete="off" placeholder="Saisis la phrase demandée" />
+          <div id="decisionModalConfirmHelp" class="modal-confirm-help"></div>
+        </div>
       </div>
       <div class="modal-actions">
         <button id="decisionModalCancel" type="button" class="secondary">Annuler</button>
@@ -636,6 +669,11 @@
       includeArchivedTables: false,
       provisioningDefaults: null,
       admin: null,
+      apiDegraded: false,
+      lastApiError: null,
+      recoveryTimer: null,
+      recoveryInFlight: false,
+      lastDecisionTypedValue: '',
     };
 
     const els = {
@@ -646,6 +684,9 @@
       refreshBtn: document.getElementById('refreshBtn'),
       sessionInfo: document.getElementById('sessionInfo'),
       globalStatus: document.getElementById('globalStatus'),
+      degradedBanner: document.getElementById('degradedBanner'),
+      degradedBannerText: document.getElementById('degradedBannerText'),
+      degradedRetryBtn: document.getElementById('degradedRetryBtn'),
       platformApiBadge: document.getElementById('platformApiBadge'),
       platformDbBadge: document.getElementById('platformDbBadge'),
       platformSseBadge: document.getElementById('platformSseBadge'),
@@ -808,6 +849,9 @@
       decisionModalMessage: document.getElementById('decisionModalMessage'),
       decisionModalImpact: document.getElementById('decisionModalImpact'),
       decisionModalImpactList: document.getElementById('decisionModalImpactList'),
+      decisionModalConfirmGrid: document.getElementById('decisionModalConfirmGrid'),
+      decisionModalConfirmInput: document.getElementById('decisionModalConfirmInput'),
+      decisionModalConfirmHelp: document.getElementById('decisionModalConfirmHelp'),
       decisionModalCancel: document.getElementById('decisionModalCancel'),
       decisionModalConfirm: document.getElementById('decisionModalConfirm'),
       decisionModalClose: document.getElementById('decisionModalClose'),
@@ -890,25 +934,103 @@
     }
 
     async function apiFetch(path, options = {}) {
-      const response = await fetch(getApiUrl(path), {
-        ...options,
-        headers: { ...getHeaders(), ...(options.headers || {}) },
-      });
-      const text = await response.text();
-      let data = null;
-      try { data = text ? JSON.parse(text) : null; } catch (_) { data = { ok: false, error: text || 'invalid_json' }; }
-      if (!response.ok) {
-        const errorPayload = data?.error && typeof data.error === 'object'
-          ? data.error
-          : { code: data?.error || `http_${response.status}`, message: data?.error || `http_${response.status}`, meta: null };
-        const error = new Error(errorPayload.message || errorPayload.code || `http_${response.status}`);
-        error.code = errorPayload.code || `http_${response.status}`;
-        error.meta = errorPayload.meta || null;
-        error.statusCode = response.status;
-        error.payload = data || null;
+      try {
+        const response = await fetch(getApiUrl(path), {
+          ...options,
+          headers: { ...getHeaders(), ...(options.headers || {}) },
+        });
+        const text = await response.text();
+        let data = null;
+        try { data = text ? JSON.parse(text) : null; } catch (_) { data = { ok: false, error: text || 'invalid_json' }; }
+        if (!response.ok) {
+          const errorPayload = data?.error && typeof data.error === 'object'
+            ? data.error
+            : { code: data?.error || `http_${response.status}`, message: data?.error || `http_${response.status}`, meta: null };
+          const error = new Error(errorPayload.message || errorPayload.code || `http_${response.status}`);
+          error.code = errorPayload.code || `http_${response.status}`;
+          error.meta = errorPayload.meta || null;
+          error.statusCode = response.status;
+          error.payload = data || null;
+          if ([502, 503, 504].includes(response.status)) {
+            setDegradedMode(true, error);
+          }
+          throw error;
+        }
+        if (state.apiDegraded && !options.skipRecoveryClear) {
+          clearDegradedMode();
+        }
+        return data;
+      } catch (error) {
+        if (error instanceof TypeError || String(error?.message || '').includes('Failed to fetch')) {
+          error.code = error.code || 'api_unreachable';
+          error.statusCode = error.statusCode || 0;
+          setDegradedMode(true, error);
+        }
         throw error;
       }
-      return data;
+    }
+
+
+    function setDegradedMode(isDegraded, error = null) {
+      state.apiDegraded = Boolean(isDegraded);
+      state.lastApiError = error || null;
+      els.degradedBanner.classList.toggle('open', state.apiDegraded);
+      if (state.apiDegraded) {
+        const message = describeApiError(error) || 'L’API ne répond plus.';
+        els.degradedBannerText.textContent = `${message} Le cockpit garde le dernier état connu, bloque les actions critiques et tentera une reprise automatique.`;
+        startRecoveryPolling();
+      } else {
+        els.degradedBannerText.textContent = 'Connexion API rétablie.';
+        stopRecoveryPolling();
+      }
+    }
+
+    function clearDegradedMode() {
+      if (!state.apiDegraded) return;
+      setDegradedMode(false, null);
+    }
+
+    function stopRecoveryPolling() {
+      if (state.recoveryTimer) {
+        clearInterval(state.recoveryTimer);
+        state.recoveryTimer = null;
+      }
+    }
+
+    async function tryRecoverApi() {
+      if (!state.adminToken || state.recoveryInFlight) return;
+      state.recoveryInFlight = true;
+      try {
+        await apiFetch('/superadmin/me', { skipRecoveryClear: true });
+        clearDegradedMode();
+        await Promise.all([loadOverview(), loadProvisioningDefaults(), loadTenants(), loadDiagnostics(), loadAudits()]);
+        setStatus(els.globalStatus, 'Connexion API rétablie. Données rechargées.', 'ok');
+      } catch (_error) {
+        // keep degraded mode active
+      } finally {
+        state.recoveryInFlight = false;
+      }
+    }
+
+    function startRecoveryPolling() {
+      if (state.recoveryTimer || !state.adminToken) return;
+      state.recoveryTimer = setInterval(() => { void tryRecoverApi(); }, 15000);
+    }
+
+    function assertCriticalActionAllowed(actionLabel) {
+      if (!state.apiDegraded) return;
+      const error = new Error(`Impossible de lancer ${actionLabel} tant que le cockpit est en mode dégradé.`);
+      error.code = 'superadmin_api_degraded_action_blocked';
+      throw error;
+    }
+
+    function updateDecisionModalConfirmState() {
+      const phrase = String(state.pendingDecisionPhrase || '').trim();
+      if (!phrase) {
+        els.decisionModalConfirm.disabled = false;
+        return;
+      }
+      els.decisionModalConfirm.disabled = els.decisionModalConfirmInput.value.trim() !== phrase;
     }
 
     function escapeHtml(value) {
@@ -985,7 +1107,14 @@
         http_404: 'La ressource demandée est introuvable.',
         http_409: 'Conflit détecté. Recharge les données avant de recommencer.',
         http_422: 'Données invalides. Vérifie les champs saisis.',
+        critical_confirmation_required: 'Confirmation critique requise. Saisis exactement CONFIRMER pour lancer cette action.',
+        critical_confirmation_invalid: 'Confirmation critique invalide. Saisis exactement CONFIRMER pour lancer cette action.',
+        superadmin_api_degraded_action_blocked: 'Action critique bloquée : le cockpit est en mode dégradé tant que l’API ne répond pas.',
+        api_unreachable: 'API indisponible. Le cockpit passe en mode dégradé.',
         http_500: "Erreur serveur. Rien n'a été confirmé côté backend.",
+        http_502: 'Backend indisponible. Le cockpit passe en mode dégradé.',
+        http_503: 'Backend indisponible. Le cockpit passe en mode dégradé.',
+        http_504: 'Backend indisponible. Le cockpit passe en mode dégradé.',
       };
       const meta = error?.meta && typeof error.meta === 'object' ? error.meta : null;
       if (code === 'tenant_status_blocked_by_active_sessions' && meta?.openSessions) {
@@ -1008,13 +1137,21 @@
       if (!state.pendingDecisionResolver) return;
       const resolver = state.pendingDecisionResolver;
       state.pendingDecisionResolver = null;
+      state.lastDecisionTypedValue = result ? els.decisionModalConfirmInput.value.trim() : '';
+      state.pendingDecisionPhrase = '';
+      els.decisionModalConfirmInput.value = '';
+      els.decisionModalConfirmGrid.classList.remove('open');
+      els.decisionModalConfirmHelp.textContent = '';
+      els.decisionModalConfirm.disabled = false;
       els.decisionModal.classList.remove('open');
       els.decisionModal.setAttribute('aria-hidden', 'true');
       resolver(Boolean(result));
     }
 
-    function openDecisionModal({ title, subtitle = '', level = 'warn', message = '', impacts = [], confirmLabel = 'Confirmer', cancelLabel = 'Annuler' }) {
+    function openDecisionModal({ title, subtitle = '', level = 'warn', message = '', impacts = [], confirmLabel = 'Confirmer', cancelLabel = 'Annuler', requireTypedConfirmation = false, confirmationPhrase = 'CONFIRMER' }) {
       if (state.pendingDecisionResolver) closeDecisionModal(false);
+      state.lastDecisionTypedValue = '';
+      state.pendingDecisionPhrase = requireTypedConfirmation ? String(confirmationPhrase || 'CONFIRMER').trim() : '';
       els.decisionModalTitle.textContent = title || 'Confirmation';
       els.decisionModalSubtitle.textContent = subtitle || 'Action sensible';
       els.decisionModalMessage.textContent = message || '';
@@ -1033,6 +1170,17 @@
       } else {
         els.decisionModalImpact.style.display = 'none';
         els.decisionModalImpactList.innerHTML = '';
+      }
+      if (state.pendingDecisionPhrase) {
+        els.decisionModalConfirmGrid.classList.add('open');
+        els.decisionModalConfirmInput.value = '';
+        els.decisionModalConfirmHelp.textContent = `Pour continuer, saisis exactement ${state.pendingDecisionPhrase}.`;
+        updateDecisionModalConfirmState();
+      } else {
+        els.decisionModalConfirmGrid.classList.remove('open');
+        els.decisionModalConfirmInput.value = '';
+        els.decisionModalConfirmHelp.textContent = '';
+        els.decisionModalConfirm.disabled = false;
       }
       els.decisionModal.classList.add('open');
       els.decisionModal.setAttribute('aria-hidden', 'false');
@@ -1087,6 +1235,8 @@
             ...impactful,
           ],
           confirmLabel: `Oui, passer en ${statusChange.to}`,
+          requireTypedConfirmation: true,
+          confirmationPhrase: 'CONFIRMER',
         });
       }
       if (disablingClient) {
@@ -1601,19 +1751,21 @@
     }
 
     async function toggleManagedTable(table) {
-      const confirmed = await openDecisionModal({ title: table.isActive ? 'Désactiver une table' : 'Réactiver une table', subtitle: getTenantLabel(), level: 'warn', message: table.isActive ? 'Une table désactivée ne doit plus être considérée comme exploitable pour les QR et le service.' : 'La table redevient exploitable côté QR et exploitation.', impacts: [table.isActive ? 'Les QR associés ne doivent plus être utilisés tant que la table reste inactive.' : 'La table réapparaît dans le flux opérationnel du tenant.'], confirmLabel: table.isActive ? 'Oui, désactiver' : 'Oui, réactiver' });
+      if (table.isActive) assertCriticalActionAllowed('la désactivation de cette table');
+      const confirmed = await openDecisionModal({ title: table.isActive ? 'Désactiver une table' : 'Réactiver une table', subtitle: getTenantLabel(), level: 'warn', message: table.isActive ? 'Une table désactivée ne doit plus être considérée comme exploitable pour les QR et le service.' : 'La table redevient exploitable côté QR et exploitation.', impacts: [table.isActive ? 'Les QR associés ne doivent plus être utilisés tant que la table reste inactive.' : 'La table réapparaît dans le flux opérationnel du tenant.'], confirmLabel: table.isActive ? 'Oui, désactiver' : 'Oui, réactiver', requireTypedConfirmation: table.isActive, confirmationPhrase: 'CONFIRMER' });
       if (!confirmed) return;
       setStatus(els.tablesStatus, `${table.isActive ? 'Désactivation' : 'Réactivation'} table…`);
-      await apiFetch(`/superadmin/tables/${table.id}/toggle-active`, { method: 'POST', body: JSON.stringify({ isActive: !table.isActive }) });
+      await apiFetch(`/superadmin/tables/${table.id}/toggle-active`, { method: 'POST', body: JSON.stringify({ isActive: !table.isActive, criticalConfirmationPhrase: table.isActive ? (state.lastDecisionTypedValue || '') : undefined }) });
       await Promise.all([loadTenantTables(state.selectedTenantId), loadQrCenter(state.selectedTenantId)]);
       setStatus(els.tablesStatus, 'État table mis à jour.', 'ok');
     }
 
     async function archiveManagedTable(table) {
-      const confirmed = await openDecisionModal({ title: 'Archiver une table', subtitle: getTenantLabel(), level: 'danger', message: 'Archiver une table la sort durablement de la structure exploitable du tenant.', impacts: ['La table disparaît des listes actives.', 'Le QR existant ne doit plus être considéré comme exploitable.', 'À faire seulement si la salle a réellement changé.'], confirmLabel: 'Oui, archiver la table' });
+      assertCriticalActionAllowed('l’archivage de cette table');
+      const confirmed = await openDecisionModal({ title: 'Archiver une table', subtitle: getTenantLabel(), level: 'danger', message: 'Archiver une table la sort durablement de la structure exploitable du tenant.', impacts: ['La table disparaît des listes actives.', 'Le QR existant ne doit plus être considéré comme exploitable.', 'À faire seulement si la salle a réellement changé.'], confirmLabel: 'Oui, archiver la table', requireTypedConfirmation: true, confirmationPhrase: 'CONFIRMER' });
       if (!confirmed) return;
       setStatus(els.tablesStatus, 'Archivage table…');
-      await apiFetch(`/superadmin/tables/${table.id}/archive`, { method: 'POST' });
+      await apiFetch(`/superadmin/tables/${table.id}/archive`, { method: 'POST', body: JSON.stringify({ criticalConfirmationPhrase: state.lastDecisionTypedValue || '' }) });
       await Promise.all([loadTenantTables(state.selectedTenantId), loadQrCenter(state.selectedTenantId)]);
       resetTableForm();
       setStatus(els.tablesStatus, 'Table archivée.', 'ok');
@@ -1775,6 +1927,7 @@
     async function saveTenantSettings() {
       if (!state.selectedTenantId) return;
       const nextPayload = buildSettingsPayload();
+      if (['suspended', 'archived'].includes(String(nextPayload.status || '').trim().toLowerCase())) assertCriticalActionAllowed(`le passage du tenant en ${nextPayload.status}`);
       const confirmed = await confirmSettingsChange(nextPayload);
       if (!confirmed) {
         setStatus(els.settingsStatus, 'Changement annulé.', 'error');
@@ -1783,7 +1936,7 @@
       setStatus(els.settingsStatus, 'Enregistrement settings…');
       const payload = await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/settings`, {
         method: 'PATCH',
-        body: JSON.stringify(nextPayload),
+        body: JSON.stringify({ ...nextPayload, criticalConfirmationPhrase: state.lastDecisionTypedValue || undefined }),
       });
       state.tenantSettings = {
         ok: true,
@@ -1861,6 +2014,7 @@
 
     async function rotateTenantStaffToken() {
       if (!state.selectedTenantId) return;
+      assertCriticalActionAllowed('la rotation du token staff');
       const customToken = els.customStaffToken.value.trim();
       const confirmed = await openDecisionModal({
         title: 'Rotation token staff',
@@ -1873,12 +2027,14 @@
           customToken ? 'Tu imposes un token personnalisé. Vérifie qu’il a été communiqué sans erreur.' : 'Un nouveau token fort sera généré automatiquement.',
         ],
         confirmLabel: 'Oui, faire la rotation',
+        requireTypedConfirmation: true,
+        confirmationPhrase: 'CONFIRMER',
       });
       if (!confirmed) return;
       setStatus(els.staffAccessStatus, 'Rotation token staff…');
       const payload = await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/staff-access/rotate`, {
         method: 'POST',
-        body: JSON.stringify({ nextToken: customToken || undefined }),
+        body: JSON.stringify({ nextToken: customToken || undefined, criticalConfirmationPhrase: state.lastDecisionTypedValue || '' }),
       });
       state.lastIssuedStaffToken = payload.issuedToken || '';
       els.issuedStaffToken.textContent = payload.issuedToken || 'Token non renvoyé';
@@ -1991,6 +2147,7 @@
     }
 
     async function regenerateTableQr(table) {
+      assertCriticalActionAllowed('la régénération de ce QR');
       const confirmed = await openDecisionModal({
         title: 'Régénérer un QR',
         subtitle: `${getTenantLabel()} • ${table.displayName || table.label || table.code}`,
@@ -2002,10 +2159,12 @@
           'Il faut réimprimer puis remplacer les supports physiques sans traîner.',
         ],
         confirmLabel: 'Oui, régénérer le QR',
+        requireTypedConfirmation: true,
+        confirmationPhrase: 'CONFIRMER',
       });
       if (!confirmed) return;
       setStatus(els.tenantStatus, `Régénération de ${table.code}…`);
-      await apiFetch(`/superadmin/tables/${table.id}/qr/regenerate`, { method: 'POST' });
+      await apiFetch(`/superadmin/tables/${table.id}/qr/regenerate`, { method: 'POST', body: JSON.stringify({ criticalConfirmationPhrase: state.lastDecisionTypedValue || '' }) });
       setStatus(els.tenantStatus, `QR régénéré pour ${table.code}. L’ancien QR est invalide.`, 'ok');
       await loadQrCenter(state.selectedTenantId);
     }
@@ -2095,6 +2254,7 @@
 
     async function applyTemplate() {
       if (!state.selectedTenantId) return;
+      assertCriticalActionAllowed('l’application du template catalogue');
       const templateCode = els.catalogTemplateSelect.value;
       const confirmed = await openDecisionModal({
         title: 'Appliquer un template catalogue',
@@ -2107,10 +2267,12 @@
           `Template ciblé : ${els.catalogTemplateSelect.options[els.catalogTemplateSelect.selectedIndex]?.textContent || 'inconnu'}`,
         ],
         confirmLabel: 'Oui, appliquer le template',
+        requireTypedConfirmation: true,
+        confirmationPhrase: 'CONFIRMER',
       });
       if (!confirmed) return;
       setStatus(els.catalogStatus, 'Application template…');
-      await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/catalog/apply-template`, { method: 'POST', body: JSON.stringify({ templateCode }) });
+      await apiFetch(`/superadmin/tenants/${state.selectedTenantId}/catalog/apply-template`, { method: 'POST', body: JSON.stringify({ templateCode, criticalConfirmationPhrase: state.lastDecisionTypedValue || '' }) });
       await loadCatalog(state.selectedTenantId);
       setStatus(els.catalogStatus, 'Template appliqué.', 'ok');
     }
@@ -2141,6 +2303,7 @@
     }
 
     async function archiveCategory(categoryId) {
+      assertCriticalActionAllowed('l’archivage de cette catégorie');
       const confirmed = await openDecisionModal({
         title: 'Archiver une catégorie',
         subtitle: getTenantLabel(),
@@ -2151,10 +2314,12 @@
           'C’est réversible seulement si tu remets ensuite une structure cohérente.',
         ],
         confirmLabel: 'Oui, archiver',
+        requireTypedConfirmation: true,
+        confirmationPhrase: 'CONFIRMER',
       });
       if (!confirmed) return;
       setStatus(els.catalogStatus, 'Archivage catégorie…');
-      await apiFetch(`/superadmin/categories/${categoryId}/archive`, { method: 'POST' });
+      await apiFetch(`/superadmin/categories/${categoryId}/archive`, { method: 'POST', body: JSON.stringify({ criticalConfirmationPhrase: state.lastDecisionTypedValue || '' }) });
       await loadCatalog(state.selectedTenantId);
       setStatus(els.catalogStatus, 'Catégorie archivée.', 'ok');
     }
@@ -2212,6 +2377,7 @@
     }
 
     async function archiveItem(itemId) {
+      assertCriticalActionAllowed('l’archivage de ce produit');
       const confirmed = await openDecisionModal({
         title: 'Archiver un produit',
         subtitle: getTenantLabel(),
@@ -2222,10 +2388,12 @@
           'À faire seulement si tu assumes la conséquence opérationnelle immédiatement.',
         ],
         confirmLabel: 'Oui, archiver le produit',
+        requireTypedConfirmation: true,
+        confirmationPhrase: 'CONFIRMER',
       });
       if (!confirmed) return;
       setStatus(els.catalogStatus, 'Archivage produit…');
-      await apiFetch(`/superadmin/items/${itemId}/archive`, { method: 'POST' });
+      await apiFetch(`/superadmin/items/${itemId}/archive`, { method: 'POST', body: JSON.stringify({ criticalConfirmationPhrase: state.lastDecisionTypedValue || '' }) });
       await loadCatalog(state.selectedTenantId);
       setStatus(els.catalogStatus, 'Produit archivé.', 'ok');
     }
@@ -2434,12 +2602,16 @@
     els.decisionModalCancel.addEventListener('click', () => closeDecisionModal(false));
     els.decisionModalClose.addEventListener('click', () => closeDecisionModal(false));
     els.decisionModalConfirm.addEventListener('click', () => closeDecisionModal(true));
+    els.decisionModalConfirmInput.addEventListener('input', () => updateDecisionModalConfirmState());
+    els.degradedRetryBtn.addEventListener('click', async () => { try { await tryRecoverApi(); } catch (_) {} });
     els.decisionModal.addEventListener('click', (event) => {
       if (event.target === els.decisionModal) closeDecisionModal(false);
     });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && state.pendingDecisionResolver) closeDecisionModal(false);
     });
+
+    window.addEventListener('online', () => { if (state.apiDegraded) void tryRecoverApi(); });
 
     if (state.adminToken) {
       state.admin = { email: state.adminEmail || null, fullName: null };
